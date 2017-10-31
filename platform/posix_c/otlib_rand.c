@@ -1,0 +1,1 @@
+../stdc/otlib_rand.c
