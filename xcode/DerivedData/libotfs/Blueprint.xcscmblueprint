@@ -1,0 +1,23 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "EA062D57C3784AD9BB73A53ED58077C189FE3B63",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "EA062D57C3784AD9BB73A53ED58077C189FE3B63" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "A2CB644C-BBA3-4E5A-8272-241B81FCD732",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "EA062D57C3784AD9BB73A53ED58077C189FE3B63" : "libotfs\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "libotfs",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "libotfs\/libotfs.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/jpnorair-solpad@bitbucket.org\/solpadsoftware\/libotfs.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "EA062D57C3784AD9BB73A53ED58077C189FE3B63"
+    }
+  ]
+}
