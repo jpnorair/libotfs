@@ -4,6 +4,11 @@
 *.metadata*
 *.settings*
 
+#######################
+# Xcode Project Bloat #
+#######################
+/xcode_files
+
 ###################################
 # Compiler/Linker Generated Files #
 ###################################

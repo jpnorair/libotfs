@@ -70,9 +70,8 @@ typedef vlFILE* (*sub_new)(ot_u8, ot_u8, ot_u8);
   * VWORM memory.  NAND Flash, for example, cannot be written to arbitrarily.
   */
 #if (CC_SUPPORT == SIM_GCC)
-    ot_u16*          VWORM_Heap;
-    ot_u16*          VSRAM_Heap;
-    //M1TAG_struct     M1TAG;
+    ot_u16* VWORM_Heap;
+    ot_u16* VSRAM_Heap;
 #endif
 
 
@@ -227,13 +226,6 @@ OT_WEAK void vl_init() {
     // Set up memory files if using Simulator
     VWORM_Heap  = (ot_u16*)&(NAND.ubyte[VWORM_BASE_PHYSICAL]);
     //VSRAM_Heap  = (ot_u16*)&(NAND.ubyte[VSRAM_BASE_PHYSICAL]);    //vsram declared in veelite_core
-
-    // Write dummy data to M1TAG file
-    //M1TAG.manuf_id      = 0x0001;
-    //M1TAG.serial        = 0x01020304;
-    //M1TAG.model_no      = 0x01020304;
-    //M1TAG.fw_version    = 0x00000001;
-    //M1TAG.max_response  = 255;
 #endif
 }
 #endif
@@ -858,13 +850,7 @@ vaddr sub_isf_search(ot_u8 id) {
     }
 #   endif
 
-    // Look in stock files
-    //if (id <= (ISF_NUM_STOCK_FILES-1)) {
-    	return (sizeof(vl_header) * id) + ISF_Header_START;
-    //}
-
-    // File ID does not exist
-    //return NULL_vaddr;
+    return (sizeof(vl_header) * id) + ISF_Header_START;
 }
 
 
@@ -966,22 +952,8 @@ vlFILE* sub_new_file(vl_header* new_header, vaddr heap_base, vaddr heap_end, vad
     if (new_header->base == NULL_vaddr)
         return NULL;
 
-    // Make sure new header has the right base address
-    //new_header->base = new_base;
-
     // Write header to the header array
     sub_write_header(header_addr, (ot_u16*)new_header, sizeof(vl_header));
-
-    // Open a file, now that data is allocated
-    //fp = vl_open_file( header_addr );
-
-    //commented out... seems to be useless (and broken) legacy code
-    //if (FP_ISVALID(fp)) {
-        //fp->start   = 0;
-        //fp->length  = 0;
-    //}
-
-    //return fp;
 
     return vl_open_file( header_addr );
 #else
@@ -1077,7 +1049,6 @@ vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
     ot_uint loop1_alloc;
     vaddr   loop2;
     vaddr   loop2_base;
-    //ot_uint loop2_alloc;	///@todo figure out why this is disused
 
     ot_int  i;
     ot_int  j;
@@ -1085,7 +1056,6 @@ vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
     ot_int  closest_gap     = (ot_int)(heap_end - heap_base);
     ot_int  bestfit_alloc   = (ot_int)(32767);
     vaddr   bestfit_base    = NULL_vaddr;
-    //vaddr   loop1_end       = heap_base;
 
     for (i=0; i<num_headers; i++, loop1+=sizeof(vl_header) ) {
         loop1_alloc = vworm_read(loop1 + 2);                                    // load alloc (max) from header
@@ -1096,7 +1066,6 @@ vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
             loop2       = header;
 
             for (j=0; j<num_headers; j++, loop2+=sizeof(vl_header) ) {
-                //loop2_alloc = vworm_read(loop2 + 2);
                 loop2_base  = vworm_read(loop2 + 6);
 
                 if ( (loop2_base != NULL_vaddr) && (loop2_base > heap_base) ) { // if header is valid ...
@@ -1104,17 +1073,13 @@ vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
 
                     if (gap < closest_gap) {                                    // The closest gap ...
                         closest_gap = gap;                                      // will be between two adjacent ...
-                        //heap_base   = loop1_end;                                // files in the heap.
-                    }
+                    }                                                           // files in the heap.
                 }
             }
         }
-        //if (closest_gap >= new_alloc) {                                         // If the gap between loop1 and next file ...
-        //    if (closest_gap < bestfit_alloc) {                                  // is big enough for the data we need ...
-        //        bestfit_alloc   = closest_gap;                                  // and is smaller than other big-enough gaps ...
-        //        bestfit_base    = heap_base;                                    // then it is the gap we will write into.
-        //    }
-        //}
+        
+        // If the gap between loop1 and next file is big enough for the data we need ...
+        // and is smaller than other big-enough gaps then it is the gap we will write into.
         if ((closest_gap >= new_alloc) && (closest_gap < bestfit_alloc))  {
             bestfit_alloc   = closest_gap;
             bestfit_base    = heap_base;
@@ -1139,37 +1104,6 @@ ot_u8 sub_defragment_heap(vaddr base, ot_uint window) {
 
 
 
-
-
-/*
-ot_u8 M1TAG_write( M1TAG_struct* new_m1tag ) {
-    ///@todo for now, only done at compile time
-    return ~0;
-}
-
-
-
-ot_u8 M1TAG_get( M1TAG_struct* m1tag ) {
-#   if (M1_FEATURESET == ENABLED)
-        ot_int i;
-        ot_u16* input;
-        ot_u16* output;
-
-        input   = (ot_u16*)M1TAG;
-        output  = (ot_u16*)m1tag;
-
-        for (i=0; i<(sizeof(M1TAG_Struct)/2); i++) {
-            output[i] = input[i];
-        }
-
-        return 0;
-
-#   else
-        return ~0;
-
-
-}
-*/
 
 
 

@@ -32,6 +32,7 @@
 
 #include <otstd.h>
 #include <otplatform.h>
+
 #include <otlib/alp.h>
 #include <otlib/ndef.h>
 #include <otlib/memcpy.h>
@@ -58,9 +59,6 @@
                           + ALP_DASHFORTH \
                           + ALP_API )
 
-
-
-typedef ot_bool (*sub_proc)(alp_tmpl*, id_tmpl*);
 
 
 
@@ -146,7 +144,7 @@ OT_WEAK ot_bool alp_ext_proc(alp_tmpl* alp, id_tmpl* user_id) { return True; }
  * ========================================================================<BR>
  */
 typedef struct {
-    ot_sig      callback;
+    alp_fn      callback;
     ot_queue*   appq;
 } alp_elem_t;
 
@@ -186,9 +184,9 @@ alp_elem_t* sub_get_elem(ot_u8 alp_id) {
 }
     
     
-ot_int alp_proc(alp_tmpl* alp, id_tmpl* user_id) {
+ot_bool alp_proc(alp_tmpl* alp, id_tmpl* user_id) {
     alp_elem_t  proc_elem;
-    ot_int      output_code;
+    ot_bool     output_code;
     
     // Always flush payload length of output before any data is written
     alp->OUTREC(PLEN) = 0;
@@ -209,6 +207,9 @@ ot_int alp_proc(alp_tmpl* alp, id_tmpl* user_id) {
     /// If the Message-End flag is set, then run the processor callback
     if (alp->INREC(FLAGS) & ALP_FLAG_ME) {
         output_code = proc_elem->callback(alp, user_id);
+    }
+    else {
+        output_code = True;
     }
     
     ///@todo Presently responses are immediate.  This could be fixed later.
@@ -237,7 +238,7 @@ void alp_init(alp_tmpl* alp, ot_queue* inq, ot_queue* outq) {
 
 
 
-void alp_add_app(alp_tmpl* alp, ot_u8 alp_id, ot_sig callback, ot_queue appq) {
+void alp_add_app(alp_tmpl* alp, ot_u8 alp_id, alp_fn callback, ot_queue appq) {
 ///@todo To be completed when transformation of ALP is complete
 }
 

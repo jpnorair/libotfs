@@ -97,12 +97,6 @@ OT_WEAK void alp_stream_queue(ot_queue* out_q, void* data_type) {
 
 OT_WEAK void alp_breakdown_session_tmpl(ot_queue* in_q, void* data_type) {
     q_readstring(in_q, (ot_u8*)data_type, 6);
-    //((session_tmpl*)data_type)->reserved    = q_readbyte(in_q);
-    //((session_tmpl*)data_type)->channel     = q_readbyte(in_q);
-    //((session_tmpl*)data_type)->subnet      = q_readbyte(in_q);
-    //((session_tmpl*)data_type)->subnetmask  = q_readbyte(in_q);
-    //((session_tmpl*)data_type)->flags       = q_readbyte(in_q);
-    //((session_tmpl*)data_type)->flagmask    = q_readbyte(in_q);
 }
 
 OT_WEAK void alp_stream_session_tmpl(ot_queue* out_q, void* data_type) {
@@ -130,9 +124,6 @@ OT_WEAK void alp_stream_advert_tmpl(ot_queue* out_q, void* data_type) {
 
 OT_WEAK void alp_breakdown_command_tmpl(ot_queue* in_q, void* data_type) {
     q_readstring(in_q, (ot_u8*)data_type, 3);
-    //((command_tmpl*)data_type)->type        = q_readbyte(in_q);
-    //((command_tmpl*)data_type)->opcode      = q_readbyte(in_q);
-    //((command_tmpl*)data_type)->extension   = q_readbyte(in_q);
 }
 
 OT_WEAK void alp_stream_command_tmpl(ot_queue* out_q, void* data_type) {

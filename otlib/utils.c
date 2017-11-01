@@ -99,11 +99,8 @@ ot_u16 otutils_byte2hex(ot_u8 input) {
 // Binary data to hex-text
 #ifndef EXTF_otutils_bin2hex
 ot_int otutils_bin2hex(ot_u8* dst, ot_u8* src, ot_int size) {
-    //ot_u8* src_end;
-    //src_end = src + size;
     ot_int bytes_out = size << 1;
     
-    //while (src != src_end) {
     while (--size >= 0) {
         *dst++  = otutils_hexlut[(*src >> 4)];
         *dst++  = otutils_hexlut[(*src & 0x0F)];

@@ -117,6 +117,8 @@ typedef struct {
 } alp_tmpl;
 
 
+typedef ot_bool (*alp_fn)(alp_tmpl*, id_tmpl*);
+
 
 #if ( OT_FEATURE(ALP) )
 
@@ -172,7 +174,7 @@ void alp_init(alp_tmpl* alp, ot_queue* inq, ot_queue* outq);
  * can use these, you must setup an Application queue in the first place.
  */
 
-void alp_add_app(alp_tmpl* alp, ot_u8 alp_id, ot_sig callback, ot_queue appq);
+void alp_add_app(alp_tmpl* alp, ot_u8 alp_id, alp_fn callback, ot_queue appq);
 
 
 

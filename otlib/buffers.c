@@ -43,10 +43,6 @@
 
 ot_u8 otbuf[OT_PARAM_BUFFER_SIZE];
 
-#if (OT_FEATURE(SERVER) == ENABLED)
-    ot_queue rxq;
-    ot_queue txq;
-#endif
 
 #if (ALP_ENABLED)
     ot_queue otmpin;
@@ -57,10 +53,6 @@ ot_u8 otbuf[OT_PARAM_BUFFER_SIZE];
 
 #ifndef EXTF_buffers_init
 void buffers_init() {
-#   if (OT_FEATURE(SERVER) == ENABLED)
-    q_init(&rxq,    otbuf,              TXRX_SIZE);
-    q_init(&txq,    otbuf+TXRX_SIZE,    TXRX_SIZE);    
-#   endif
 #   if (ALP_ENABLED)
     q_init(&otmpin,     otbuf+(TXRX_SIZE*2),            ALP_SIZE );
     q_init(&otmpout,    otbuf+(TXRX_SIZE*2)+ALP_SIZE,   ALP_SIZE );
