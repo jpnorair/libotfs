@@ -253,12 +253,12 @@
 #define ISF_LEN_root_authentication_key         0
 #define ISF_LEN_user_authentication_key         0
 #define ISF_LEN_routing_code                    0
-#define ISF_LEN_user_id                         11
-#define ISF_LEN_optional_command_list           7
-#define ISF_LEN_memory_size                     12
-#define ISF_LEN_table_query_size                1
-#define ISF_LEN_table_query_results             7
-#define ISF_LEN_hardware_fault_status           3
+#define ISF_LEN_user_id                         0
+#define ISF_LEN_optional_command_list           0
+#define ISF_LEN_memory_size                     0
+#define ISF_LEN_table_query_size                0
+#define ISF_LEN_table_query_results             0
+#define ISF_LEN_hardware_fault_status           0
 #define ISF_LEN_application_extension           0
 
 /// Stock ISF file max data lengths (not aligned, just max)
@@ -275,18 +275,18 @@
 #define ISF_MAX_isfs_list                       0
 #define ISF_MAX_gfb_file_list                   8   //8 gfb files
 #define ISF_MAX_location_data_list              0
-#define ISF_MAX_ipv6_addresses                  0
+#define ISF_MAX_ipv6_addresses                  48
 #define ISF_MAX_sensor_list                     0
 #define ISF_MAX_sensor_alarms                   0
-#define ISF_MAX_root_authentication_key         0
-#define ISF_MAX_user_authentication_key         0
-#define ISF_MAX_routing_code                    50
+#define ISF_MAX_root_authentication_key         16
+#define ISF_MAX_user_authentication_key         16
+#define ISF_MAX_routing_code                    0
 #define ISF_MAX_user_id                         60
 #define ISF_MAX_optional_command_list           0
 #define ISF_MAX_memory_size                     0
 #define ISF_MAX_table_query_size                0
 #define ISF_MAX_table_query_results             0
-#define ISF_MAX_hardware_fault_status           3
+#define ISF_MAX_hardware_fault_status           0
 #define ISF_MAX_application_extension           64
 
 
