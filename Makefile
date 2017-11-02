@@ -16,6 +16,8 @@ SOURCES_POSIXC := $(OTLIB_C) $(APP_TEST_C) $(PLATFORM_POSIX_C)
 
 SEARCH := -I./include -I./apps/_common -I./apps/test/app
 
+DEFINES := -D BOARD_POSIX_SIM
+
 
 #FLAGS = -std=gnu99 -O -g -Wall
 FLAGS = -std=gnu99 -O3
@@ -27,7 +29,7 @@ test: test.o
 	$(COMPILER) test.o -L. -lotfs -o ./bin/otfs-test
 
 test.o: libotfs
-	$(COMPILER) $(FLAGS) $(SEARCH) -c $(APP_TEST_C)
+	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(APP_TEST_C)
 
 libotfs: libotfs.o
 	$(eval OBJS := $(shell ls ./*.o))
@@ -35,7 +37,7 @@ libotfs: libotfs.o
 	ranlib libotfs.a
 
 libotfs.o: $(SOURCES)
-	$(COMPILER) $(FLAGS) $(SEARCH) -c $(SOURCES)
+	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(SOURCES)
 
 clean:
 	rm -rf ./*.o

@@ -31,7 +31,7 @@
 /** List of all known boards
 Board Name              | OT Status | Manufacturer  | Man Status    |   Notes
 --------------------------------------------------------------------------------
-BOARD_C2000_LP          | Pending   | TI            | Available     | C2000
+BOARD_POSIX_SIM         | Supported | N/A           | Available     | Code on PC
 BOARD_OMG_CC430         | EOL       | JP Norair     | EOL           | CC430
 BOARD_EM430RF           | EOL       | TI            | EOL           | CC430
 BOARD_eZ430Chronos      | EOL       | TI            | Available     | CC430
@@ -49,13 +49,16 @@ BOARD_Nucleo_L073       | Supported | ST            | Available     | STM32L0
 BOARD_Nucleo_LRWAN1     | Supported | ST            | Available     | STM32L0
 BOARD_Launchpad_CC1310  | Pending   | TI            | Available     | CC1310
 BOARD_Launchpad_CC1350  | Pending   | TI            | Available     | CC1310
-
 BOARD_HayTag_LoRa1      | Pending   | Haystack/UDEA | Prototyping   | STM32L
 BOARD_HayTag_LoRa2      | Pending   | Haystack      | Prototyping   | STM32L
 BOARD_HayTag2_R0        | Pending   | Haystack      | In Dev.       | CC13xx
- 
+
+BOARD_C2000_LP          | Pending   | TI            | Available     | C2000
 */ 
 
+
+#define BOARD_HAS_POSIX()   \
+    (defined(BOARD_POSIX_SIM))
 
 #define BOARD_HAS_CC430()         \
    (defined(BOARD_OMG_CC430) || \
