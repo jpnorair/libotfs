@@ -40,8 +40,8 @@
 #endif
 
 // Hooks to traditional features
-#define srand(x)    rand_seed32(x)
-#define rand()      rand_prn32()
+//#define srand(x)    rand_seed32(x)
+//#define rand()      rand_prn32()
 
 
 

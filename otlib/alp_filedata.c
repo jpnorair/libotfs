@@ -67,7 +67,7 @@
 
 #include <otlib/alp.h>
 
-#if (OT_FEATURE(ALP) && OT_FEATURE(SERVER) && OT_FEATURE(VEELITE))
+#if (OT_FEATURE(ALP) && OT_FEATURE(VEELITE))
 
 #if (0)
 OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, id_tmpl* user_id) {

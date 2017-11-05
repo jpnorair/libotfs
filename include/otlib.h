@@ -30,8 +30,6 @@
 #include <otlib/alp.h>
 #include <otlib/auth.h>
 #include <otlib/buffers.h>
-#include <otlib/crc16_table.h>
-#include <otlib/crc16.h>
 #include <otlib/crypto.h>
 #include <otlib/delay.h>
 #include <otlib/logger.h>

@@ -30,9 +30,8 @@
 #define __board_posix_a_H
 
 #include <app/build_config.h>
-#include "platform_stdc.h"
 
-#include "radio_null.h"
+#include <platform/hw/stdc.h>
 
 
 
@@ -56,16 +55,6 @@
 
 
 
-/** Additional RF Front End Parameters and Settings <BR>
-  * ========================================================================<BR>
-  */
-#define RF_PARAM_BAND   433
-#define RF_HDB_ATTEN    3       //Half dB attenuation (units = 0.5dB), used to scale TX power
-#define RF_HDB_RXATTEN  0
-#define RF_RSSI_OFFSET  0       //Offset applied to RSSI calculation
-
-
-
 /** MCU Feature settings      <BR>
   * ========================================================================<BR>
   *
@@ -73,12 +62,7 @@
 #define MCU_CONFIG(VAL)                 MCU_CONFIG_##VAL   // FEATURE 
 #define MCU_CONFIG_MULTISPEED           DISABLED         // Allows usage of MF-HF clock boosting
 #define MCU_CONFIG_MAPEEPROM            DISABLED
-#define MCU_CONFIG_MPIPECDC             DISABLED        // USB-CDC MPipe implementation
-#define MCU_CONFIG_MPIPEUART            DISABLED        // UART MPipe Implementation
-#define MCU_CONFIG_MPIPEI2C             DISABLED        // I2C MPipe Implementation
 #define MCU_CONFIG_MEMCPYDMA            DISABLED        // MEMCPY DMA should be lower priority than MPIPE DMA
-#define MCU_CONFIG_USB                  DISABLED
-
 
 
 /** Platform Memory Configuration <BR>
@@ -115,16 +99,6 @@
 #define BOARD_FEATURE(VAL)              BOARD_FEATURE_##VAL
 #define BOARD_PARAM(VAL)                BOARD_PARAM_##VAL
 
-#define BOARD_FEATURE_MPIPE             DISABLED
-#define BOARD_FEATURE_USBCONVERTER      BOARD_FEATURE_MPIPE                 // Is UART connected via USB converter?
-#define BOARD_FEATURE_MPIPE_DIRECT      BOARD_FEATURE_MPIPE
-#define BOARD_FEATURE_MPIPE_BREAK       DISABLED                // Send/receive leading break for wakeup
-#define BOARD_FEATURE_MPIPE_CS          DISABLED                // Chip-Select / DTR wakeup control
-#define BOARD_FEATURE_MPIPE_FLOWCTL     DISABLED                // RTS/CTS style flow control
-
-
-
-
 
 
 
@@ -151,7 +125,7 @@
 #define TI_TO_CLK(VAL)      ((OT_GPTIM_RES/1024)*VAL)
 #define CLK_TO_TI(VAL)      (VAL/(OT_GPTIM_RES/1024))
 
-#define OT_GPTIM_ERRDIV     32768 //this needs to be hard-coded, or else CCS shits in its pants
+#define OT_GPTIM_ERRDIV     32768
 
 
 
@@ -172,52 +146,6 @@
   */
 
 
-
-
-/******* ALL SHIT BELOW HERE IS SUBJECT TO REDEFINITION **********/
-
-
-/** Flash Memory Setup: 
-  * "OTF" means "Open Tag Flash," but if flash is not used, it just means 
-  * storage memory.  Unfortunately this does not begin with F.
-  
-#define OTF_VWORM_PAGES         (FLASH_FS_ALLOC/FLASH_PAGE_SIZE)
-#define OTF_VWORM_FALLOW_PAGES  3
-#define OTF_VWORM_PAGESIZE      FLASH_PAGE_SIZE
-#define OTF_VWORM_WORD_BYTES    FLASH_WORD_BYTES
-#define OTF_VWORM_WORD_BITS     FLASH_WORD_BITS
-#define OTF_VWORM_SIZE          (OTF_VWORM_PAGES * OTF_VWORM_PAGESIZE)
-#define OTF_VWORM_START_PAGE    ((FLASH_FS_ADDR-FLASH_START_ADDR)/FLASH_PAGE_SIZE)
-#define OTF_VWORM_START_ADDR    FLASH_FS_ADDR
-
-#define OTF_CRC_TABLE           DISABLED
-#define OTF_UHF_TABLE           DISABLED
-#define OTF_UHF_TABLESIZE       0
-#define OTF_M1_ENCODE_TABLE     DISABLED
-#define OTF_M2_ENCODE_TABLE     ENABLED
-
-// Total number of pages taken from program memory
-#define OTF_TOTAL_PAGES         (OTF_VWORM_PAGES)
-
-
-
-
-* Abstracted Flash Organization: 
-  * OpenTag uses Flash to store 2 kinds of data.  The default setup puts 
-  * Filesystem memory in the back.
-  * 1. Program code (obviously)
-  * 2. Filesystem Memory
-  *
-  * FLASH_xxx constants are defined in the platform_config_xxx.h file.  
-
-#define OTF_TOTAL_SIZE          FLASH_FS_ALLOC
-#define OTF_START_PAGE          OTF_VWORM_START_PAGE
-#define OTF_START_ADDR          FLASH_FS_ADDR
-
-#define OTF_VWORM_LAST_PAGE     (OTF_VWORM_START_PAGE + OTF_VWORM_PAGES - 1)
-#define OTF_VWORM_END_ADDR      (FLASH_FS_ADDR + FLASH_FS_ALLOC - 1)
-
-*/
 
 
 #endif

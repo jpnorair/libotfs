@@ -48,6 +48,7 @@ void delay_ti(ot_u16 n) {
 #ifndef EXTF_delay_ms
 void delay_ms(ot_u16 n) {
     delay_us(n*1000);
+}
 #endif
 
 

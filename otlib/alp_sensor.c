@@ -29,12 +29,7 @@
 
 #include <otlib/alp.h>
 
-#if (   (OT_FEATURE(SERVER) == ENABLED) \
-     && (OT_FEATURE(ALP) == ENABLED) \
-     && (OT_FEATURE(SENSORS) == ENABLED) )
-
 #include <otlib/auth.h>
-#include <otsys/sysext.h>
 #include <otlib/queue.h>
 
 
@@ -42,8 +37,5 @@
 OT_WEAK ot_bool alp_proc_sensor(alp_tmpl* alp, id_tmpl* user_id) {
     return True;
 }
-
-
-#endif
 
 

@@ -83,8 +83,7 @@
 
 #include <otlib/alp.h>
 
-#if (   (OT_FEATURE(ALP) == ENABLED) \
-     && (OT_FEATURE(SECURITY) == ENABLED) )
+#if ((OT_FEATURE(ALP) == ENABLED) && (OT_FEATURE(SECURITY) == ENABLED))
 
 
 #include <otlib/auth.h> 
@@ -114,7 +113,7 @@ OT_WEAK ot_bool alp_proc_sec(alp_tmpl* alp, id_tmpl* user_id) {
     
     alp->inq->getcursor+= 4;
 
-#   if (OT_FEATURE(CLIENT))
+#   if 0 || (OT_FEATURE(CLIENT))
     /// Put your client code in here, which handles the response.  Response
     /// is noted by having the Status bit set.
     if (cmd_in & ALP_SEC_STATUS) {
@@ -122,7 +121,7 @@ OT_WEAK ot_bool alp_proc_sec(alp_tmpl* alp, id_tmpl* user_id) {
     }
 #   endif
 
-#   if (OT_FEATURE(SERVER))
+#   if 1 || (OT_FEATURE(SERVER))
     // User must be root in order to use this protocol
     if (auth_isroot(user_id) == False) {
         errcode = 4;

@@ -27,7 +27,6 @@
   * The data files are:
   * - ISF: Universal Data Block
   * - GFB: Raw Data Block
-  * - ISFS: ISF LIST IDs
   *
   * Veelite uses a virtual memory method, implemented in Veelite Core.  The user
   * does not need to interface with functions from the core.
@@ -42,7 +41,7 @@
 #include <otstd.h>
 
 #include <otlib/utils.h>
-#include <m2/tmpl.h>
+#include <otlib/alp.h>
 #include <otsys/veelite_core.h>
 
 
@@ -76,39 +75,9 @@ typedef struct {
       
 
 
-/** @typedef M1TAG_struct
-  * A struct data type that hold Tag Data.  Tag Data is defined in the
-  * ISO 18000-7:2008 standard and includes the following:
-  * - 32 bit serial number
-  * - 16 bit manufacturer's ID
-  * - 24 bit firmware version
-  * - 32 bit model number
-  * - 8 bit maximum response length
-  */
-typedef struct {
-    ot_u16 manuf_id;
-    ot_u32 serial;
-    ot_u32 model_no;
-    ot_u32 fw_version;
-    ot_u16 max_response;
-} M1TAG_struct;
-
-
-/** @typedef M1table_header
-  * A struct data type that holds file information pertinent to tables.
-  * Currently unused, as tables are unimplemented.  Tables are an optional
-  * component of Mode 1, and at present there are no plans to build tables
-  * into the official OpenTag distribution.
-  */
-typedef struct {
-    ot_u32 placeholder;
-} M1table_header;
-
-
-
 /** @typedef vl_header
   * The generic form of the header used for OpenTag data files, used for
-  * ISF, ISFS, and GFB.  The mirror field should be set to NULL_vaddr if
+  * ISF, and GFB.  The mirror field should be set to NULL_vaddr if
   * not used.
   *
   * ot_u16  length      length of data in bytes (0-255)
@@ -169,20 +138,11 @@ typedef struct {
 #if (OT_FEATURE(VEELITE) == ENABLED)
 
 /// Virtual Address Shortcuts for the header blocks (VWORM)
-/// Header blocks for: GFB Elements, ISFS IDs, and ISF Elements
+/// Header blocks for: GFB Elements IDs, and ISF Elements
 #define GFB_Header_START        OVERHEAD_START_VADDR
 #define GFB_Header_START_USER   (GFB_Header_START + (GFB_NUM_STOCK_FILES*sizeof(vl_header)))
-#define ISFS_Header_START       (GFB_Header_START + (GFB_NUM_FILES*sizeof(vl_header)))
-#define ISFS_Header_START_USER  (ISFS_Header_START + (ISFS_NUM_STOCK_LISTS*sizeof(vl_header)))
-#define ISF_Header_START        (ISFS_Header_START + (ISFS_NUM_LISTS*sizeof(vl_header)))
+#define ISF_Header_START        (GFB_Header_START + (GFB_NUM_FILES*sizeof(vl_header)))
 #define ISF_Header_START_USER   (ISF_Header_START + (ISF_NUM_STOCK_FILES*sizeof(vl_header)))
-
-
-/// ISFS HEAP Virtual address shortcuts (VWORM)
-/// @todo Hardcoded for the time being... fix later
-#define ISFS_HEAP_START         ISFS_START_VADDR
-#define ISFS_HEAP_USER_START    (ISFS_START_VADDR+ISFS_STOCK_HEAP_BYTES)
-#define ISFS_HEAP_END           (ISFS_START_VADDR+ISFS_TOTAL_BYTES)
 
 
 /// GFB HEAP Virtual address shortcuts (VWORM)
@@ -254,7 +214,7 @@ ot_int  vl_get_fd(vlFILE* fp);
 
 /** @brief  Creates a new file
   * @param  fp_new      (vlFILE**) A file pointer handle for new file
-  * @param  block_id    (vlBLOCK) Block ID of new file (GFB, ISFB, ISFSB, etc)
+  * @param  block_id    (vlBLOCK) Block ID of new file (GFB, ISFB, etc)
   * @param  data_id     (ot_u8) 0-255 file ID of new file
   * @param  mod         (ot_u8) Permissions for new file
   * @param  max_length  (ot_uint) Maximum length for new file (alloc)
@@ -279,7 +239,7 @@ ot_u8   vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, ot_u
 
 
 /** @brief  Deletes a file
-  * @param  block_id    (vlBLOCK) Block ID of file to delete (GFB, ISFB, ISFSB, etc)
+  * @param  block_id    (vlBLOCK) Block ID of file to delete (GFB, ISFB, etc)
   * @param  data_id     (ot_u8) 0-255 file ID of file to delete
   * @param  user_id     (id_tmpl*) User ID that is trying to create new file
   * @retval ot_u8       Return code: 0 on success, non-zero on error
@@ -379,10 +339,8 @@ vlFILE* vl_open_file(vaddr header);
   */
 vlFILE* vl_open(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id);
 vlFILE* GFB_open_su( ot_u8 id );
-vlFILE* ISFS_open_su( ot_u8 id );
 vlFILE* ISF_open_su( ot_u8 id );
 vlFILE* GFB_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id );
-vlFILE* ISFS_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id );
 vlFILE* ISF_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id );
 
 
@@ -416,11 +374,10 @@ vlFILE* ISF_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id );
   */
 ot_u8 vl_chmod(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id);
 ot_u8 GFB_chmod_su( ot_u8 id, ot_u8 mod );
-ot_u8 ISFS_chmod_su( ot_u8 id, ot_u8 mod );
 ot_u8 ISF_chmod_su( ot_u8 id, ot_u8 mod );
 
 
-/** @brief  Reads 16 bits at a time from the open file (GFB, ISF, ISFS)
+/** @brief  Reads 16 bits at a time from the open file (GFB, ISF)
   * @param  fp          (vlFILE*) file pointer of open file
   * @param  offset      (ot_uint) byte offset into the file
   * @retval (ot_u16)    16 bits data from the given offset
@@ -431,7 +388,7 @@ ot_u8 ISF_chmod_su( ot_u8 id, ot_u8 mod );
 ot_u16 vl_read( vlFILE* fp, ot_uint offset );
 
 
-/** @brief  Writes 16 bits at a time to the open file (GFB, ISF, ISFS)
+/** @brief  Writes 16 bits at a time to the open file (GFB, ISF)
   * @param  fp          (vlFILE*) file pointer of open file
   * @param  offset      (ot_uint) byte offset into the file
   * @param  data        (ot_u16) 16 bits data to write
@@ -468,10 +425,18 @@ ot_uint vl_load( vlFILE* fp, ot_uint length, ot_u8* data );
   * @ingroup Veelite
   */
 ot_u8 vl_store( vlFILE* fp, ot_uint length, ot_u8* data );
-
-
-
 ot_u8 vl_append( vlFILE* fp, ot_uint length, ot_u8* data );
+
+
+/** @brief  Returns a pointer to the start of the file data.  Use with caution.
+  * @param  fp          (vlFILE*) file pointer of open file
+  * @retval (ot_u8*)    Returns pointer to file data, or NULL on error
+  * @ingroup Veelite
+  */
+ot_u8* vl_memptr( vlFILE* fp );
+
+
+
 
 
 
@@ -500,14 +465,14 @@ ot_u8 vl_erase(vlFILE* fp);
   */
 ot_u8 vl_close( vlFILE* fp );
 
-/** @brief Returns the length of the open file (GFB, ISF, ISFS)
+/** @brief Returns the length of the open file (GFB, ISF)
   * @param none
   * @retval (ot_uint) : length in bytes
   * @ingroup Veelite
   */
 ot_uint vl_checklength( vlFILE* fp );
 
-/** @brief Returns the length of the open file (GFB, ISF, ISFS)
+/** @brief Returns the length of the open file (GFB, ISF)
   * @param none
   * @retval (ot_uint) : length in bytes
   * @ingroup Veelite
@@ -518,15 +483,12 @@ ot_uint vl_checkalloc( vlFILE* fp );
 //Compatibility definitions (deprecated)
 #define GFB_close(FP)                 vl_close(FP)
 #define ISF_close(FP)                 vl_close(FP)
-#define ISFS_close(FP)             vl_close(FP)
 
 #define GFB_read(FP, VAL)               vl_read(FP, VAL)
 #define ISF_read(FP, VAL)               vl_read(FP, VAL)
-#define ISFS_read(FP, VAL)           vl_read(FP, VAL)
 
 #define GFB_write(FP, VAL1, VAL2)       vl_write(FP, VAL1, VAL2)
 #define ISF_write(FP, VAL1, VAL2)       vl_write(FP, VAL1, VAL2)
-#define ISFS_write(FP, VAL1, VAL2)   vl_write(FP, VAL1, VAL2)
 
 
 

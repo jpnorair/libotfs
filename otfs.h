@@ -28,6 +28,12 @@
 #ifndef __OTFS_H
 #define __OTFS_H
 
+// All headers, for testing.
+#include <otplatform.h>
+#include <otstd.h>
+#include <otlib.h>
+
+// Main headers we want to expose
 #include <otlib/alp.h>
 #include <otsys/veelite.h>
 

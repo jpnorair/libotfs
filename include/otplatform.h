@@ -66,14 +66,9 @@
 /** Platform Headers <BR>
   * ========================================================================<BR>
   */
-#include <platform/capi.h>
 #include <platform/data.h>
 #include <platform/init.h>
-#include <platform/interrupts.h>
 //#include <platform/memcpy.h>
-#include <platform/speed.h>
-#include <platform/tasking.h>
-#include <platform/timers.h>
 
 
 

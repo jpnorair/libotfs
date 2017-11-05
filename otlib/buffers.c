@@ -30,9 +30,8 @@
 #include <otlib/buffers.h>
 
 
-#define ALP_ENABLED (OT_FEATURE(NDEF) || OT_FEATURE(ALP) || OT_FEATURE(MPIPE))
-#define TXRX_SIZE   ((M2_PARAM_MAXFRAME + (M2_PARAM_MAXFRAME & 1)) * (OT_FEATURE_SERVER == ENABLED))
-#define ALP_SIZE    ((OT_PARAM_BUFFER_SIZE - (TXRX_SIZE*2))/2)
+#define ALP_ENABLED (OT_FEATURE(NDEF) || OT_FEATURE(ALP))
+#define ALP_SIZE    (OT_PARAM_BUFFER_SIZE/2)
 
 #if ((ALP_SIZE < 0) && ALP_ENABLED)
 #   error "ALP ot_queues (Needed for ALP/NDEF/MPIPE) are configured with negative allocation."
@@ -54,8 +53,8 @@ ot_u8 otbuf[OT_PARAM_BUFFER_SIZE];
 #ifndef EXTF_buffers_init
 void buffers_init() {
 #   if (ALP_ENABLED)
-    q_init(&otmpin,     otbuf+(TXRX_SIZE*2),            ALP_SIZE );
-    q_init(&otmpout,    otbuf+(TXRX_SIZE*2)+ALP_SIZE,   ALP_SIZE );
+    q_init(&otmpin,     otbuf,            ALP_SIZE );
+    q_init(&otmpout,    otbuf+ALP_SIZE,   ALP_SIZE );
 #   endif
 }
 #endif

@@ -36,7 +36,7 @@
 
 #include <otstd.h>
 #include <otlib/queue.h>
-#include <m2/tmpl.h>
+#include <otlib/alp.h>
 
 /// Default user types
 #define AUTH_GUEST  (id_tmpl*)auth_guest
@@ -322,9 +322,9 @@ ot_u8 auth_new_nlsuser(auth_handle* handle, id_tmpl* new_user, auth_info* new_in
   * @param mod_flags    (ot_u8) extra user flags
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
-
-ot_u8 auth_search_user(auth_handle* handle, id_tmpl* user_id, ot_u8 mod_flags);
 */
+//ot_u8 auth_search_user(auth_handle* handle, id_tmpl* user_id, ot_u8 mod_flags);
+ot_u8 auth_search_user(id_tmpl* user_id, ot_u8 mod_flags);
 
 #endif
 

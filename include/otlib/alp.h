@@ -50,7 +50,6 @@
 
 #include <otstd.h>
 
-#include <m2/tmpl.h>
 #include <otlib/queue.h>
 
 
@@ -80,6 +79,11 @@
 #define BOOKMARK_IN     bookmark_in
 #define BOOKMARK_OUT    outrec.bookmark
 
+
+typedef struct {
+    ot_u8 length;
+    ot_u8* value;
+} id_tmpl;
 
 
 typedef enum {
@@ -389,46 +393,6 @@ ot_bool alp_proc_dashforth(alp_tmpl* alp, id_tmpl* user_id);
   */
 ot_bool alp_proc_logger(alp_tmpl* alp, id_tmpl* user_id);
 #endif
-
-
-
-
-
-
-
-#if (OT_FEATURE(ALPAPI) == ENABLED)
-#   if (OT_FEATURE(CAPI) != ENABLED)
-#       error For ALP-API to work, C-API must be ENABLED (it is not: check OT_config.h).
-#   endif
-
-#   if (OT_FEATURE(M2))
-    /** @brief  Process a received Session API record
-      * @param  alp         (alp_tmpl*) ALP I/O control structure
-      * @param  user_id     (id_tmpl*) user id for performing the record
-      * @retval ot_bool     True if atomic, False if this ALP needs delayed processing
-      * @ingroup ALP
-      */
-    ot_bool alp_proc_api_session(alp_tmpl* alp, id_tmpl* user_id);
-    
-    /** @brief  Process a received System API record
-      * @param  alp         (alp_tmpl*) ALP I/O control structure
-      * @param  user_id     (id_tmpl*) user id for performing the record
-      * @retval ot_bool     True if atomic, False if this ALP needs delayed processing
-      * @ingroup ALP
-      */
-    ot_bool alp_proc_api_system(alp_tmpl* alp, id_tmpl* user_id);
-    
-    /** @brief  Process a received Query API record
-      * @param  alp         (alp_tmpl*) ALP I/O control structure
-      * @param  user_id     (id_tmpl*) user id for performing the record
-      * @retval ot_bool     True if atomic, False if this ALP needs delayed processing
-      * @ingroup ALP
-      */
-    ot_bool alp_proc_api_query(alp_tmpl* alp, id_tmpl* user_id);
-    #endif
-#endif
-
-
 
 
 

@@ -84,13 +84,10 @@ typedef vlFILE* (*sub_new)(ot_u8, ot_u8, ot_u8);
 
 // Private Functions
 vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg);
-vlFILE* sub_isfs_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg);
 vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length);
 ot_u8 sub_gfb_delete_check(ot_u8 id);
-ot_u8 sub_isfs_delete_check(ot_u8 id);
 ot_u8 sub_isf_delete_check(ot_u8 id);
 vaddr sub_gfb_search(ot_u8 id);
-vaddr sub_isfs_search(ot_u8 id);
 vaddr sub_isf_search(ot_u8 id);
 
 
@@ -275,9 +272,11 @@ OT_WEAK ot_u8 vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod
                 new_fn      = &sub_gfb_new;
                 break;
 
-        case 1: search_fn   = &sub_isfs_search;
-                new_fn      = &sub_isfs_new;
-                break;
+        case 1: return 0xFF;
+                //ISFS features removed
+                //search_fn   = &sub_isfs_search;
+                //new_fn      = &sub_isfs_new;
+                //break;
 
         case 2: search_fn   = &sub_isf_search;
                 new_fn      = &sub_isf_new;
@@ -319,9 +318,11 @@ OT_WEAK ot_u8 vl_delete(vlBLOCK block_id, ot_u8 data_id, id_tmpl* user_id) {
                 search_fn   = &sub_gfb_search;
                 break;
 
-        case 1: check_fn    = &sub_isfs_delete_check;
-                search_fn   = &sub_isfs_search;
-                break;
+        case 1: return 255;
+                //isfs features removed
+                //check_fn    = &sub_isfs_delete_check;
+                //search_fn   = &sub_isfs_search;
+                //break;
 
         case 2: check_fn    = &sub_isf_delete_check;
                 search_fn   = &sub_isf_search;
@@ -365,7 +366,10 @@ OT_WEAK ot_u8 vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id,
     /// 1. Get the header from the supplied Block ID & Data ID
     switch (block_id) {
         case VL_GFB_BLOCKID:    *header = sub_gfb_search(data_id);      break;
-        case VL_ISFS_BLOCKID:   *header = sub_isfs_search(data_id);     break;
+        
+        //ISFS features removed
+        //case VL_ISFS_BLOCKID:   *header = sub_isfs_search(data_id);     break;
+        
         case VL_ISF_BLOCKID:    *header = sub_isf_search(data_id);      break;
         default:                return 255;
     }
@@ -493,6 +497,18 @@ OT_WEAK ot_u8 vl_write( vlFILE* fp, ot_uint offset, ot_u16 data ) {
 }
 #endif
 
+
+#ifndef EXTF_vl_memptr
+///@todo have this bury into the driver layer to give the address of the 
+///      file data.  Will return NULL if file is not in the mirror, which is 
+///      the only place where it can be guaranteed to be in contiguous RAM.
+OT_WEAK ot_u8* vl_memptr( vlFILE* fp ) {
+    if (fp->read == &vsram_read) {
+        return (ot_u8*)vsram_get(fp->start);
+    }
+    return NULL;
+}
+#endif
 
 
 #ifndef EXTF_vl_load
@@ -640,9 +656,6 @@ OT_WEAK vlFILE* GFB_open_su( ot_u8 id ) {
 #   endif
 }
 
-OT_WEAK vlFILE* ISFS_open_su( ot_u8 id ) {
-    return vl_open(VL_ISFS_BLOCKID, id, VL_ACCESS_SU, NULL);
-}
 
 OT_WEAK vlFILE* ISF_open_su( ot_u8 id ) {
     return vl_open(VL_ISF_BLOCKID, id, VL_ACCESS_SU, NULL);
@@ -657,9 +670,6 @@ OT_WEAK vlFILE* GFB_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id ) {
 #   endif
 }
 
-OT_WEAK vlFILE* ISFS_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id ) {
-    return vl_open(VL_ISFS_BLOCKID, id, mod, user_id);
-}
 
 OT_WEAK vlFILE* ISF_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id ) {
     return vl_open(VL_ISF_BLOCKID, id, mod, user_id);
@@ -672,10 +682,6 @@ OT_WEAK ot_u8 GFB_chmod_su( ot_u8 id, ot_u8 mod ) {
 #   else
         return ~0;
 #   endif
-}
-
-OT_WEAK ot_u8 ISFS_chmod_su( ot_u8 id, ot_u8 mod ) {
-    return vl_chmod(VL_ISFS_BLOCKID, id, mod, NULL);
 }
 
 OT_WEAK ot_u8 ISF_chmod_su( ot_u8 id, ot_u8 mod ) {
@@ -735,30 +741,6 @@ vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
 #endif
 }
 
-vlFILE* sub_isfs_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
-#if ((OT_FEATURE(VLNEW) == ENABLED) && (ISFS_NUM_USER_CODES > 0))
-    ot_uni16   idmod;
-    vl_header  new_header;
-
-    idmod.ubyte[0]  = id;
-    idmod.ubyte[1]  = mod;
-
-    // Fill vl_header
-    new_header.length   = (ot_u16)0;
-    new_header.alloc    = (ot_u16)ISFS_MAX_default;
-    new_header.idmod    = idmod.ushort;
-    new_header.mirror   = NULL_vaddr;
-
-    // Find where to put the new data, and if heap is full
-    return sub_new_file(    &new_header,
-                        ISFS_HEAP_USER_START,
-                        ISFS_HEAP_END,
-                        ISFS_Header_START_USER,
-                        ISFS_NUM_USER_CODES   );
-#else
-    return NULL;
-#endif
-}
 
 
 vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length ) {
@@ -803,14 +785,6 @@ ot_u8 sub_gfb_delete_check(ot_u8 id) {
 }
 
 
-ot_u8 sub_isfs_delete_check(ot_u8 id) {
-#if ((OT_FEATURE(VLNEW) == ENABLED) && (ISFS_NUM_USER_CODES > 0))
-    return ( id >= ISFS_ID_extended_service);
-#else
-    return 0;
-#endif
-}
-
 
 ot_u8 sub_isf_delete_check(ot_u8 id) {
 #if ((OT_FEATURE(VLNEW) == ENABLED) && (ISF_NUM_USER_FILES > 0))
@@ -828,10 +802,6 @@ vaddr sub_gfb_search(ot_u8 id) {
     return sub_header_search( GFB_Header_START, id, GFB_NUM_USER_FILES );
 }
 
-
-vaddr sub_isfs_search(ot_u8 id) {
-    return sub_header_search( ISFS_Header_START, id, ISFS_NUM_LISTS );
-}
 
 
 vaddr sub_isf_search(ot_u8 id) {

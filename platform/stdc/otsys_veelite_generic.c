@@ -46,7 +46,7 @@ static ot_u32 fsram[FLASH_FS_ALLOC/4];
 
 /// Set Bus Error (code 7) on physical flash access faults (X2table errors).
 /// Vector to Access Violation ISR (CC430 Specific)
-#if defined(VLX2_DEBUG_ON)
+#if defined(VLX2_DEBUG_ON) && (LOG_FEATURE(FAULTS) == ENABLED)
 #   define BUSERROR_CHECK(EXPR, MSGLEN, MSG) \
         do { \
             if (EXPR) { \
@@ -89,9 +89,7 @@ ot_u8 vworm_format( ) {
 
 #ifndef EXTF_vworm_init
 ot_u8 vworm_init() {
-    ot_memcpy4(&fsram[OVERHEAD_START_VADDR], (void*)overhead_files, OVERHEAD_TOTAL_BYTES);
-    ot_memcpy4(&fsram[GFB_START_VADDR], (void*)gfb_stock_files, GFB_TOTAL_BYTES);
-    ot_memcpy4(&fsram[ISF_START_VADDR], (void*)isf_stock_files, ISF_VWORM_STOCK_BYTES);
+    ot_memcpy4(fsram, (ot_u32*)FLASH_FS_ADDR, sizeof(fsram)/4);
     return 0;
 }
 #endif

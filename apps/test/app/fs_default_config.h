@@ -323,7 +323,9 @@
 #   define ISF_BASE_table_query_size            (ISF_BASE_memory_size+ISF_ALLOC(memory_size))
 #   define ISF_BASE_table_query_results         (ISF_BASE_table_query_size+ISF_ALLOC(table_query_size))
 #   define ISF_BASE_hardware_fault_status       (ISF_BASE_table_query_results+ISF_ALLOC(table_query_results))
-#   define ISF_BASE_application_extension       (ISF_BASE_hardware_fault_status+ISF_ALLOC(hardware_fault_status))
+#   define ISF_BASE_gnss_output                 (ISF_BASE_hardware_fault_status+ISF_ALLOC(hardware_fault_status))
+#   define ISF_BASE_agps_input                  (ISF_BASE_gnss_output+ISF_ALLOC(gnss_output))
+#   define ISF_BASE_application_extension       (ISF_BASE_agps_input+ISF_ALLOC(agps_input))
 #   define ISF_BASE_NEXT                        (ISF_BASE_application_extension+ISF_ALLOC(application_extension ))
 
 #else
@@ -338,7 +340,7 @@
 #   define ISF_BASE_isfs_list                   (ISF_BASE_isf_list+ISF_ALLOC(isf_list))
 #   define ISF_BASE_gfb_file_list               (ISF_BASE_isfs_list+ISF_ALLOC(isfs_list))
 #   define ISF_BASE_location_data_list          (ISF_BASE_gfb_file_list+ISF_ALLOC(gfb_file_list))
-#   define ISF_BASE_ipv6_addresses              (ISF_BASE_location_data_list+ISF_ALLOC(location_data_list))
+#   define ISF_BASE_ipv6_addresses              (ISF_BASE_location_data_list+ISF_ALLOC(ISF_BASE_location_data_list))
 #   define ISF_BASE_sensor_list                 (ISF_BASE_ipv6_addresses+ISF_ALLOC(ipv6_addresses))
 #   define ISF_BASE_sensor_alarms               (ISF_BASE_sensor_list+ISF_ALLOC(sensor_list))
 #   define ISF_BASE_root_authentication_key     (ISF_BASE_sensor_alarms+ISF_ALLOC(sensor_alarms))
@@ -380,7 +382,9 @@
 #define ISF_MIRROR_table_query_size             (ISF_MIRROR_memory_size+ISF_MIRALLOC(memory_size))
 #define ISF_MIRROR_table_query_results          (ISF_MIRROR_table_query_size+ISF_MIRALLOC(table_query_size))
 #define ISF_MIRROR_hardware_fault_status        (ISF_MIRROR_table_query_results+ISF_MIRALLOC(table_query_results))
-#define ISF_MIRROR_application_extension        (ISF_MIRROR_hardware_fault_status+ISF_MIRALLOC(hardware_fault_status))
+#define ISF_MIRROR_gnss_output                  (ISF_MIRROR_hardware_fault_status+ISF_MIRALLOC(hardware_fault_status))
+#define ISF_MIRROR_agps_input                   (ISF_MIRROR_gnss_output+ISF_MIRALLOC(gnss_output))
+#define ISF_MIRROR_application_extension        (ISF_MIRROR_agps_input+ISF_MIRALLOC(agps_input))
 #define ISF_MIRROR_NEXT                         (ISF_MIRROR_application_extension+ISF_MIRALLOC(application_extension))
 
 

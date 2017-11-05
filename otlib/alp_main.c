@@ -37,6 +37,8 @@
 #include <otlib/ndef.h>
 #include <otlib/memcpy.h>
 
+#include <app/app_config.h>
+
 
 #define ALP_FILESYSTEM  1
 #define ALP_SENSORS     (OT_FEATURE(SENSORS) == ENABLED)
@@ -47,7 +49,6 @@
 #ifndef ALP_DASHFORTH
 #   define ALP_DASHFORTH   (OT_FEATURE(DASHFORTH) == ENABLED)
 #endif
-#define ALP_API         ((OT_FEATURE(ALPAPI) == ENABLED) * ((OT_FEATURE(M2) == ENABLED) *3))
 #define ALP_EXT         (OT_FEATURE(ALPEXT) == ENABLED)
 
 
@@ -56,8 +57,7 @@
                           + ALP_SENSORS \
                           + ALP_SECURITY \
                           + ALP_LOGGER \
-                          + ALP_DASHFORTH \
-                          + ALP_API )
+                          + ALP_DASHFORTH )
 
 
 
@@ -132,7 +132,7 @@ OT_WEAK ot_bool alp_proc_null(alp_tmpl* a0, id_tmpl* a1) {
     return True;   // Atomic, with no payload data
 }
 
-#if (OT_FEATURE(ALPEXT) == ENABLED)
+#if (OT_FEATURE(ALPEXT) != ENABLED)
 OT_WEAK ot_bool alp_ext_proc(alp_tmpl* alp, id_tmpl* user_id) { return True; }
 #endif
 
@@ -143,6 +143,7 @@ OT_WEAK ot_bool alp_ext_proc(alp_tmpl* alp, id_tmpl* user_id) { return True; }
 /** Internal Module Routines <BR>
  * ========================================================================<BR>
  */
+
 typedef struct {
     alp_fn      callback;
     ot_queue*   appq;
@@ -151,7 +152,7 @@ typedef struct {
 static const alp_elem_t null_elem = { &alp_proc_null, NULL };
 
 #if (ALP_EXT)
-static const alp_elem_t ext_elem = { &alp_proc_ext, NULL );
+static const alp_elem_t ext_elem = { &alp_ext_proc, NULL };
 #endif
     
 static alp_elem_t alp_table[ALP_FUNCTIONS];
@@ -185,7 +186,7 @@ alp_elem_t* sub_get_elem(ot_u8 alp_id) {
     
     
 ot_bool alp_proc(alp_tmpl* alp, id_tmpl* user_id) {
-    alp_elem_t  proc_elem;
+    alp_elem_t*  proc_elem;
     ot_bool     output_code;
     
     // Always flush payload length of output before any data is written
@@ -201,7 +202,7 @@ ot_bool alp_proc(alp_tmpl* alp, id_tmpl* user_id) {
         if (alp->INREC(FLAGS) & ALP_FLAG_MB) {
             q_empty(proc_elem->appq);
         }
-        q_writetring(proc_elem->appq, &alp->inq->getcursor[4], alp->INREC(PLEN));
+        q_writestring(proc_elem->appq, &alp->inq->getcursor[4], alp->INREC(PLEN));
     }
     
     /// If the Message-End flag is set, then run the processor callback

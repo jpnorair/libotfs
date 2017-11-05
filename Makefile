@@ -6,38 +6,41 @@ OTLIB_H := $(wildcard ./include/otlib/*.h)
 PLATFORM_STDC_C := $(wildcard ./platform/stdc/*.c)
 PLATFORM_POSIX_C := $(wildcard ./platform/posix_c/*.c)
 
-APP_TEST_C := $(wildcard ./apps/test/app/*.c)
-
+APP_NULLPOSIX := $(wildcard ./apps/null_posix/app/*.c)
 
 SOURCES_STDC := $(OTLIB_C) $(PLATFORM_STDC_C)
-SOURCES_POSIXC := $(OTLIB_C) $(APP_TEST_C) $(PLATFORM_POSIX_C)
+SOURCES_POSIXC := $(OTLIB_C) $(PLATFORM_POSIX_C)
+
 
 #HEADERS := $(OTLIB_H)
 
-SEARCH := -I./include -I./apps/_common -I./apps/test/app
+SEARCH := -I./ -I./include -I./apps/_common -I./apps/null_posix -I./libs/OTEAX
 
-DEFINES := -D BOARD_POSIX_SIM
-
-
-#FLAGS = -std=gnu99 -O -g -Wall
-FLAGS = -std=gnu99 -O3
-
-all: test
+DEFINES := -DBOARD_POSIX_SIM -D__NO_SECTIONS__
 
 
-test: test.o
-	$(COMPILER) test.o -L. -lotfs -o ./bin/otfs-test
+FLAGS = -std=gnu99 -O -g -Wall
+#FLAGS = -std=gnu99 -O3
 
-test.o: libotfs
-	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(APP_TEST_C)
+all: nullposix
+
+
+nullposix: liboteax libotfs nullposix.o
+	$(COMPILER) main.o -L. -L./libs/OTEAX -loteax -lotfs -o ./bin/otfs-test
+
+nullposix.o:
+	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(APP_NULLPOSIX)
 
 libotfs: libotfs.o
 	$(eval OBJS := $(shell ls ./*.o))
 	ar -rcs libotfs.a $(OBJS)
 	ranlib libotfs.a
 
-libotfs.o: $(SOURCES)
-	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(SOURCES)
+libotfs.o: $(SOURCES_POSIXC)
+	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(SOURCES_POSIXC)
+
+liboteax:
+	cd ./libs/OTEAX && $(MAKE) all && $(MAKE) install
 
 clean:
 	rm -rf ./*.o

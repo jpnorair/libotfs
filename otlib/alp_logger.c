@@ -33,7 +33,7 @@
 #include <otstd.h>
 #include <otlib/alp.h>
 
-#if !(OT_FEATURE(SERVER) && OT_FEATURE(ALP) && OT_FEATURE(LOGGER))
+#if !(OT_FEATURE(ALP) && OT_FEATURE(LOGGER))
 OT_WEAK ot_bool alp_proc_logger(alp_tmpl* alp, id_tmpl* user_id) {
     return True;
 }

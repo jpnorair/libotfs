@@ -33,6 +33,12 @@
 #include <stdlib.h>
 
 
+void rand_stream(ot_u8* rand_out, ot_int bytes_out) {
+    while (--bytes_out >= 0) {
+        *rand_out++ = rand_prn8();
+    }
+}
+
 void rand_prnseed(ot_u32 seed) {
     if (seed == 0) {
         seed = time(NULL);

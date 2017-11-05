@@ -332,6 +332,14 @@ ot_u8* auth_get_enckey(ot_u8 index) {
   * ========================================================================<BR>
   * Specifically, the Auth-Sec ALP should have hooks into these functions.
   */
+  
+ot_u8 auth_search_user(id_tmpl* user_id, ot_u8 req_mod) {
+///@todo this function must be written.  It must search the authentication table
+///      in order to find if the user is qualified to operate at the requested
+///      mod level.  Return 0 on success, non-zero otherwise.
+    return 0;
+}
+  
 ot_bool auth_isroot(id_tmpl* user_id) {
 /// NULL is how root is implemented in internal calls
 #if (_SEC_NLS)
@@ -362,9 +370,7 @@ ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, id_tmpl* user_id) {
 /// Find the ID in the table, then mask the user's mod with the file's mod
 /// and the mod from the request (i.e. read, write).
 
-    ///@todo need to write auth_search_user()
-    //return (ot_u8)auth_search_user(user_id, (data_mod & req_mod));
-    return (0x07 & data_mod & req_mod);
+    return (ot_u8)auth_search_user(user_id, (data_mod & req_mod));
 
 #else
 /// If the code gets here then there was not a user match, or the device is not
