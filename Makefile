@@ -19,10 +19,12 @@ SEARCH := -I./ -I./include -I./apps/_common -I./apps/null_posix -I./libs/OTEAX
 DEFINES := -DBOARD_POSIX_SIM -D__NO_SECTIONS__
 
 
-FLAGS = -std=gnu99 -O -g -Wall
-#FLAGS = -std=gnu99 -O3
+#FLAGS = -std=gnu99 -O -g -Wall
+FLAGS = -std=gnu99 -O3
 
 all: nullposix
+
+lib: nullposix clean
 
 
 nullposix: liboteax libotfs nullposix.o
@@ -45,6 +47,3 @@ liboteax:
 clean:
 	rm -rf ./*.o
 	rm -f ./*.gch
-	rm -f ./argtable/*.gch
-	rm -f ./cJSON/*.gch
-	rm -f ./main/*.gch

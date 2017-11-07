@@ -4,6 +4,12 @@
 *.metadata*
 *.settings*
 
+###############
+# Local Build #
+###############
+/bin
+*.a
+
 #######################
 # Xcode Project Bloat #
 #######################
