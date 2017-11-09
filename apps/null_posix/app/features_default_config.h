@@ -121,10 +121,10 @@
 #   define OT_FEATURE_VLNVWRITE         ENABLED                             // File writes in Veelite
 #endif
 #ifndef OT_FEATURE_VLNEW
-#   define OT_FEATURE_VLNEW             ENABLED                             // File create/delete in Veelite
+#   define OT_FEATURE_VLNEW             DISABLED                             // File create/delete in Veelite
 #endif
 #ifndef OT_FEATURE_VLRESTORE
-#   define OT_FEATURE_VLRESTORE         DISABLED                            // File restore in Veelite
+#   define OT_FEATURE_VLRESTORE         ENABLED                             // File restore in Veelite
 #endif
 #ifndef OT_FEATURE_VL_SECURITY
 #   define OT_FEATURE_VL_SECURITY       NOT_AVAILABLE                       // AES128 on pre-shared key, for stored files

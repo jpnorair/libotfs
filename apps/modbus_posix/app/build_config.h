@@ -31,6 +31,9 @@
 #include <otsys/support.h>
 
 
+//#define __VLSRAM__
+
+
 
 /** Endian Configuration  <BR>
   * ========================================================================<BR>

@@ -67,15 +67,26 @@
                             (ot_u8)(((ot_u32)(VAL) >> 16) & 0xFF), (ot_u8)((ot_u32)(VAL) >> 24)
 
 
+#ifndef OT_ACTIVE_SETTINGS
+#   define OT_ACTIVE_SETTINGS 0
+#endif
+#ifndef OT_SUPPORTED_SETTINGS
+#   define OT_SUPPORTED_SETTINGS 0
+#endif
+
+
+
+
+
 /// These overhead are the Veelite vl_header files. They are hard coded,
 /// and they must be in the endian of the platform. (Little endian here)
 
-#if (CC_SUPPORT == GCC)
+#if defined(__NO_SECTIONS__)
+const ot_u8 overhead_files[] = {
+#elif (CC_SUPPORT == GCC)
 const ot_u8 overhead_files[] __attribute__ ((section(".vl_ov"))) = {
 #elif (CC_SUPPORT == CL430)
 #pragma DATA_SECTION(overhead_files, ".vl_ov")
-const ot_u8 overhead_files[] = {
-#else
 const ot_u8 overhead_files[] = {
 #endif
     0x00, 0x00, 0x00, 0x01,                 /* GFB Elements 0 */
@@ -256,14 +267,16 @@ const ot_u8 overhead_files[] = {
 
 
 #if (GFB_TOTAL_BYTES > 0)
-#if (CC_SUPPORT == GCC)
-__attribute__((section(".vl_gfb")))
-    
-#elif (CC_SUPPORT == CL430)
-#pragma DATA_SECTION(gfb_stock_files, ".vl_gfb")
-#endif
+#   if defined(__NO_SECTIONS__)
+    const ot_u8 gfb_stock_files[] = { _ERS };
 
-const ot_u8 gfb_stock_files[GFB_TOTAL_BYTES] = { _ERS };
+#   elif (CC_SUPPORT == GCC)
+    const ot_u8 gfb_stock_files[GFB_TOTAL_BYTES] __attribute__((section(".vl_gfb"))) = { _ERS };
+    
+#   elif (CC_SUPPORT == CL430)
+#   pragma DATA_SECTION(gfb_stock_files, ".vl_gfb")
+    const ot_u8 gfb_stock_files[GFB_TOTAL_BYTES] = { _ERS };
+#   endif
 #endif
 
 
@@ -287,7 +300,9 @@ const ot_u8 gfb_stock_files[GFB_TOTAL_BYTES] = { _ERS };
 #define BC7     OT_BUILDCODE7
 
 /// This array contains the stock ISF data.  ISF data must be big endian!
-#if (CC_SUPPORT == GCC)
+#if defined(__NO_SECTIONS__)
+const ot_u8 isf_stock_files[] = {
+#elif (CC_SUPPORT == GCC)
 const ot_u8 isf_stock_files[] __attribute__((section(".vl_isf"))) = {
 #elif (CC_SUPPORT == CL430)
 #pragma DATA_SECTION(isf_stock_files, ".vl_isf")
@@ -305,19 +320,19 @@ const ot_u8 isf_stock_files[] = {
     /* device features: id=0x01, len=48, alloc=48 */
     __UID,                                              /* UID: 8 bytes*/
     SPLIT_SHORT(OT_SUPPORTED_SETTINGS),                 /* Supported Setting */
-    M2_PARAM(MAXFRAME),                                 /* Max Frame Length */
+    255,                                                /* Max Frame Length */
     1,                                                  /* Max Frames per Packet */
     SPLIT_SHORT(0),                                     /* DLLS Methods */
     SPLIT_SHORT(0),                                     /* NLS Methods */
     SPLIT_SHORT(ISF_TOTAL_BYTES),                       /* ISFB Total Memory */
     SPLIT_SHORT(ISF_TOTAL_BYTES-ISF_HEAP_BYTES),        /* ISFB Available Memory */
-    SPLIT_SHORT(ISFS_TOTAL_BYTES),                      /* ISFSB Total Memory */
-    SPLIT_SHORT(ISFS_TOTAL_BYTES-ISFS_HEAP_BYTES),      /* ISFSB Available Memory */
+    SPLIT_SHORT(0),                                     /* ISFSB Total Memory */
+    SPLIT_SHORT(0),                                     /* ISFSB Available Memory */
     SPLIT_SHORT(GFB_TOTAL_BYTES),                       /* GFB Total Memory */
     SPLIT_SHORT(GFB_TOTAL_BYTES-GFB_HEAP_BYTES),        /* GFB Available Memory */
     SPLIT_SHORT(GFB_BLOCK_BYTES),                       /* GFB Block Size */
     0,                                                  /* RFU */
-    OT_PARAM(SESSION_DEPTH),                            /* Session Stack Depth */
+    0,                                                  /* Session Stack Depth */
     'O','T','v',BV0,' ',' ',
     BT0,BC0,BC1,BC2,BC3,BC4,BC5,BC6,BC7, 0,             /* Firmware & Version as C-string */
 
@@ -389,7 +404,14 @@ const ot_u8 isf_stock_files[] = {
     /* HW Fault Status: id=0x16, len=0, alloc=0 */
 
     /* Application Extension: id=0xFF, len=0, alloc=64 */
-    /* Stored Exclusively in mirror */
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
 };
 
 

@@ -816,10 +816,10 @@ vaddr sub_isf_search(ot_u8 id) {
 #   if (ISF_NUM_EXT_FILES != 0)
     // Translate EXT IDs to a contiguous indexing with Stock Files
     if (id > (255-ISF_NUM_EXT_FILES)) {
-        id = (ot_u8)((ot_int)ISF_NUM_STOCK_FILES + ((ot_int)id-256));
+        id = (ot_u8)((ot_int)ISF_NUM_STOCK_FILES + (255-id));
     }
 #   endif
-
+    
     return (sizeof(vl_header) * id) + ISF_Header_START;
 }
 

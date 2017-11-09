@@ -99,9 +99,9 @@
  * typically between 512-1024, depending on how many features you are using.
  * plus at least two additional user ISFs.
  */
-#define ISF_TOTAL_BYTES                         1024
+#define ISF_TOTAL_BYTES                         512
 #define ISF_NUM_M1_FILES                        7
-#define ISF_NUM_M2_FILES                        18
+#define ISF_NUM_M2_FILES                        16
 #define ISF_NUM_EXT_FILES                       1   // Usually at least 1 (app ext)
 #define ISF_NUM_USER_FILES                      0  //max allowed user files
 
@@ -110,7 +110,7 @@
 
 #define ISF_START_VADDR                         (GFB_START_VADDR + GFB_TOTAL_BYTES)
 #define ISF_NUM_STOCK_FILES                     (ISF_NUM_M1_FILES + ISF_NUM_M2_FILES)
-#define ISF_NUM_FILES                           (ISF_NUM_STOCK_FILES + ISF_NUM_USER_FILES)
+#define ISF_NUM_FILES                           (ISF_NUM_STOCK_FILES + ISF_NUM_USER_FILES + ISF_NUM_EXT_FILES)
 
 
 /** ISFB Structure    <BR>
@@ -173,23 +173,23 @@
 #define __SET_MIRROR(VAL)                       (VAL && !_NOMIRROR)
 #define ISF_ENMIRROR(VAL)                       ISF_ENMIRROR_##VAL
 #define ISF_ENMIRROR_network_settings           __SET_MIRROR(1)
-#define ISF_ENMIRROR_device_features            __SET_MIRROR(0)
+#define ISF_ENMIRROR_device_features            __SET_MIRROR(1)
 #define ISF_ENMIRROR_channel_configuration      __SET_MIRROR(0)
 #define ISF_ENMIRROR_real_time_scheduler        __SET_MIRROR(0)
 #define ISF_ENMIRROR_hold_scan_sequence         __SET_MIRROR(0)
 #define ISF_ENMIRROR_sleep_scan_sequence        __SET_MIRROR(0)
 #define ISF_ENMIRROR_beacon_transmit_sequence   __SET_MIRROR(0)
-#define ISF_ENMIRROR_isf_list                   __SET_MIRROR(0)
+#define ISF_ENMIRROR_isf_list                   __SET_MIRROR(1)
 #define ISF_ENMIRROR_isfs_list                  __SET_MIRROR(0)
-#define ISF_ENMIRROR_gfb_file_list              __SET_MIRROR(0)
+#define ISF_ENMIRROR_gfb_file_list              __SET_MIRROR(1)
 #define ISF_ENMIRROR_location_data_list         __SET_MIRROR(0)
-#define ISF_ENMIRROR_ipv6_addresses             __SET_MIRROR(0)
+#define ISF_ENMIRROR_ipv6_addresses             __SET_MIRROR(1)
 #define ISF_ENMIRROR_sensor_list                __SET_MIRROR(0)
 #define ISF_ENMIRROR_sensor_alarms              __SET_MIRROR(0)
-#define ISF_ENMIRROR_root_authentication_key    __SET_MIRROR(0)
-#define ISF_ENMIRROR_user_authentication_key    __SET_MIRROR(0)
+#define ISF_ENMIRROR_root_authentication_key    __SET_MIRROR(1)
+#define ISF_ENMIRROR_user_authentication_key    __SET_MIRROR(1)
 #define ISF_ENMIRROR_routing_code               __SET_MIRROR(0)
-#define ISF_ENMIRROR_user_id                    __SET_MIRROR(0)
+#define ISF_ENMIRROR_user_id                    __SET_MIRROR(1)
 #define ISF_ENMIRROR_optional_command_list      __SET_MIRROR(0)
 #define ISF_ENMIRROR_memory_size                __SET_MIRROR(0)
 #define ISF_ENMIRROR_table_query_size           __SET_MIRROR(0)
@@ -350,8 +350,8 @@
 #   define ISF_BASE_table_query_size            (ISF_BASE_memory_size+ISF_ALLOC(memory_size))
 #   define ISF_BASE_table_query_results         (ISF_BASE_table_query_size+ISF_ALLOC(table_query_size))
 #   define ISF_BASE_hardware_fault_status       (ISF_BASE_table_query_results+ISF_ALLOC(table_query_results))
-#   define ISF_BASE_application_extension       (0xFFFF)
-#   define ISF_BASE_NEXT                        (ISF_BASE_hardware_fault_status+ISF_ALLOC(hardware_fault_status))
+#   define ISF_BASE_application_extension       (ISF_BASE_hardware_fault_status+ISF_ALLOC(hardware_fault_status))
+#   define ISF_BASE_NEXT                        (ISF_BASE_application_extension+ISF_ALLOC(application_extension))
 #endif
 
 

@@ -103,7 +103,7 @@
 #   define OT_FEATURE_LOGGER            ENABLED                             // Mpipe-based data logging & printing
 #endif
 #ifndef OT_FEATURE_ALP
-#   define OT_FEATURE_ALP               (ENABLED || (OT_FEATURE_CLIENT))    // Application Layer Protocol Support
+#   define OT_FEATURE_ALP               ENABLED                             // Application Layer Protocol Support
 #endif
 #ifndef OT_FEATURE_ALPAPI
 #   define OT_FEATURE_ALPAPI            (ENABLED && (OT_FEATURE_ALP))       // Application Layer Protocol callable API's
@@ -121,10 +121,10 @@
 #   define OT_FEATURE_VLNVWRITE         ENABLED                             // File writes in Veelite
 #endif
 #ifndef OT_FEATURE_VLNEW
-#   define OT_FEATURE_VLNEW             ENABLED                             // File create/delete in Veelite
+#   define OT_FEATURE_VLNEW             DISABLED                             // File create/delete in Veelite
 #endif
 #ifndef OT_FEATURE_VLRESTORE
-#   define OT_FEATURE_VLRESTORE         DISABLED                            // File restore in Veelite
+#   define OT_FEATURE_VLRESTORE         ENABLED                             // File restore in Veelite
 #endif
 #ifndef OT_FEATURE_VL_SECURITY
 #   define OT_FEATURE_VL_SECURITY       NOT_AVAILABLE                       // AES128 on pre-shared key, for stored files
@@ -155,8 +155,8 @@
                                 ((ot_u32)OT_FEATURE_VL_SECURITY << 21) | \
                                 ((ot_u32)OT_FEATURE_DLL_SECURITY << 20) | \
                                 ((ot_u32)OT_FEATURE_NL_SECURITY << 19) | \
-                                ((ot_u32)OT_FEATURE_SENSORS << 18) | \
-                                )
+                                ((ot_u32)OT_FEATURE_SENSORS << 18) \
+                            )
 
 
 

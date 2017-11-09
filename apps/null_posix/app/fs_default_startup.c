@@ -404,7 +404,14 @@ const ot_u8 isf_stock_files[] = {
     /* HW Fault Status: id=0x16, len=0, alloc=0 */
 
     /* Application Extension: id=0xFF, len=0, alloc=64 */
-    /* Stored Exclusively in mirror */
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
 };
 
 
