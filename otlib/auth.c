@@ -48,12 +48,17 @@ const id_tmpl*   auth_guest;
 
 #if !defined(OT_PARAM_MAX_CRYPTO_KEYS)
 #   define _SEC_KEYS    16
+
 #elif (OT_PARAM(MAX_CRYPTO_KEYS) < 2)
 #   define _SEC_KEYS    2
+
 #else
 #   define _SEC_KEYS    OT_PARAM(MAX_CRYPTO_KEYS)
+
 #endif
 
+
+/// AES Expanded Key Cache
 #ifndef AES_EXPKEYS
 #   define AES_EXPKEYS  0
 #endif
@@ -61,8 +66,10 @@ const id_tmpl*   auth_guest;
 #if AES_EXPKEYS
 #   define _SEC_TWINKEYS    1
 #   define _SEC_CACHESIZE   (_SEC_KEYSIZE*2)
+
 #else
 #   define _SEC_CACHESIZE   16
+
 #endif
 
 
@@ -72,13 +79,13 @@ ot_u8 _nonce[8];
 
 typedef struct {
     auth_info   info;
-    ot_u32      cache[_SEC_CACHESIZE];
+    ot_u32      cache[_SEC_CACHESIZE/4];
 } auth_dlls_struct;
 
 
 #if (_SEC_DLL)
 /// Presently, EAX is the only type supported
-    auth_dlls_struct    auth_key[_SEC_KEYS];
+static auth_dlls_struct    auth_key[_SEC_KEYS];
 #endif
 
 
@@ -156,8 +163,12 @@ void crypto_clean();
   */
 #if (_SEC_DLL || _SEC_NL)
 void sub_expand_key(auth_dlls_struct* key) {
-/// Storing expanded keys is not presently supported
-#if (0 && (AES_EXPKEYS))
+/// Storing expanded keys is not presently supported in the AES library.  
+/// Without Expanded Key Caching feature, the AES driver will expand the key
+/// each time cryptography is performed.
+#if (AES_EXPKEYS)
+#   error "Storing expanded keys is not presently supported in the AES library"
+
 #   if (_SEC_TWINKEYS == 0)
         key->info.options = 0;
         key->info.length  = 44;
@@ -221,15 +232,18 @@ void auth_init() {
     rand_stream(_nonce, 8);
 
     /// Load key files into cache for faster access.  We assume that there is
-    /// only one type of crypto, which is AES128
+    /// only one type of crypto, which is AES128.
     for (i=0; i<2; i++) {
+#       define _LOADSIZE    (sizeof(ot_u8) + sizeof(ot_u8) + sizeof(ot_u32) + 16)
         vlFILE* fp;
         fp = ISF_open_su(i+ISF_ID(root_authentication_key));
-        vl_load(fp, 18, &(auth_key[i].info.length));
+        vl_load(fp, _LOADSIZE, &(auth_key[i].info.length));
         vl_close(fp);
-
-        /// @note This will do nothing until it is legal to store expanded keys
+        
+        
+        
         sub_expand_key(&auth_key[i]);
+#       undef _LOADSIZE
     }
 #endif
 #if (_SEC_NLS)
@@ -339,7 +353,21 @@ ot_u8 auth_search_user(id_tmpl* user_id, ot_u8 req_mod) {
 ///      mod level.  Return 0 on success, non-zero otherwise.
     return 0;
 }
-  
+
+
+
+id_tmpl* auth_get_user(ot_u16 user_index) {
+/// @todo this must be tied into a table to return a handle.  
+/// Right now it just returns root if index is zero, user if index is 1, and 
+/// guest if index is anything else
+    switch (user_index) {
+        case 0: return auth_root;
+        case 1: return auth_user;
+       default: return auth_guest;
+    }
+}
+
+
 ot_bool auth_isroot(id_tmpl* user_id) {
 /// NULL is how root is implemented in internal calls
 #if (_SEC_NLS)

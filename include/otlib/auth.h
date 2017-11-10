@@ -61,7 +61,7 @@ typedef struct {
     ot_u8       value[8];
 } auth_id;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     ot_u8   index;
     ot_u8   options;
     ot_u8   length;
@@ -325,6 +325,9 @@ ot_u8 auth_new_nlsuser(auth_handle* handle, id_tmpl* new_user, auth_info* new_in
 */
 //ot_u8 auth_search_user(auth_handle* handle, id_tmpl* user_id, ot_u8 mod_flags);
 ot_u8 auth_search_user(id_tmpl* user_id, ot_u8 mod_flags);
+
+id_tmpl* auth_get_user(ot_u16 user_index);
+
 
 #endif
 
