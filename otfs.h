@@ -35,6 +35,7 @@
 
 // Main headers we want to expose
 #include <otlib/alp.h>
+#include <otlib/auth.h>
 #include <otsys/veelite.h>
 
 #endif
