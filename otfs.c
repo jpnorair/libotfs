@@ -14,30 +14,28 @@
   *
   */
 /**
-  * @file       /otfs.h
+  * @file       /otfs.c
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R100
   * @date       31 Oct 2014
-  * @brief      Top Level Header for libotfs
+  * @brief      Top Level Functions for libotfs
   *
-  * Only necessary for compiling as libotfs, and when linking to the library.
+  * Initialization and other such functions.
   *
   ******************************************************************************
   */
 
-#ifndef __OTFS_H
-#define __OTFS_H
+#include "otfs.h"
 
-// All headers, for testing.
-#include <otplatform.h>
-#include <otstd.h>
-#include <otlib.h>
-
-// Main headers we want to expose
-#include <otlib/alp.h>
-#include <otlib/auth.h>
-#include <otsys/veelite.h>
-
-int otfs_init(void);
-
-#endif
+int otfs_init(void) {
+    
+    vworm_init();
+    
+    vl_init();
+    
+    auth_init();
+    
+    
+    
+    return 0;   
+}

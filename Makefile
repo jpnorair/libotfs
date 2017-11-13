@@ -14,7 +14,11 @@ SOURCES_POSIXC := $(OTLIB_C) $(PLATFORM_POSIX_C)
 
 #HEADERS := $(OTLIB_H)
 
-SEARCH := -I./ -I./include -I./apps/_common -I./apps/null_posix -I./libs/OTEAX
+SEARCH := -I./ \
+          -I./include \
+          -I./apps/_common \
+          -I./apps/null_posix \
+          -I./libs/OTEAX
 
 DEFINES := -DBOARD_POSIX_SIM -D__NO_SECTIONS__
 
@@ -39,7 +43,7 @@ libotfs: libotfs.o
 	ranlib libotfs.a
 
 libotfs.o: $(SOURCES_POSIXC)
-	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(SOURCES_POSIXC)
+	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(SOURCES_POSIXC) otfs.c
 
 liboteax:
 	cd ./libs/OTEAX && $(MAKE) all && $(MAKE) install
