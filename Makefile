@@ -8,6 +8,8 @@ PLATFORM_POSIX_C := $(wildcard ./platform/posix_c/*.c)
 
 APP_NULLPOSIX := $(wildcard ./apps/null_posix/app/*.c)
 
+FS_DEFAULT := ./apps/null_posix/app/fs_default_startup.c
+
 SOURCES_STDC := $(OTLIB_C) $(PLATFORM_STDC_C)
 SOURCES_POSIXC := $(OTLIB_C) $(PLATFORM_POSIX_C)
 
@@ -28,8 +30,11 @@ FLAGS = -std=gnu99 -O3
 
 all: nullposix
 
-lib: nullposix clean
+lib: libotfs
 
+
+fs_default.o: libotfs
+	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(FS_DEFAULT) -o fs_default.o
 
 nullposix: liboteax libotfs nullposix.o
 	$(COMPILER) main.o -L. -L./libs/OTEAX -loteax -lotfs -o ./bin/otfs-test
