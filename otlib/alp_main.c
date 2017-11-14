@@ -157,8 +157,8 @@ static const alp_elem_t ext_elem = { &alp_ext_proc, NULL };
     
 static alp_elem_t alp_table[ALP_FUNCTIONS];
 
-alp_elem_t* sub_get_elem(ot_u8 alp_id) {
-    alp_elem_t* element;
+const alp_elem_t* sub_get_elem(ot_u8 alp_id) {
+    const alp_elem_t* element;
     
     if (alp_id == 0) {
         element = &null_elem;
@@ -181,13 +181,13 @@ alp_elem_t* sub_get_elem(ot_u8 alp_id) {
         }
     }
     
-    return element;
+    return (const alp_elem_t*)element;
 }
     
     
 ot_bool alp_proc(alp_tmpl* alp, id_tmpl* user_id) {
-    alp_elem_t*  proc_elem;
-    ot_bool     output_code;
+    const alp_elem_t*   proc_elem;
+    ot_bool             output_code;
     
     // Always flush payload length of output before any data is written
     alp->OUTREC(PLEN) = 0;

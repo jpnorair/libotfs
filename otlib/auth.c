@@ -356,7 +356,7 @@ ot_u8 auth_search_user(id_tmpl* user_id, ot_u8 req_mod) {
 
 
 
-id_tmpl* auth_get_user(ot_u16 user_index) {
+const id_tmpl* auth_get_user(ot_u16 user_index) {
 /// @todo this must be tied into a table to return a handle.  
 /// Right now it just returns root if index is zero, user if index is 1, and 
 /// guest if index is anything else

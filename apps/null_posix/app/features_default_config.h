@@ -109,7 +109,7 @@
 #   define OT_FEATURE_ALPAPI            (ENABLED && (OT_FEATURE_ALP))       // Application Layer Protocol callable API's
 #endif
 #ifndef OT_FEATURE_ALPEXT
-#   define OT_FEATURE_ALPEXT            ENABLED                             
+#   define OT_FEATURE_ALPEXT            DISABLED                             
 #endif
 #ifndef OT_FEATURE_NDEF
 #   define OT_FEATURE_NDEF              DISABLED                            // NDEF wrapper for Messaging API

@@ -326,7 +326,7 @@ ot_u8 auth_new_nlsuser(auth_handle* handle, id_tmpl* new_user, auth_info* new_in
 //ot_u8 auth_search_user(auth_handle* handle, id_tmpl* user_id, ot_u8 mod_flags);
 ot_u8 auth_search_user(id_tmpl* user_id, ot_u8 mod_flags);
 
-id_tmpl* auth_get_user(ot_u16 user_index);
+const id_tmpl* auth_get_user(ot_u16 user_index);
 
 
 #endif

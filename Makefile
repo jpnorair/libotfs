@@ -30,10 +30,10 @@ FLAGS = -std=gnu99 -O3
 
 all: nullposix
 
-lib: libotfs
+lib: clean libotfs
 
 
-fs_default.o: libotfs
+fs_default.o: clean libotfs
 	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(FS_DEFAULT) -o fs_default.o
 
 nullposix: liboteax libotfs nullposix.o
