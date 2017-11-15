@@ -59,7 +59,7 @@
 #   define CC_SUPPORT   IAR_V5
 
 #else
-#   error "A known, supported compiler has not been pre-defined.  Check OTlib/<otsys/support.h>"
+#   error "A known, supported compiler has not been pre-defined.  Check otsys/support.h"
 
 #endif
 
