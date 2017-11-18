@@ -217,7 +217,7 @@ void alp_add_app(alp_tmpl* alp, ot_u8 alp_id, alp_fn callback, ot_queue appq);
   * output ahead of input, therefore if messages are being chunked-in and out
   * at the same time, it will return MSG_Chunking_Out.
   */
-ALP_status alp_parse_message(alp_tmpl* alp, id_tmpl* user_id);
+ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id);
 
 
 
