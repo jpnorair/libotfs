@@ -170,7 +170,7 @@ ot_u8 vworm_format( );
   * vworm_init() loads the backed up data into local SRAM.  If you have just
   * formatted, you do not need to init.
   */
-ot_u8 vworm_init( );
+ot_u8 vworm_init(void* handle);
 
 
 

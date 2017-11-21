@@ -114,9 +114,13 @@ typedef struct {
   * vl_header* header: Pointer to Data file header   
   */
 typedef struct {
-    ot_u8           id;
-    ot_u8           reserved;
-    vl_header*    header;
+#   ifdef _16BIT_CLEAN_
+    ot_u16      id;
+#   else
+    ot_u8       id;
+    ot_u8       reserved;
+#   endif
+    vl_header*  header;
 } vl_link;
 
 

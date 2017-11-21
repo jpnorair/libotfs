@@ -22,6 +22,8 @@
   *
   * Only necessary for compiling as libotfs, and when linking to the library.
   *
+  * Libotfs is not thread-safe.
+  *
   ******************************************************************************
   */
 
@@ -38,6 +40,36 @@
 #include <otlib/auth.h>
 #include <otsys/veelite.h>
 
-int otfs_init(void);
+#include <stdint.h>
+#include <stddef.h>
+
+#ifndef OTFS_FEATURE_MULTIFS
+#define OTFS_FEATURE_MULTIFS    1
+#endif
+
+typedef struct __attribute__((packed)) {
+    uint8_t oui24[3];
+    uint8_t ext40[5];
+} otfs_eui64_t;
+
+typedef union {
+    otfs_eui64_t    eui64;
+    uint64_t        u64;
+    uint8_t         u8[8];
+} otfs_id_union;
+
+typedef struct {
+    otfs_id_union   fs_id;
+    void*           fs_base;
+    size_t          fs_alloc;
+} otfs_t;
+
+
+int otfs_new(const otfs_t* fs);
+
+int otfs_del(const ofts_t* fs);
+
+int otfs_setfs(const uint8_t* eui64_bytes);
+
 
 #endif

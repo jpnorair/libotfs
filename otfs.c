@@ -27,15 +27,39 @@
 
 #include "otfs.h"
 
-int otfs_init(void) {
-    
+// MULTIFS feature stores multiple filesystems keyed on 64 bit IDs.
+// It uses the "Judy" library, which is used as a sort of growable Hash Table.
+#if (OTFS_FEATURE_MULTIFS)
+#include "Judy.h"
+
+int otfs_init(otfs_t* config) {
+
     vworm_init();
     
     vl_init();
     
-    auth_init();
+    auth_init(config->cells);
     
     
     
     return 0;   
 }
+
+
+#else
+
+
+int otfs_init(otfs_t* config) {
+    vworm_init();
+    
+    vl_init();
+    
+    auth_init(config->cells);
+    
+    
+    
+    return 0;   
+}
+
+#endif
+
