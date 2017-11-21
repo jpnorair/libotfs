@@ -58,6 +58,9 @@
   *     GFB:        04A0 to 089F        (1024 bytes)
   *     ISFB:       08A0 to 0FFF        (1888 bytes)
   */
+#define JOIN_2BYTES(B0, B1) (B0), (B1)
+//#define JOIN_2BYTES(B0, B1) (ot_u16)((((ot_u16)(B0))<<8)|((ot_u16)(B0)))
+  
 #define SPLIT_SHORT(VAL)    (ot_u8)((ot_u16)(VAL) >> 8), (ot_u8)((ot_u16)(VAL) & 0x00FF)
 #define SPLIT_LONG(VAL)     (ot_u8)((ot_u32)(VAL) >> 24), (ot_u8)(((ot_u32)(VAL) >> 16) & 0xFF), \
                             (ot_u8)(((ot_u32)(VAL) >> 8) & 0xFF), (ot_u8)((ot_u32)(VAL) & 0xFF)
@@ -89,176 +92,152 @@ const ot_u8 overhead_files[] __attribute__ ((section(".vl_ov"))) = {
 #pragma DATA_SECTION(overhead_files, ".vl_ov")
 const ot_u8 overhead_files[] = {
 #endif
-    0x00, 0x00, 0x00, 0x01,                 /* GFB Elements 0 */
-    0x00, GFB_MOD_standard,
-    0x00, 0x14, 0xFF, 0xFF,
+    JOIN_2BYTES(0x00, 0x00), JOIN_2BYTES(0x00, 0x01),                 /* GFB Elements 0 */
+    JOIN_2BYTES(0x00, GFB_MOD_standard),
+    JOIN_2BYTES(0x00, 0x14), JOIN_2BYTES(0xFF, 0xFF),
     
     /* Mode 2 ISFs, written as little endian */
-    ISF_LEN(network_settings), 0x00,                /* Length, little endian */
-    SPLIT_SHORT_LE(ISF_ALLOC(network_settings)),    /* Alloc, little endian */
-    ISF_ID(network_settings),                       /* ID */
-    ISF_MOD(network_settings),                      /* Perms */
+    JOIN_2BYTES(ISF_LEN(network_settings), 0x00),                       /* Length, little endian */
+    SPLIT_SHORT_LE(ISF_ALLOC(network_settings)),                        /* Alloc, little endian */
+    JOIN_2BYTES(ISF_ID(network_settings), ISF_MOD(network_settings)),   /* ID , Perms*/
     SPLIT_SHORT_LE(ISF_BASE(network_settings)),
     SPLIT_SHORT_LE(ISF_MIRROR(network_settings)),
 
-    ISF_LEN(device_features), 0x00,
+    JOIN_2BYTES(ISF_LEN(device_features), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(device_features)),
-    ISF_ID(device_features),
-    ISF_MOD(device_features),
+    JOIN_2BYTES(ISF_ID(device_features), ISF_MOD(device_features)),
     SPLIT_SHORT_LE(ISF_BASE(device_features)),
     SPLIT_SHORT_LE(ISF_MIRROR(device_features)),
 
-    ISF_LEN(channel_configuration), 0x00,
+    JOIN_2BYTES(ISF_LEN(channel_configuration), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(channel_configuration)),
-    ISF_ID(channel_configuration),
-    ISF_MOD(channel_configuration),
+    JOIN_2BYTES(ISF_ID(channel_configuration), ISF_MOD(channel_configuration)),
     SPLIT_SHORT_LE(ISF_BASE(channel_configuration)),
     SPLIT_SHORT_LE(ISF_MIRROR(channel_configuration)),
 
-    ISF_LEN(real_time_scheduler), 0x00,
+    JOIN_2BYTES(ISF_LEN(real_time_scheduler), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(real_time_scheduler)),
-    ISF_ID(real_time_scheduler),
-    ISF_MOD(real_time_scheduler),
+    JOIN_2BYTES(ISF_ID(real_time_scheduler), ISF_MOD(real_time_scheduler)),
     SPLIT_SHORT_LE(ISF_BASE(real_time_scheduler)),
     SPLIT_SHORT_LE(ISF_MIRROR(real_time_scheduler)),
 
-    ISF_LEN(hold_scan_sequence), 0x00,
+    JOIN_2BYTES(ISF_LEN(hold_scan_sequence), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(hold_scan_sequence)),
-    ISF_ID(hold_scan_sequence),
-    ISF_MOD(hold_scan_sequence),
+    JOIN_2BYTES(ISF_ID(hold_scan_sequence), ISF_MOD(hold_scan_sequence)),
     SPLIT_SHORT_LE(ISF_BASE(hold_scan_sequence)),
     SPLIT_SHORT_LE(ISF_MIRROR(hold_scan_sequence)),
 
-    ISF_LEN(sleep_scan_sequence), 0x00,
+    JOIN_2BYTES(ISF_LEN(sleep_scan_sequence), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(sleep_scan_sequence)),
-    ISF_ID(sleep_scan_sequence),
-    ISF_MOD(sleep_scan_sequence),
+    JOIN_2BYTES(ISF_ID(sleep_scan_sequence), ISF_MOD(sleep_scan_sequence)),
     SPLIT_SHORT_LE(ISF_BASE(sleep_scan_sequence)),
     SPLIT_SHORT_LE(ISF_MIRROR(sleep_scan_sequence)),
 
-    ISF_LEN(beacon_transmit_sequence), 0x00,
+    JOIN_2BYTES(ISF_LEN(beacon_transmit_sequence), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(beacon_transmit_sequence)),
-    ISF_ID(beacon_transmit_sequence),
-    ISF_MOD(beacon_transmit_sequence),
+    JOIN_2BYTES(ISF_ID(beacon_transmit_sequence), ISF_MOD(beacon_transmit_sequence)),
     SPLIT_SHORT_LE(ISF_BASE(beacon_transmit_sequence)),
     SPLIT_SHORT_LE(ISF_MIRROR(beacon_transmit_sequence)),
 
-    ISF_LEN(isf_list), 0x00,
+    JOIN_2BYTES(ISF_LEN(isf_list), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(isf_list)),
-    ISF_ID(isf_list),
-    ISF_MOD(isf_list),
+    JOIN_2BYTES(ISF_ID(isf_list),ISF_MOD(isf_list)),
     SPLIT_SHORT_LE(ISF_BASE(isf_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(isf_list)),
 
-    ISF_LEN(isfs_list), 0x00,
+    JOIN_2BYTES(ISF_LEN(isfs_list), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(isfs_list)),
-    ISF_ID(isfs_list),
-    ISF_MOD(isfs_list),
+    JOIN_2BYTES(ISF_ID(isfs_list), ISF_MOD(isfs_list)),
     SPLIT_SHORT_LE(ISF_BASE(isfs_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(isfs_list)),
 
-    ISF_LEN(gfb_file_list), 0x00,
+    JOIN_2BYTES(ISF_LEN(gfb_file_list), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(gfb_file_list)),
-    ISF_ID(gfb_file_list),
-    ISF_MOD(gfb_file_list),
+    JOIN_2BYTES(ISF_ID(gfb_file_list), ISF_MOD(gfb_file_list)),
     SPLIT_SHORT_LE(ISF_BASE(gfb_file_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(gfb_file_list)),
 
-    ISF_LEN(location_data_list), 0x00,
+    JOIN_2BYTES(ISF_LEN(location_data_list), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(location_data_list)),
-    ISF_ID(location_data_list),
-    ISF_MOD(location_data_list),
+    JOIN_2BYTES(ISF_ID(location_data_list), ISF_MOD(location_data_list)),
     SPLIT_SHORT_LE(ISF_BASE(location_data_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(location_data_list)),
 
-    ISF_LEN(ipv6_addresses), 0x00,
+    JOIN_2BYTES(ISF_LEN(ipv6_addresses), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(ipv6_addresses)),
-    ISF_ID(ipv6_addresses),
-    ISF_MOD(ipv6_addresses),
+    JOIN_2BYTES(ISF_ID(ipv6_addresses), ISF_MOD(ipv6_addresses)),
     SPLIT_SHORT_LE(ISF_BASE(ipv6_addresses)),
     SPLIT_SHORT_LE(ISF_MIRROR(ipv6_addresses)),
 
-    ISF_LEN(sensor_list), 0x00,
+    JOIN_2BYTES(ISF_LEN(sensor_list), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(sensor_list)),
-    ISF_ID(sensor_list),
-    ISF_MOD(sensor_list),
+    JOIN_2BYTES(ISF_ID(sensor_list), ISF_MOD(sensor_list)),
     SPLIT_SHORT_LE(ISF_BASE(sensor_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(sensor_list)),
 
-    ISF_LEN(sensor_alarms), 0x00,
+    JOIN_2BYTES(ISF_LEN(sensor_alarms), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(sensor_alarms)),
-    ISF_ID(sensor_alarms),
-    ISF_MOD(sensor_alarms),
+    JOIN_2BYTES(ISF_ID(sensor_alarms), ISF_MOD(sensor_alarms)),
     SPLIT_SHORT_LE(ISF_BASE(sensor_alarms)),
     SPLIT_SHORT_LE(ISF_MIRROR(sensor_alarms)),
 
-    ISF_LEN(root_authentication_key), 0x00,
+    JOIN_2BYTES(ISF_LEN(root_authentication_key), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(root_authentication_key)),
-    ISF_ID(root_authentication_key),
-    ISF_MOD(root_authentication_key),
+    JOIN_2BYTES(ISF_ID(root_authentication_key), ISF_MOD(root_authentication_key)),
     SPLIT_SHORT_LE(ISF_BASE(root_authentication_key)),
     SPLIT_SHORT_LE(ISF_MIRROR(root_authentication_key)),
 
-    ISF_LEN(user_authentication_key), 0x00,
+    JOIN_2BYTES(ISF_LEN(user_authentication_key), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(user_authentication_key)),
-    ISF_ID(user_authentication_key),
-    ISF_MOD(user_authentication_key),
+    JOIN_2BYTES(ISF_ID(user_authentication_key), ISF_MOD(user_authentication_key)),
     SPLIT_SHORT_LE(ISF_BASE(user_authentication_key)),
     SPLIT_SHORT_LE(ISF_MIRROR(user_authentication_key)),
 
-    ISF_LEN(routing_code), 0x00,
+    JOIN_2BYTES(ISF_LEN(routing_code), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(routing_code)),
-    ISF_ID(routing_code),
-    ISF_MOD(routing_code),
+    JOIN_2BYTES(ISF_ID(routing_code), ISF_MOD(routing_code)),
     SPLIT_SHORT_LE(ISF_BASE(routing_code)),
     SPLIT_SHORT_LE(ISF_MIRROR(routing_code)),
 
-    ISF_LEN(user_id), 0x00,
+    JOIN_2BYTES(ISF_LEN(user_id), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(user_id)),
-    ISF_ID(user_id),
-    ISF_MOD(user_id),
+    JOIN_2BYTES(ISF_ID(user_id), ISF_MOD(user_id)),
     SPLIT_SHORT_LE(ISF_BASE(user_id)),
     SPLIT_SHORT_LE(ISF_MIRROR(user_id)),
 
-    ISF_LEN(optional_command_list), 0x00,
+    JOIN_2BYTES(ISF_LEN(optional_command_list), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(optional_command_list)),
-    ISF_ID(optional_command_list),
-    ISF_MOD(optional_command_list),
+    JOIN_2BYTES(ISF_ID(optional_command_list), ISF_MOD(optional_command_list)),
     SPLIT_SHORT_LE(ISF_BASE(optional_command_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(optional_command_list)),
 
-    ISF_LEN(memory_size), 0x00,
+    JOIN_2BYTES(ISF_LEN(memory_size), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(memory_size)),
-    ISF_ID(memory_size),
-    ISF_MOD(memory_size),
+    JOIN_2BYTES(ISF_ID(memory_size), ISF_MOD(memory_size)),
     SPLIT_SHORT_LE(ISF_BASE(memory_size)),
     SPLIT_SHORT_LE(ISF_MIRROR(memory_size)),
 
-    ISF_LEN(table_query_size), 0x00,
+    JOIN_2BYTES(ISF_LEN(table_query_size), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(table_query_size)),
-    ISF_ID(table_query_size),
-    ISF_MOD(table_query_size),
+    JOIN_2BYTES(ISF_ID(table_query_size), ISF_MOD(table_query_size)),
     SPLIT_SHORT_LE(ISF_BASE(table_query_size)),
     SPLIT_SHORT_LE(ISF_MIRROR(table_query_size)),
 
-    ISF_LEN(table_query_results), 0x00,
+    JOIN_2BYTES(ISF_LEN(table_query_results), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(table_query_results)),
-    ISF_ID(table_query_results),
-    ISF_MOD(table_query_results),
+    JOIN_2BYTES(ISF_ID(table_query_results), ISF_MOD(table_query_results)),
     SPLIT_SHORT_LE(ISF_BASE(table_query_results)),
     SPLIT_SHORT_LE(ISF_MIRROR(table_query_results)),
 
-    ISF_LEN(hardware_fault_status), 0x00,
+    JOIN_2BYTES(ISF_LEN(hardware_fault_status), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(hardware_fault_status)),
-    ISF_ID(hardware_fault_status),
-    ISF_MOD(hardware_fault_status),
+    JOIN_2BYTES(ISF_ID(hardware_fault_status), ISF_MOD(hardware_fault_status)),
     SPLIT_SHORT_LE(ISF_BASE(hardware_fault_status)),
     SPLIT_SHORT_LE(ISF_MIRROR(hardware_fault_status)),
 
-    ISF_LEN(application_extension), 0x00,
+    JOIN_2BYTES(ISF_LEN(application_extension), 0x00),
     SPLIT_SHORT_LE(ISF_ALLOC(application_extension)),
-    ISF_ID(application_extension),
-    ISF_MOD(application_extension),
+    JOIN_2BYTES(ISF_ID(application_extension), ISF_MOD(application_extension)),
     SPLIT_SHORT_LE(ISF_BASE(application_extension)),
     SPLIT_SHORT_LE(ISF_MIRROR(application_extension)),
 };

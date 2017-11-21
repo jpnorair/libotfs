@@ -141,6 +141,14 @@ typedef struct {
 
 #if (OT_FEATURE(VEELITE) == ENABLED)
 
+/// This is a patch
+#if OT_FEATURE(MULTIFS)
+#   undef OVERHEAD_START_VADDR
+#   define OVERHEAD_START_VADDR     
+#endif
+
+
+
 /// Virtual Address Shortcuts for the header blocks (VWORM)
 /// Header blocks for: GFB Elements IDs, and ISF Elements
 #define GFB_Header_START        OVERHEAD_START_VADDR
@@ -482,18 +490,6 @@ ot_uint vl_checklength( vlFILE* fp );
   * @ingroup Veelite
   */
 ot_uint vl_checkalloc( vlFILE* fp );
-
-
-//Compatibility definitions (deprecated)
-#define GFB_close(FP)                 vl_close(FP)
-#define ISF_close(FP)                 vl_close(FP)
-
-#define GFB_read(FP, VAL)               vl_read(FP, VAL)
-#define ISF_read(FP, VAL)               vl_read(FP, VAL)
-
-#define GFB_write(FP, VAL1, VAL2)       vl_write(FP, VAL1, VAL2)
-#define ISF_write(FP, VAL1, VAL2)       vl_write(FP, VAL1, VAL2)
-
 
 
 

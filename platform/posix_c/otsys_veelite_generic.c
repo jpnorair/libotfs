@@ -39,8 +39,15 @@
 #include <otlib/memcpy.h>
 
 
+/// Patch: If Multi-FS is enabled, fsram location and size is defined through
+/// vworm_init(), dynamically, selected via vworm_select(), and assigned to 
+/// this context while used.
+#if (OT_FEATURE(MULTIFS))
+    static ot_u32* fsram;
+#else
+    static ot_u32 fsram[FLASH_FS_ALLOC/4];
+#endif
 
-static ot_u32 fsram[FLASH_FS_ALLOC/4];
 #define FSRAM ((ot_u16*)fsram)
 
 
@@ -88,10 +95,49 @@ ot_u8 vworm_format( ) {
 #endif
 
 #ifndef EXTF_vworm_init
-ot_u8 vworm_init() {
+ot_u8 vworm_init(vworm_sections_t* init) {
+/// If MultiFS is not used, all the arguments can be NULL.
+/// If MultiFS is required, the initialization process includes storing default
+/// filesystem values into a memory-base supplied by the caller.
+
+#   if (OT_FEATURE(MULTIFS))
+    uint32_t offset;
+    
+    if (handle == NULL) {
+        return 1;
+    }
+    
+    if (handle->ovh_base == NULL) {
+        return 2;
+    }
+    else {
+        ot_memcpy4(&fsram[OVERHEAD_START_VADDR], (void*)overhead_files, handle->ovh_alloc);
+        offset = (handle->ovh_alloc + 3) >> 2;
+    }
+    
+    if (handle->gfb_base != NULL) {
+        ot_memcpy4(&fsram[offset], (void*)gfb_stock_files, handle->gfb_alloc);
+        offset += (handle->gfb_alloc + 3) >> 2;
+    }
+    
+    if (handle->iss_base != NULL) {
+        ot_memcpy4(&fsram[offset], (void*)iss_stock_files, handle->iss_alloc);
+        offset += (handle->iss_alloc + 3) >> 2;
+    }
+    
+    if (handle->isf_base != NULL) {
+        ot_memcpy4(&fsram[offset], (void*)isf_stock_files, handle->isf_alloc);
+        offset += (handle->isf_alloc + 3) >> 2;
+    }
+    
+    /// No MultiFS
+#   else
     ot_memcpy4(&fsram[OVERHEAD_START_VADDR], (void*)overhead_files, OVERHEAD_TOTAL_BYTES);
     ot_memcpy4(&fsram[GFB_START_VADDR], (void*)gfb_stock_files, GFB_TOTAL_BYTES);
     ot_memcpy4(&fsram[ISF_START_VADDR], (void*)isf_stock_files, ISF_VWORM_STOCK_BYTES);
+    
+#   endif
+
     return 0;
 }
 #endif

@@ -67,6 +67,14 @@
   */
 
 
+typedef struct {
+    void*   base;
+    ot_u16  ovh_alloc;
+    ot_u16  gfb_alloc;
+    ot_u16  iss_alloc;
+    ot_u16  isf_alloc;
+} vworm_sections_t;
+
 
 /** @typedef vas_loc
   * An enum to declare the position in virtual addressing space (vas)
@@ -162,7 +170,7 @@ ot_u8 vworm_format( );
 
 
 /** @brief Initializes the VWORM memory system
-  * @param none
+  * @param init         (vworm_init_t*) use NULL on single-vworm systems
   * @retval ot_u8 :     Non-zero on memory fault
   * @ingroup Veelite
   *
@@ -170,7 +178,7 @@ ot_u8 vworm_format( );
   * vworm_init() loads the backed up data into local SRAM.  If you have just
   * formatted, you do not need to init.
   */
-ot_u8 vworm_init(void* handle);
+ot_u8 vworm_init(vworm_init_t* init);
 
 
 
