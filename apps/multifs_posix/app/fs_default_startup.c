@@ -81,7 +81,7 @@
 
 
 
-/// These overhead are the Veelite vl_header files. They are hard coded,
+/// These overhead are the Veelite vl_header_t files. They are hard coded,
 /// and they must be in the endian of the platform. (Little endian here)
 
 #if defined(__NO_SECTIONS__)

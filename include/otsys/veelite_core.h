@@ -67,15 +67,6 @@
   */
 
 
-typedef struct {
-    void*   base;
-    ot_u16  ovh_alloc;
-    ot_u16  gfb_alloc;
-    ot_u16  iss_alloc;
-    ot_u16  isf_alloc;
-} vworm_sections_t;
-
-
 /** @typedef vas_loc
   * An enum to declare the position in virtual addressing space (vas)
   * vas_error=0, in_vworm, in_veeprom

@@ -89,6 +89,30 @@
 #define GFB_TOTAL_BYTES         (GFB_FILE_BYTES * (GFB_NUM_STOCK_FILES + GFB_NUM_USER_FILES))
 
 
+
+
+
+/** ISSB Files (Indexed Short Series Block)   <BR>
+  * ========================================================================<BR>
+  * ISSB Files are strings of ISF IDs that bundle/batch related ISF's.  ISSs
+  * are not all the same length (max length = 16).  Also, make sure that the 
+  * TOTAL_BYTES you allocate to the ISSB bank corresponds to the amount set in
+  * the linker file.
+  *
+  * In this configuration, ISS is empty
+  */
+#define ISS_TOTAL_BYTES         0x0000
+#define ISS_NUM_M1_FILES        0
+#define ISS_NUM_M2_FILES        0
+#define ISS_NUM_EXT_FILES       0
+
+#define ISS_START_VADDR         (GFB_START_VADDR + GFB_TOTAL_BYTES)
+#define ISS_NUM_USER_FILES      ISSS_NUM_EXT_FILES
+#define ISS_NUM_STOCK_FILES     (ISSS_NUM_M1_FILES + ISSS_NUM_M2_FILES)
+#define ISS_NUM_FILES           (ISSS_NUM_STOCK_FILES + ISSS_NUM_USER_FILES)
+
+
+
 /** ISFB (Indexed Short File Block)  <BR>
  * ========================================================================<BR>
  * The ISFB contains up to 256 files (IDs 0x00 to 0xFF), length <= 255 bytes.
@@ -99,18 +123,18 @@
  * typically between 512-1024, depending on how many features you are using.
  * plus at least two additional user ISFs.
  */
-#define ISF_TOTAL_BYTES                         512
-#define ISF_NUM_M1_FILES                        7
-#define ISF_NUM_M2_FILES                        16
-#define ISF_NUM_EXT_FILES                       1   // Usually at least 1 (app ext)
-#define ISF_NUM_USER_FILES                      0  //max allowed user files
+#define ISF_TOTAL_BYTES         512
+#define ISF_NUM_M1_FILES        7
+#define ISF_NUM_M2_FILES        16
+#define ISF_NUM_EXT_FILES       1   // Usually at least 1 (app ext)
+#define ISF_NUM_USER_FILES      0  //max allowed user files
 
 ///@todo define this after mirror is alloc'ed
-#define ISF_MIRROR_VADDR                        0xC000
+#define ISF_MIRROR_VADDR        0xC000
 
-#define ISF_START_VADDR                         (GFB_START_VADDR + GFB_TOTAL_BYTES)
-#define ISF_NUM_STOCK_FILES                     (ISF_NUM_M1_FILES + ISF_NUM_M2_FILES)
-#define ISF_NUM_FILES                           (ISF_NUM_STOCK_FILES + ISF_NUM_USER_FILES + ISF_NUM_EXT_FILES)
+#define ISF_START_VADDR         (ISS_START_VADDR + ISS_TOTAL_BYTES)
+#define ISF_NUM_STOCK_FILES     (ISF_NUM_M1_FILES + ISF_NUM_M2_FILES)
+#define ISF_NUM_FILES           (ISF_NUM_STOCK_FILES + ISF_NUM_USER_FILES + ISF_NUM_EXT_FILES)
 
 
 /** ISFB Structure    <BR>
@@ -384,31 +408,42 @@
 #define ISF_MIRROR_NEXT                         (ISF_MIRROR_application_extension+ISF_MIRALLOC(application_extension))
 
 
+/// Total amount of stock ISF data
+#define ISF_STOCK_BYTES   ( \
+    ISF_ALLOC(network_settings) + \
+    ISF_ALLOC(device_features) + \
+    ISF_ALLOC(channel_configuration) + \
+    ISF_ALLOC(real_time_scheduler) + \
+    ISF_ALLOC(hold_scan_sequence) + \
+    ISF_ALLOC(sleep_scan_sequence) + \
+    ISF_ALLOC(beacon_transmit_sequence) + \
+    ISF_ALLOC(isf_list) + \
+    ISF_ALLOC(isfs_list) + \
+    ISF_ALLOC(gfb_file_list) + \
+    ISF_ALLOC(location_data_list) + \
+    ISF_ALLOC(ipv6_addresses) + \
+    ISF_ALLOC(sensor_list) + \
+    ISF_ALLOC(sensor_alarms) + \
+    ISF_ALLOC(root_authentication_key) + \
+    ISF_ALLOC(user_authentication_key) + \
+    ISF_ALLOC(routing_code) + \
+    ISF_ALLOC(user_id) + \
+    ISF_ALLOC(optional_command_list) + \
+    ISF_ALLOC(memory_size) + \
+    ISF_ALLOC(table_query_size) + \
+    ISF_ALLOC(table_query_results) + \
+    ISF_ALLOC(hardware_fault_status) + \
+    ISF_ALLOC(application_extension) \
+)
+
+/// Total amount of stock ISF data stored exclusively in mirror
+#define ISF_MIRROR_STOCK_BYTES   0
+//#define ISF_MIRROR_STOCK_BYTES   ( \
+//    ISF_ALLOC()
+//)
+
 /// Total amount of stock ISF data stored in ROM
-#define ISF_VWORM_STOCK_BYTES   (ISF_ALLOC(network_settings) + \
-ISF_ALLOC(device_features) + \
-ISF_ALLOC(channel_configuration) + \
-ISF_ALLOC(real_time_scheduler) + \
-ISF_ALLOC(hold_scan_sequence) + \
-ISF_ALLOC(sleep_scan_sequence) + \
-ISF_ALLOC(beacon_transmit_sequence) + \
-ISF_ALLOC(isf_list) + \
-ISF_ALLOC(isfs_list) + \
-ISF_ALLOC(gfb_file_list) + \
-ISF_ALLOC(location_data_list) + \
-ISF_ALLOC(ipv6_addresses) + \
-ISF_ALLOC(sensor_list) + \
-ISF_ALLOC(sensor_alarms) + \
-ISF_ALLOC(root_authentication_key) + \
-ISF_ALLOC(user_authentication_key) + \
-ISF_ALLOC(routing_code) + \
-ISF_ALLOC(user_id) + \
-ISF_ALLOC(optional_command_list) + \
-ISF_ALLOC(memory_size) + \
-ISF_ALLOC(table_query_size) + \
-ISF_ALLOC(table_query_results) + \
-ISF_ALLOC(hardware_fault_status) + \
-ISF_ALLOC(application_extension))
+#define ISF_VWORM_STOCK_BYTES   (ISF_STOCK_BYTES - ISF_MIRROR_STOCK_BYTES)
 
 #define ISF_VWORM_HEAP_BYTES    ISF_VWORM_STOCK_BYTES
 #define ISF_HEAP_BYTES          ISF_VWORM_HEAP_BYTES

@@ -62,7 +62,7 @@ typedef struct {
 } auth_id;
 
 ///@todo change all usage of this struct to comply with TI C2000 (used only in auth.c)
-typedef struct __attribute__((packed)) {
+typedef struct OT_PACKED {
     ot_u8   index;
     ot_u8   options;
     ot_u8   length;

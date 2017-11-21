@@ -37,25 +37,103 @@
 #include <otlib/auth.h>
 #include <otsys/veelite.h>
 
-///@todo remove this legacy provision
-#   ifndef ISF_NUM_EXT_FILES
-#       define ISF_NUM_EXT_FILES 1
-#   endif
-
 
 // You can open a finite number of files simultaneously
-vlFILE vl_file[OT_PARAM(VLFPS)];
+static vlFILE vl_file[OT_PARAM(VLFPS)];
 
 
+// If creating new files is permitted, then we store a mirror of the filesystem header.
+#if (OT_FEATURE(VLNEW) == ENABLED)
+///@todo this
+static vl_fsheader_t vlfs;
+#endif
+
+
+
+// Two checks for File Pointer Validity
+// Bottom option is slower but more robust.  Good for Debug.
 #define FP_ISVALID(fp_VAL)  (fp_VAL != NULL)
-
-//Slower but more robust version of above
 //#define FP_ISVALID(fp_VAL)  ((fp_VAL >= &vl_file[0]) && (fp_VAL <= &vl_file[OT_PARAM(VLFPS)-1]))
+
 
 
 // ISF Mirroring
 #define MIRROR_TO_SRAM      0x00
 #define MIRROR_TO_FLASH     0xFF
+
+
+
+
+/** @note There are two groups of boundary defines.
+  *
+  * 1. Group with hard-coded boundaries.  This compiles into smaller and faster
+  *    code, but it cannot be used for multi-fs featureset.  It is good for small 
+  *    MCUs or other deep-embedded targets.
+  *
+  * 2. Group with dynamic boundaries.  This is used for multi-fs platforms.
+  *    Multi-fs platforms may store multiple filesystems.  The point of this 
+  *    is for proxying filesystems.
+  */
+
+#if (OT_FEATURE(MULTIFS) != ENABLED)
+
+/// Virtual Address Shortcuts for the header blocks (VWORM)
+#   define GFB_Header_START         OVERHEAD_START_VADDR
+#   define GFB_Header_START_USER    (GFB_Header_START + (GFB_NUM_STOCK_FILES*sizeof(vl_header_t)))
+#   define ISF_Header_START         (GFB_Header_START + (GFB_NUM_FILES*sizeof(vl_header_t)))
+#   define ISF_Header_START_USER    (ISF_Header_START + (ISF_NUM_STOCK_FILES*sizeof(vl_header_t)))
+
+/// GFB HEAP Virtual address shortcuts (VWORM)
+#   define GFB_HEAP_START           GFB_START_VADDR
+#   define GFB_HEAP_USER_START      (GFB_START_VADDR+(GFB_NUM_STOCK_FILES*GFB_FILE_BYTES))
+#   define GFB_HEAP_END             (GFB_START_VADDR+GFB_TOTAL_BYTES)
+
+/// ISF HEAP Virtual address shortcuts (VWORM)
+#   define ISF_HEAP_START           ISF_START_VADDR
+#   define ISF_HEAP_STOCK_START     ISF_START_VADDR
+#   define ISF_HEAP_USER_START      (ISF_START_VADDR+ISF_VWORM_STOCK_BYTES)
+#   define ISF_HEAP_END             (ISF_START_VADDR+ISF_TOTAL_BYTES)
+
+#else
+
+///@todo this
+
+/// Virtual Address Shortcuts for the header blocks (VWORM)
+#   define GFB_Header_START         OVERHEAD_START_VADDR
+#   define GFB_Header_START_USER    (GFB_Header_START + (GFB_NUM_STOCK_FILES*sizeof(vl_header_t)))
+#   define ISF_Header_START         (GFB_Header_START + (GFB_NUM_FILES*sizeof(vl_header_t)))
+#   define ISF_Header_START_USER    (ISF_Header_START + (ISF_NUM_STOCK_FILES*sizeof(vl_header_t)))
+
+/// GFB HEAP Virtual address shortcuts (VWORM)
+#   define GFB_HEAP_START           GFB_START_VADDR
+#   define GFB_HEAP_USER_START      (GFB_START_VADDR+(GFB_NUM_STOCK_FILES*GFB_FILE_BYTES))
+#   define GFB_HEAP_END             (GFB_START_VADDR+GFB_TOTAL_BYTES)
+
+/// ISF HEAP Virtual address shortcuts (VWORM)
+#   define ISF_HEAP_START           ISF_START_VADDR
+#   define ISF_HEAP_STOCK_START     ISF_START_VADDR
+#   define ISF_HEAP_USER_START      (ISF_START_VADDR+ISF_VWORM_STOCK_BYTES)
+#   define ISF_HEAP_END             (ISF_START_VADDR+ISF_TOTAL_BYTES)
+
+
+#endif
+
+
+
+/// ISF MIRROR Virtual address shortcuts (VSRAM)
+#if (ISF_MIRROR_HEAP_BYTES > 0)
+#   define ISF_MIRROR_BASE      VSRAM_BASE_VADDR
+#   undef VSRAM_USED
+#   define  VSRAM_USED          1
+#endif
+
+
+
+
+
+
+
+
 
 
 typedef ot_u8 (*sub_check)(ot_u8);
@@ -103,7 +181,7 @@ ot_u8 sub_isf_mirror(ot_u8 direction);
 
 
 vlFILE* sub_new_fp();
-vlFILE* sub_new_file(vl_header* new_header, vaddr heap_base, vaddr heap_end, vaddr header_base, ot_int header_window );
+vlFILE* sub_new_file(vl_header_t* new_header, vaddr heap_base, vaddr heap_end, vaddr header_base, ot_int header_window );
 void sub_delete_file(vaddr del_header);
 void sub_copy_header( vaddr header, ot_u16* output_header );
 
@@ -396,7 +474,7 @@ OT_WEAK ot_u8 vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id,
 
 
 #ifndef EXTF_vl_getheader
-OT_WEAK ot_u8 vl_getheader(vl_header* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id) {
+OT_WEAK ot_u8 vl_getheader(vl_header_t* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id) {
     vaddr   header_vaddr = NULL_vaddr;
     ot_u8   output;
 
@@ -719,12 +797,12 @@ vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
 #if ((OT_FEATURE(VLNEW) == ENABLED) && \
      ((GFB_HEAP_BYTES > 0) && (GFB_NUM_USER_FILES > 0)))
     ot_uni16   idmod;
-    vl_header  new_header;
+    vl_header_t  new_header;
 
     idmod.ubyte[0]  = id;
     idmod.ubyte[1]  = mod;
 
-    // Fill vl_header
+    // Fill vl_header_t
     new_header.length   = (ot_u16)0;
     new_header.alloc    = (ot_u16)GFB_FILE_BYTES;
     new_header.idmod    = idmod.ushort;
@@ -746,12 +824,12 @@ vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
 vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length ) {
 #if ((OT_FEATURE(VLNEW) == ENABLED) && (ISF_NUM_USER_FILES > 0))
     ot_uni16   idmod;
-    vl_header new_header;
+    vl_header_t new_header;
 
     idmod.ubyte[0]  = id;
     idmod.ubyte[1]  = mod;
 
-    // Fill vl_header
+    // Fill vl_header_t
     new_header.length   = (ot_u16)0;
     new_header.alloc    = (ot_u16)max_length;
     new_header.idmod    = idmod.ushort;
@@ -820,7 +898,7 @@ vaddr sub_isf_search(ot_u8 id) {
     }
 #   endif
     
-    return (sizeof(vl_header) * id) + ISF_Header_START;
+    return (sizeof(vl_header_t) * id) + ISF_Header_START;
 }
 
 
@@ -839,7 +917,7 @@ ot_u8 sub_isf_mirror(ot_u8 direction) {
 
     // Go through ISF Header array
     header = ISF_Header_START;
-    for (i=0; i<ISF_NUM_STOCK_FILES; i++, header+=sizeof(vl_header)) {
+    for (i=0; i<ISF_NUM_STOCK_FILES; i++, header+=sizeof(vl_header_t)) {
 
         //get header data
         header_alloc    = vworm_read(header+2);
@@ -902,7 +980,7 @@ vlFILE* sub_new_fp() {
 }
 
 
-vlFILE* sub_new_file(vl_header* new_header, vaddr heap_base, vaddr heap_end, vaddr header_base, ot_int header_window ) {
+vlFILE* sub_new_file(vl_header_t* new_header, vaddr heap_base, vaddr heap_end, vaddr header_base, ot_int header_window ) {
 #if (OT_FEATURE(VLNEW) == ENABLED)
     //vlFILE* fp;
     //vaddr   new_base    = 0;
@@ -923,7 +1001,7 @@ vlFILE* sub_new_file(vl_header* new_header, vaddr heap_base, vaddr heap_end, vad
         return NULL;
 
     // Write header to the header array
-    sub_write_header(header_addr, (ot_u16*)new_header, sizeof(vl_header));
+    sub_write_header(header_addr, (ot_u16*)new_header, sizeof(vl_header_t));
 
     return vl_open_file( header_addr );
 #else
@@ -963,7 +1041,7 @@ vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers) {
                 return header;
         }
 
-        header += sizeof(vl_header);
+        header += sizeof(vl_header_t);
     }
     return NULL_vaddr;
 }
@@ -971,7 +1049,7 @@ vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers) {
 
 void sub_copy_header( vaddr header, ot_u16* output_header ) {
     ot_int i;
-    ot_int copy_length = sizeof(vl_header) / 2;
+    ot_int copy_length = sizeof(vl_header_t) / 2;
 
     for (i=0; i<copy_length; i++) {
         output_header[i] = vworm_read(header);
@@ -998,7 +1076,7 @@ vaddr sub_find_empty_header(vaddr header, ot_int num_headers) {
         if ( header_base == NULL_vaddr ) {
             return header;
         }
-        header += sizeof(vl_header);
+        header += sizeof(vl_header_t);
     }
 
     return NULL_vaddr;
@@ -1027,7 +1105,7 @@ vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
     ot_int  bestfit_alloc   = (ot_int)(32767);
     vaddr   bestfit_base    = NULL_vaddr;
 
-    for (i=0; i<num_headers; i++, loop1+=sizeof(vl_header) ) {
+    for (i=0; i<num_headers; i++, loop1+=sizeof(vl_header_t) ) {
         loop1_alloc = vworm_read(loop1 + 2);                                    // load alloc (max) from header
         loop1_base  = vworm_read(loop1 + 6);                                    // load base from header
 
@@ -1035,7 +1113,7 @@ vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
             heap_base   = (vaddr)(loop1_base + loop1_alloc);
             loop2       = header;
 
-            for (j=0; j<num_headers; j++, loop2+=sizeof(vl_header) ) {
+            for (j=0; j<num_headers; j++, loop2+=sizeof(vl_header_t) ) {
                 loop2_base  = vworm_read(loop2 + 6);
 
                 if ( (loop2_base != NULL_vaddr) && (loop2_base > heap_base) ) { // if header is valid ...

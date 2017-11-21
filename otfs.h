@@ -47,7 +47,7 @@
 #define OTFS_FEATURE_MULTIFS    1
 #endif
 
-typedef struct __attribute__((packed)) {
+typedef struct OT_PACKED {
     uint8_t oui24[3];
     uint8_t ext40[5];
 } otfs_eui64_t;

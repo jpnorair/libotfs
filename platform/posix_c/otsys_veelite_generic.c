@@ -84,6 +84,9 @@ vas_loc vas_check(vaddr addr) {
 
 
 
+
+
+
 /** VWORM Functions <BR>
   * ========================================================================<BR>
   */
@@ -94,40 +97,69 @@ ot_u8 vworm_format( ) {
 }
 #endif
 
+
+
 #ifndef EXTF_vworm_init
-ot_u8 vworm_init(vworm_sections_t* init) {
+ot_uint sub_copy_section(ot_u32* section, void* defaults, ot_uint defaults_size, ot_uint input_size) {
+    // Dynamic sizing variant would require re-setting the input struct...
+    //ot_uint  copylen;
+    //copylen = ((defaults_size+3) >> 2);
+    //copylen = (copylen < input_size) ? copylen : input_size;
+    //ot_memcpy4(section, defaults, copylen);
+    //return copylen;
+    
+    ot_memcpy4(section, (void*)overhead_files, copylen);
+}
+
+
+ot_uint vworm_defaults_readout(vworm_sections_t* sections, ot_uint limit) {
+    if (sections != NULL) {
+        if (sections->base != NULL) {
+            ot_u16* data; 
+            ot_uint offset;
+            ot_uint dlen;
+            
+            data    = (uint32_t*)sections->base;
+            sections->  = (sizeof(overhead_files) + 1) >> 1;
+            dlen
+            
+            ot_memcpy2(data, )
+            
+            sec += sub_copy_section(sec, (void*)overhead_files, sizeof(overhead_files), init->ovh_u32alloc);
+            
+        }
+    }
+    
+    return limit;
+}
+
+
+ot_u8 vworm_init(const vworm_sections_t* init) {
 /// If MultiFS is not used, all the arguments can be NULL.
 /// If MultiFS is required, the initialization process includes storing default
 /// filesystem values into a memory-base supplied by the caller.
 
 #   if (OT_FEATURE(MULTIFS))
-    uint32_t offset;
+    ot_u32_t* section;
     
-    if (handle == NULL) {
+    if (init == NULL) {
         return 1;
     }
     
-    if (handle->ovh_base == NULL) {
+    if (init->base == NULL) {
         return 2;
     }
-    else {
-        ot_memcpy4(&fsram[OVERHEAD_START_VADDR], (void*)overhead_files, handle->ovh_alloc);
-        offset = (handle->ovh_alloc + 3) >> 2;
-    }
     
-    if (handle->gfb_base != NULL) {
-        ot_memcpy4(&fsram[offset], (void*)gfb_stock_files, handle->gfb_alloc);
-        offset += (handle->gfb_alloc + 3) >> 2;
-    }
     
-    if (handle->iss_base != NULL) {
-        ot_memcpy4(&fsram[offset], (void*)iss_stock_files, handle->iss_alloc);
-        offset += (handle->iss_alloc + 3) >> 2;
-    }
     
-    if (handle->isf_base != NULL) {
-        ot_memcpy4(&fsram[offset], (void*)isf_stock_files, handle->isf_alloc);
-        offset += (handle->isf_alloc + 3) >> 2;
+    if (init->gfb_u32alloc != 0) {
+        section += sub_copy_section(section, (void*)gfb_stock_files, sizeof(gfb_stock_files), init->gfb_u32alloc);
+    }
+    if (init->iss_u32alloc != 0) {
+        section += sub_copy_section(section, (void*)iss_stock_files, sizeof(iss_stock_files), init->iss_u32alloc);
+    }
+    if (init->isf_u32alloc != 0) {
+        section += sub_copy_section(section, (void*)isf_stock_files, sizeof(isf_stock_files), init->isf_u32alloc);
     }
     
     /// No MultiFS

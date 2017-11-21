@@ -45,7 +45,9 @@
 #include <otsys/veelite_core.h>
 
 
-
+/** @typedef vlBLOCK
+  * enumerated type.  There are specifically 3 blocks defined by Veelite.
+  */
 typedef enum {
     VL_NULL_BLOCKID = 0,
     VL_GFB_BLOCKID  = 1,
@@ -75,7 +77,7 @@ typedef struct {
       
 
 
-/** @typedef vl_header
+/** @typedef vl_header_t
   * The generic form of the header used for OpenTag data files, used for
   * ISF, and GFB.  The mirror field should be set to NULL_vaddr if
   * not used.
@@ -87,13 +89,39 @@ typedef struct {
   * vaddr   base:       base (start) virtual address
   * vaddr   mirror:     base virtual address of vsram mirrored data (optional)
   */
-typedef struct {
+typedef struct OT_PACKED {
     ot_u16  length;
     ot_u16  alloc;
     ot_u16  idmod;
     vaddr   base;
     vaddr   mirror;
-} vl_header;
+} vl_header_t;
+
+
+/** @typedef vl_blockheader
+  * Header for a Veelite block: meant for internal use only.
+  * It goes into the overhead section of the Veelite FS, via vl_fsheader.
+  */
+typedef struct OT_PACKED {
+    ot_u16  alloc;
+    ot_u16  files;
+} vl_blkheader_t;
+
+
+/** @typedef vl_fsheader
+  * Filesystem Header: meant for internal/external use.
+  * Must be stored at the base of the filesystem.
+  * Must be the size of 2 vl_header_t structs.
+  */
+typedef struct OT_PACKED {
+    ot_u16          overhead_alloc;
+    ot_u16          res2;
+    ot_u16          res4;
+    ot_u16          res6;
+    vl_blkheader_t  gfb;
+    vl_blkheader_t  iss;
+    vl_blkheader_t  isf;
+} vl_fsheader_t;
 
 
 
@@ -111,16 +139,16 @@ typedef struct {
   *
   * ot_u8   id:         ID value of the ISF Element (8 bits)
   * ot_u8   reserved:   reserved
-  * vl_header* header: Pointer to Data file header   
+  * vl_header_t* header: Pointer to Data file header   
   */
 typedef struct {
-#   ifdef _16BIT_CLEAN_
+#   ifdef _16BIT_BYTE_
     ot_u16      id;
 #   else
     ot_u8       id;
     ot_u8       reserved;
 #   endif
-    vl_header*  header;
+    vl_header_t*  header;
 } vl_link;
 
 
@@ -140,54 +168,6 @@ typedef struct {
 
 
 #if (OT_FEATURE(VEELITE) == ENABLED)
-
-/// This is a patch
-#if OT_FEATURE(MULTIFS)
-#   undef OVERHEAD_START_VADDR
-#   define OVERHEAD_START_VADDR     
-#endif
-
-
-
-/// Virtual Address Shortcuts for the header blocks (VWORM)
-/// Header blocks for: GFB Elements IDs, and ISF Elements
-#define GFB_Header_START        OVERHEAD_START_VADDR
-#define GFB_Header_START_USER   (GFB_Header_START + (GFB_NUM_STOCK_FILES*sizeof(vl_header)))
-#define ISF_Header_START        (GFB_Header_START + (GFB_NUM_FILES*sizeof(vl_header)))
-#define ISF_Header_START_USER   (ISF_Header_START + (ISF_NUM_STOCK_FILES*sizeof(vl_header)))
-
-
-/// GFB HEAP Virtual address shortcuts (VWORM)
-/// @todo Hardcoded for the time being... fix later
-#define GFB_HEAP_START          GFB_START_VADDR
-#define GFB_HEAP_USER_START     (GFB_START_VADDR+(GFB_NUM_STOCK_FILES*GFB_FILE_BYTES))
-#define GFB_HEAP_END            (GFB_START_VADDR+GFB_TOTAL_BYTES)
-
-
-/// ISF HEAP Virtual address shortcuts (VWORM)
-/// @todo Hardcoded for the time being... fix later
-#define ISF_HEAP_START          ISF_START_VADDR
-#define ISF_HEAP_STOCK_START    ISF_START_VADDR
-#define ISF_HEAP_USER_START     (ISF_START_VADDR+ISF_VWORM_STOCK_BYTES)
-#define ISF_HEAP_END            (ISF_START_VADDR+ISF_TOTAL_BYTES)
-
-
-/// ISF MIRROR Virtual address shortcuts (VSRAM)
-#if (ISF_MIRROR_HEAP_BYTES > 0)
-#   define ISF_MIRROR_BASE      VSRAM_BASE_VADDR
-#   undef VSRAM_USED
-#   define  VSRAM_USED          1
-#endif
-
-
-/// M1TAG HEAP address shortcuts ("secret" memory)
-/// The optional data for M1TAG (Mode 1 only) is stored at some location in
-/// physical memory (typically flash).  It never needs to be changed during
-/// runtime.
-#define  M1TAG_BASE             NULL_vaddr
-#define  M1TAG_BASE_PHYSICAL    M1TAG_SPACE
-
-
 
 
 // veelite functions
@@ -302,8 +282,8 @@ ot_u8   vl_delete(vlBLOCK block_id, ot_u8 data_id, id_tmpl* user_id);
 ot_u8   vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id);
 
 
-/** @brief  Returns file header as a vl_header datastruct
-  * @param  header      (vl_header*) Output header datastruct
+/** @brief  Returns file header as a vl_header_t datastruct
+  * @param  header      (vl_header_t*) Output header datastruct
   * @param  block_id    (vlBLOCK) Block ID of file header to get
   * @param  data_id     (ot_u8) 0-255 file ID of file header to get
   * @param  mod         (ot_u8) Method of access for file (read, write, etc)
@@ -313,11 +293,11 @@ ot_u8   vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id, ot_u8
   * @sa vl_getheader_vaddr()
   *
   * This function is a wrapper for vl_getheader_vaddr(), but it also copies the
-  * header data into a vl_header struct that the user must allocate and supply.
+  * header data into a vl_header_t struct that the user must allocate and supply.
   *
   * This function is intended for use with File ALP protocols.
   */
-ot_u8   vl_getheader(vl_header* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id);
+ot_u8   vl_getheader(vl_header_t* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id);
 
 
 /** @brief  Opens a file from the virtual address of its header

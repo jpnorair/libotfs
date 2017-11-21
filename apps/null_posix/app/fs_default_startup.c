@@ -77,8 +77,7 @@
 
 
 
-
-/// These overhead are the Veelite vl_header files. They are hard coded,
+/// These overhead are the Veelite vl_header_t files. They are hard coded,
 /// and they must be in the endian of the platform. (Little endian here)
 
 #if defined(__NO_SECTIONS__)
@@ -89,6 +88,19 @@ const ot_u8 overhead_files[] __attribute__ ((section(".vl_ov"))) = {
 #pragma DATA_SECTION(overhead_files, ".vl_ov")
 const ot_u8 overhead_files[] = {
 #endif
+    /* Filesystem Header: Same size as two file headers (20 bytes) */
+    SPLIT_SHORT_LE(GFB_NUM_STOCK_FILES + ISS_NUM_STOCK_FILES + ISF_NUM_STOCK_FILES),
+    SPLIT_SHORT_LE(0),
+    SPLIT_SHORT_LE(0),
+    SPLIT_SHORT_LE(0),
+    SPLIT_SHORT_LE(GFB_TOTAL_BYTES),
+    SPLIT_SHORT_LE(ISF_ALLOC(GFB_NUM_STOCK_FILES)),
+    SPLIT_SHORT_LE(ISF_ALLOC(ISS_STOCK_BYTES)),
+    SPLIT_SHORT_LE(ISF_ALLOC(ISS_NUM_STOCK_FILES)),
+    SPLIT_SHORT_LE(ISF_ALLOC(ISF_STOCK_BYTES)),
+    SPLIT_SHORT_LE(ISF_ALLOC(ISF_NUM_STOCK_FILES)),
+    
+    /* GFB Files */
     0x00, 0x00, 0x00, 0x01,                 /* GFB Elements 0 */
     0x00, GFB_MOD_standard,
     0x00, 0x14, 0xFF, 0xFF,

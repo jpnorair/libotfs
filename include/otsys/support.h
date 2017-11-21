@@ -76,22 +76,26 @@
 #   define OT_INLINE    inline
 #   define OT_INLINE_H  inline
 #   define OT_WEAK      __attribute__((weak)) 
+#   define OT_PACKED    __attribute__((packed))
 
 #elif (CC_SUPPORT == CL430)
 #   ifdef __EABI__
 #       define OT_INLINE    inline
 #       define OT_INLINE_H  inline
 #       define OT_WEAK
+#       define OT_PACKED
 #   else
 #       define OT_INLINE
 #       define OT_INLINE_H  __inline
 #       define OT_WEAK
+#       define OT_PACKED
 #   endif
 
 #elif (CC_SUPPORT == IAR_V5)
 #   define OT_INLINE    __inline
 #   define OT_INLINE_H  __inline
 #   define OT_WEAK
+#   define OT_PACKED
 
 #endif
 
