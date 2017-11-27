@@ -38,87 +38,49 @@
 #include <otsys/veelite.h>
 
 
+
 // You can open a finite number of files simultaneously
-static vlFILE vl_file[OT_PARAM(VLFPS)];
-
-
-// If creating new files is permitted, then we store a mirror of the filesystem header.
-#if (OT_FEATURE(VLNEW) == ENABLED)
-///@todo this
-static vl_fsheader_t vlfs;
-#endif
-
-
+static vlFILE vlfile[OT_PARAM(VLFPS)];
 
 // Two checks for File Pointer Validity
 // Bottom option is slower but more robust.  Good for Debug.
 #define FP_ISVALID(fp_VAL)  (fp_VAL != NULL)
-//#define FP_ISVALID(fp_VAL)  ((fp_VAL >= &vl_file[0]) && (fp_VAL <= &vl_file[OT_PARAM(VLFPS)-1]))
+//#define FP_ISVALID(fp_VAL)  ((fp_VAL >= &vlfile[0]) && (fp_VAL <= &vlfile[OT_PARAM(VLFPS)-1]))
 
 
 
-// ISF Mirroring
-#define MIRROR_TO_SRAM      0x00
-#define MIRROR_TO_FLASH     0xFF
-
-
-
-
-/** @note There are two groups of boundary defines.
-  *
-  * 1. Group with hard-coded boundaries.  This compiles into smaller and faster
-  *    code, but it cannot be used for multi-fs featureset.  It is good for small 
-  *    MCUs or other deep-embedded targets.
-  *
-  * 2. Group with dynamic boundaries.  This is used for multi-fs platforms.
-  *    Multi-fs platforms may store multiple filesystems.  The point of this 
-  *    is for proxying filesystems.
-  */
-
-#if (OT_FEATURE(MULTIFS) != ENABLED)
-
-/// Virtual Address Shortcuts for the header blocks (VWORM)
-#   define GFB_Header_START         OVERHEAD_START_VADDR
-#   define GFB_Header_START_USER    (GFB_Header_START + (GFB_NUM_STOCK_FILES*sizeof(vl_header_t)))
-#   define ISF_Header_START         (GFB_Header_START + (GFB_NUM_FILES*sizeof(vl_header_t)))
-#   define ISF_Header_START_USER    (ISF_Header_START + (ISF_NUM_STOCK_FILES*sizeof(vl_header_t)))
-
-/// GFB HEAP Virtual address shortcuts (VWORM)
-#   define GFB_HEAP_START           GFB_START_VADDR
-#   define GFB_HEAP_USER_START      (GFB_START_VADDR+(GFB_NUM_STOCK_FILES*GFB_FILE_BYTES))
-#   define GFB_HEAP_END             (GFB_START_VADDR+GFB_TOTAL_BYTES)
-
-/// ISF HEAP Virtual address shortcuts (VWORM)
-#   define ISF_HEAP_START           ISF_START_VADDR
-#   define ISF_HEAP_STOCK_START     ISF_START_VADDR
-#   define ISF_HEAP_USER_START      (ISF_START_VADDR+ISF_VWORM_STOCK_BYTES)
-#   define ISF_HEAP_END             (ISF_START_VADDR+ISF_TOTAL_BYTES)
-
-#else
-
-///@todo this
-
-/// Virtual Address Shortcuts for the header blocks (VWORM)
-#   define GFB_Header_START         OVERHEAD_START_VADDR
-#   define GFB_Header_START_USER    (GFB_Header_START + (GFB_NUM_STOCK_FILES*sizeof(vl_header_t)))
-#   define ISF_Header_START         (GFB_Header_START + (GFB_NUM_FILES*sizeof(vl_header_t)))
-#   define ISF_Header_START_USER    (ISF_Header_START + (ISF_NUM_STOCK_FILES*sizeof(vl_header_t)))
-
-/// GFB HEAP Virtual address shortcuts (VWORM)
-#   define GFB_HEAP_START           GFB_START_VADDR
-#   define GFB_HEAP_USER_START      (GFB_START_VADDR+(GFB_NUM_STOCK_FILES*GFB_FILE_BYTES))
-#   define GFB_HEAP_END             (GFB_START_VADDR+GFB_TOTAL_BYTES)
-
-/// ISF HEAP Virtual address shortcuts (VWORM)
-#   define ISF_HEAP_START           ISF_START_VADDR
-#   define ISF_HEAP_STOCK_START     ISF_START_VADDR
-#   define ISF_HEAP_USER_START      (ISF_START_VADDR+ISF_VWORM_STOCK_BYTES)
-#   define ISF_HEAP_END             (ISF_START_VADDR+ISF_TOTAL_BYTES)
+// If creating new files is permitted, then we store a mirror of the filesystem header.
+#if ((OT_FEATURE(VLNEW) == ENABLED) 
+static vlFSHEADER vlfs;
 
 
 #endif
 
 
+
+
+/** @note Boundary Definitions
+  * Boundary definitions are based on virtual addressing, so regardless of what
+  * is implemented at the lower layer of the filesystem, these boundaries are
+  * valid.
+  */
+
+/// Virtual Address Shortcuts for the header blocks (VWORM)
+#define GFB_Header_START        (OVERHEAD_START_VADDR + sizeof(vlFSHEADER))
+#define GFB_Header_START_USER   (GFB_Header_START + (GFB_NUM_STOCK_FILES*sizeof(vl_header_t)))
+#define ISF_Header_START        (GFB_Header_START + (GFB_NUM_FILES*sizeof(vl_header_t)))
+#define ISF_Header_START_USER   (ISF_Header_START + (ISF_NUM_STOCK_FILES*sizeof(vl_header_t)))
+
+/// GFB HEAP Virtual address shortcuts (VWORM)
+#define GFB_HEAP_START          GFB_START_VADDR
+#define GFB_HEAP_USER_START     (GFB_START_VADDR+(GFB_NUM_STOCK_FILES*GFB_FILE_BYTES))
+#define GFB_HEAP_END            (GFB_START_VADDR+GFB_TOTAL_BYTES)
+
+/// ISF HEAP Virtual address shortcuts (VWORM)
+#define ISF_HEAP_START          ISF_START_VADDR
+#define ISF_HEAP_STOCK_START    ISF_START_VADDR
+#define ISF_HEAP_USER_START     (ISF_START_VADDR+ISF_VWORM_STOCK_BYTES)
+#define ISF_HEAP_END            (ISF_START_VADDR+ISF_TOTAL_BYTES)
 
 /// ISF MIRROR Virtual address shortcuts (VSRAM)
 #if (ISF_MIRROR_HEAP_BYTES > 0)
@@ -151,12 +113,6 @@ typedef vlFILE* (*sub_new)(ot_u8, ot_u8, ot_u8);
     ot_u16* VWORM_Heap;
     ot_u16* VSRAM_Heap;
 #endif
-
-
-
-
-
-
 
 
 
@@ -276,16 +232,16 @@ vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers);
 #endif
 
 #ifndef EXTF_vl_init
-OT_WEAK void vl_init() {
+OT_WEAK ot_u8 vl_init(void* handle) {
     ot_int i;
 
     /// Initialize environment variables
     for (i=0; i<OT_PARAM(VLFPS); i++) {
-        vl_file[i].header   = NULL_vaddr;
-        vl_file[i].start    = 0;
-        vl_file[i].length   = 0;
-        vl_file[i].read     = NULL;
-        vl_file[i].write    = NULL;
+        vlfile[i].header   = NULL_vaddr;
+        vlfile[i].start    = 0;
+        vlfile[i].length   = 0;
+        vlfile[i].read     = NULL;
+        vlfile[i].write    = NULL;
     }
 
     /// Initialize core
@@ -295,24 +251,21 @@ OT_WEAK void vl_init() {
     // Copy to mirror
     ISF_loadmirror();
 
-
 #if (CC_SUPPORT == SIM_GCC)
-
     // Set up memory files if using Simulator
     VWORM_Heap  = (ot_u16*)&(NAND.ubyte[VWORM_BASE_PHYSICAL]);
     //VSRAM_Heap  = (ot_u16*)&(NAND.ubyte[VSRAM_BASE_PHYSICAL]);    //vsram declared in veelite_core
 #endif
+
+    return 0;
 }
 #endif
-
-
-
 
 
 // General File Functions
 #ifndef EXTF_vl_get_fp
 OT_WEAK vlFILE* vl_get_fp(ot_int fd) {
-    return &vl_file[fd];
+    return &vlfile[fd];
 }
 #endif
 
@@ -321,7 +274,7 @@ OT_WEAK vlFILE* vl_get_fp(ot_int fd) {
 OT_WEAK ot_int vl_get_fd(vlFILE* fp) {
     ot_int fd;
 
-    fd  = (ot_int)((ot_u8*)fp - (ot_u8*)vl_file);
+    fd  = (ot_int)((ot_u8*)fp - (ot_u8*)vlfile);
     fd /= sizeof(vlFILE);
 
     return fd;
@@ -336,14 +289,17 @@ OT_WEAK ot_u8 vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod
     sub_vaddr search_fn;
     sub_new   new_fn;
 
-    /// 1. Authenticate, when it's not a su call
+    /// 1. Authenticate, when it's not a su call:
+    ///    Authentication failure error code is 0x04.
     if (user_id != NULL) {
         if ( auth_check(VL_ACCESS_USER, VL_ACCESS_W, user_id) == 0 ) {
             return 0x04;
         }
     }
 
-    /// 2. Make sure the file is not already there
+    /// 2. Make sure the file does not already exist.
+    ///    If it already exists, the error code is 0x02.
+    ///    If the block is not available, the error code is 0xFF.
     block_id--;
     switch (block_id) {
         case 0: search_fn   = &sub_gfb_search;
@@ -351,7 +307,7 @@ OT_WEAK ot_u8 vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod
                 break;
 
         case 1: return 0xFF;
-                //ISFS features removed
+                //ISS features removed
                 //search_fn   = &sub_isfs_search;
                 //new_fn      = &sub_isfs_new;
                 //break;
@@ -368,14 +324,23 @@ OT_WEAK ot_u8 vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod
         return 0x02;
     }
 
+    /// 3. Create the new file.
+    ///    Error code for inability to create file is 0x06.
     *fp_new = new_fn(data_id, mod, max_length);
     if (*fp_new == NULL) {
         return 0x06;
     }
+    
+    /// 4. Update the filesystem header, on successful file creation.
+    {   vl_blkheader_t* block   = &vlfs.gfb;
+        block[block_id].files  += 1;
+    }
 
     return 0;
+
 #else
     return 255;
+
 #endif
 }
 #endif
@@ -427,11 +392,18 @@ OT_WEAK ot_u8 vl_delete(vlBLOCK block_id, ot_u8 data_id, id_tmpl* user_id) {
             return 0x04;
         }
     }
-
+    
+    /// 4. Delete the file, and update the fs header.
     sub_delete_file(header);
+    {   vl_blkheader_t* block   = &vlfs.gfb;
+        block[block_id].files  -= 1;
+    }
+    
     return 0;
+    
 #else
     return 255; //error, delete disabled
+
 #endif
 }
 #endif
@@ -445,8 +417,8 @@ OT_WEAK ot_u8 vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id,
     switch (block_id) {
         case VL_GFB_BLOCKID:    *header = sub_gfb_search(data_id);      break;
         
-        //ISFS features removed
-        //case VL_ISFS_BLOCKID:   *header = sub_isfs_search(data_id);     break;
+        //ISS features removed
+        //case VL_ISS_BLOCKID:   *header = sub_isfs_search(data_id);     break;
         
         case VL_ISF_BLOCKID:    *header = sub_isf_search(data_id);      break;
         default:                return 255;
@@ -672,7 +644,7 @@ OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
             mhead   = (ot_u16*)vsram_get(fp->start-2);
             *mhead  = (*mhead != fp->length) ? fp->length : *mhead;
         }
-        else if ( vworm_read(fp->header+0) != fp->length ) {
+        else if (vworm_read(fp->header+0) != fp->length) {
             sub_write_header( (fp->header+0), &(fp->length), 2);
         }
 
@@ -718,13 +690,13 @@ OT_WEAK ot_uint vl_checkalloc( vlFILE* fp ) {
 
 
 
-
-
-
-
-
 /// Public Block Functions
 /// Usually these are just shortcuts
+
+// ISF Mirroring
+#define MIRROR_TO_SRAM      0x00
+#define MIRROR_TO_FLASH     0xFF
+
 
 OT_WEAK vlFILE* GFB_open_su( ot_u8 id ) {
 #   if ( GFB_HEAP_BYTES > 0 )
@@ -809,7 +781,7 @@ vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
     new_header.mirror   = NULL_vaddr;
 
     // Find where to put the new data, and if heap is full
-    return sub_new_file(    &new_header,
+    return sub_new_file(&new_header,
                         GFB_HEAP_USER_START,
                         GFB_HEAP_END,
                         GFB_Header_START_USER,
@@ -969,8 +941,8 @@ vlFILE* sub_new_fp() {
     ot_int fd;
 
     for (fd=0; fd<OT_PARAM(VLFPS); fd++) {
-        if (vl_file[fd].read == NULL)
-            return &vl_file[fd];
+        if (vlfile[fd].read == NULL)
+            return &vlfile[fd];
     }
 #else
         ///@todo do a binary search

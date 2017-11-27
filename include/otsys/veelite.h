@@ -74,6 +74,34 @@ typedef struct {
     vlwrite_fn  write;
 } vlFILE;
 
+
+
+/** @typedef vl_blockheader
+  * Header for a Veelite block: meant for internal use only.
+  * It goes into the overhead section of the Veelite FS, via vlFSHEADER.
+  */
+typedef struct OT_PACKED {
+    ot_u16  alloc;
+    ot_u16  files;
+} vl_blkheader_t;
+
+
+/** @typedef vl_fsheader
+  * Filesystem Header: meant for internal/external use.
+  * Must be stored at the base of the filesystem.
+  * Must be the size of 2 vl_header_t structs.
+  */
+typedef struct OT_PACKED {
+    ot_u16          overhead_alloc;
+    ot_u16          res2;
+    ot_u16          res4;
+    ot_u16          res6;
+    vl_blkheader_t  gfb;
+    vl_blkheader_t  iss;
+    vl_blkheader_t  isf;
+} vlFSHEADER;
+
+
       
 
 
@@ -97,31 +125,6 @@ typedef struct OT_PACKED {
     vaddr   mirror;
 } vl_header_t;
 
-
-/** @typedef vl_blockheader
-  * Header for a Veelite block: meant for internal use only.
-  * It goes into the overhead section of the Veelite FS, via vl_fsheader.
-  */
-typedef struct OT_PACKED {
-    ot_u16  alloc;
-    ot_u16  files;
-} vl_blkheader_t;
-
-
-/** @typedef vl_fsheader
-  * Filesystem Header: meant for internal/external use.
-  * Must be stored at the base of the filesystem.
-  * Must be the size of 2 vl_header_t structs.
-  */
-typedef struct OT_PACKED {
-    ot_u16          overhead_alloc;
-    ot_u16          res2;
-    ot_u16          res4;
-    ot_u16          res6;
-    vl_blkheader_t  gfb;
-    vl_blkheader_t  iss;
-    vl_blkheader_t  isf;
-} vl_fsheader_t;
 
 
 
@@ -173,12 +176,75 @@ typedef struct {
 // veelite functions
 
 /** @brief initializes the veelite subsystem.  Run after SRAM resets.
-  * @param none
-  * @retval none
+  * @param handle       (void*) initialization handle.
+  * @retval ot_u8       Returns zero on success, else an error code.
   * @ingroup Veelite
+  *
+  * The input parameter "handle" is RFU.  NULL may be used.
   */
-void vl_init();
+ot_u8 vl_init(void* handle);
 
+
+// Multi-FS functions
+#if (OT_FEATURE(MULTIFS))
+
+// Functions primarily for use with Multi-FS features.
+ot_u8 vl_multifs_init(void* handle);
+
+
+ot_u8 vl_multifs_add(vlFSHEADER* newfs, id_tmpl* fsid);
+
+
+ot_u8 vl_multifs_del(id_tmpl* fsid);
+
+
+
+/** @brief Switches to a new FS in the MultiFS system.
+  * @param fsid         (id_tmpl*) Filesystem ID to switch to.  May be NULL.
+  * @retval ot_u8       Returns zero on success, else an error code.
+  * @ingroup Veelite
+  *
+  * fsid: the identity of the filesystem to switch to.  Providing NULL sets the
+  * fs to the default fs of the device.
+  *
+  * The fsid input is used to specify a filesystem in a Multi-FS configuration.
+  * Multi-FS configurations are enabled when OT_FEATURE_MULTIFS is enabled in
+  * the application configuration.  If NULL is supplied, the default/local FS
+  * is used.
+  *
+  * @note Multi-FS is useful for gateways that are managing proxy filesystems 
+  * of devices they interact with.  Multi-FS usage on endpoints is possible but 
+  * this is not the intent of it.
+  */
+ot_u8 vl_multifs_switch(id_tmpl* fsid);
+
+#endif
+
+
+
+
+/** @brief  Returns a pointer to the filesystem header (FS Header)
+  * @param  fsid        (id_tmpl*) Filesystem ID.  May be NULL.
+  * @retval vlFSHEADER* A veelite Filesystem Header pointer
+  * @ingroup Veelite
+  *
+  * The fsid input is used to specify a filesystem in a Multi-FS configuration.
+  * Multi-FS configurations are enabled when OT_FEATURE_MULTIFS is enabled in
+  * the application configuration.  If NULL is supplied, the default/local FS
+  * is used.
+  *
+  * The return value is a pointer to the FS Header data, or NULL if the fsid
+  * supplied as input does not resolve to a Filesystem.
+  *
+  * @note Multi-FS is useful for gateways that are managing proxy filesystems 
+  * of devices they interact with.  Multi-FS usage on endpoints is possible but 
+  * this is not the intent of it.
+  *
+  * @note Reading data from the FS Header is mostly harmless.  Writing data to 
+  * the FSHeader may or may not have any effect, and you shouldn't do it anyway
+  * unless you know exactly what you're doing.
+  */
+const vlFSHEADER* vl_get_fsheader(id_tmpl* fsid);
 
 
 

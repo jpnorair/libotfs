@@ -34,6 +34,15 @@
 #include <app/build_config.h>
 
 
+/// MultiFS feature requires that active data is stored in RAM.
+/// MultiFS is not for embedded devices.
+#if OT_FEATURE(MULTIFS)
+#   undef __VLSRAM__
+#   define __VLSRAM__
+#endif
+
+/// VLSRAM puts all the filesystem in RAM (not necessarily SRAM, but whatever),
+/// so additional mirroring into SRAM is disabled.
 #if defined(__VLSRAM__)
 #   define _NOMIRROR    1
 #else
