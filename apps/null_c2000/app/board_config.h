@@ -29,8 +29,6 @@
 #define __BOARD_CONFIG_H
 
 #include <app/build_config.h>
-
-//#include <app/isr_config_STM32L0.h>
 #include <board/stdc/board_posix_a.h>
 
 

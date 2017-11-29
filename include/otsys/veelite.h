@@ -45,6 +45,12 @@
 #include <otsys/veelite_core.h>
 
 
+#ifdef __C2000__
+#   define vl_u8    ot_u16
+#else
+#   define vl_u8    ot_u8
+#endif
+
 /** @typedef vlBLOCK
   * enumerated type.  There are specifically 3 blocks defined by Veelite.
   */
@@ -145,7 +151,7 @@ typedef struct OT_PACKED {
   * vl_header_t* header: Pointer to Data file header   
   */
 typedef struct {
-#   ifdef _16BIT_BYTE_
+#   ifdef __C2000__
     ot_u16      id;
 #   else
     ot_u8       id;
@@ -344,7 +350,6 @@ ot_u8   vl_delete(vlBLOCK block_id, ot_u8 data_id, id_tmpl* user_id);
   * <LI>   4: User does not have sufficient access to this file </LI>
   * <LI> 255: Miscellaneous Error                               </LI>
   */
-
 ot_u8   vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id);
 
 
@@ -471,7 +476,7 @@ ot_u8 vl_write( vlFILE* fp, ot_uint offset, ot_u16 data );
   *
   * This function will not read more bytes than the current length of the file.
   */
-ot_uint vl_load( vlFILE* fp, ot_uint length, ot_u8* data );
+ot_uint vl_load( vlFILE* fp, ot_uint length, vl_u8* data );
 
 
 
@@ -482,8 +487,8 @@ ot_uint vl_load( vlFILE* fp, ot_uint length, ot_u8* data );
   * @retval (ot_u8)     Non-zero on failure
   * @ingroup Veelite
   */
-ot_u8 vl_store( vlFILE* fp, ot_uint length, ot_u8* data );
-ot_u8 vl_append( vlFILE* fp, ot_uint length, ot_u8* data );
+ot_u8 vl_store( vlFILE* fp, ot_uint length, vl_u8* data );
+ot_u8 vl_append( vlFILE* fp, ot_uint length, vl_u8* data );
 
 
 /** @brief  Returns a pointer to the start of the file data.  Use with caution.
@@ -491,7 +496,7 @@ ot_u8 vl_append( vlFILE* fp, ot_uint length, ot_u8* data );
   * @retval (ot_u8*)    Returns pointer to file data, or NULL on error
   * @ingroup Veelite
   */
-ot_u8* vl_memptr( vlFILE* fp );
+vl_u8* vl_memptr( vlFILE* fp );
 
 
 
