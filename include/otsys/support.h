@@ -37,9 +37,7 @@
 #define SIM_GCC     0
 #define GCC         1
 #define GCC_ARM     1       //legacy
-#define CL430       16
-#define CCSv4       CL430  //legacy
-#define CCSv5       CL430  //legacy
+#define TI_C        16
 #define IAR_V5      32
 
 
@@ -50,9 +48,9 @@
 #if defined(__GCC__) || defined(__GNUC__)
 #   define CC_SUPPORT   GCC
 
-// CL430: a GCC-variant used in TI CCS
-#elif (defined(__CCSv4__) || defined(__CCSv5__) || defined(__CL430__))
-#   define CC_SUPPORT   CL430
+// TI's old-school C compiler used with C2000 and sometimes MSP430
+#elif (defined(__TI_C__) || defined(__CL430__))
+#   define CC_SUPPORT   TI_C
 
 // IAR_V5: a proprietary compiler from IAR
 #elif (defined(__IARV5__))
@@ -78,13 +76,13 @@
 #   define OT_WEAK      __attribute__((weak)) 
 #   define OT_PACKED    __attribute__((packed))
 
-#elif (CC_SUPPORT == CL430)
+#elif (CC_SUPPORT == TI_C)
 #   ifdef __EABI__
 #       define OT_INLINE    inline
 #       define OT_INLINE_H  inline
 #       define OT_WEAK
 #       define OT_PACKED
-#   else
+#   else //COFFABI
 #       define OT_INLINE
 #       define OT_INLINE_H  __inline
 #       define OT_WEAK

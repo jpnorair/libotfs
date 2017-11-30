@@ -29,7 +29,7 @@
 #define __BOARD_CONFIG_H
 
 #include <app/build_config.h>
-#include <board/stdc/board_posix_a.h>
+#include <board/c2000/board_null.h>
 
 
 

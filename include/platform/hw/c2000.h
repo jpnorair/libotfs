@@ -13,8 +13,9 @@ extern const ot_u16 gfb_stock_files[GFB_TOTAL_BYTES];
 extern const ot_u16 isf_stock_files[];
 
 
-#define __C2000__
-
+#ifndef __C2000__
+#   define __C2000__
+#else
 
 #if defined(__TMS320F2806x__)
 #   define MCU_PARAM_PORTS  3
@@ -23,7 +24,9 @@ extern const ot_u16 isf_stock_files[];
 #   define EEPROM_SIZE      0
 #   define TMS320F2806x
 
-#   include <device_support/f2806x/common/include/DSP28x_Project.h>
+///@note C2000ware directory must be added to include directories
+
+//#   include <device_support/f2806x/common/include/DSP28x_Project.h>
 #   include <device_support/f2806x/common/include/F2806x_Cla_defines.h>
 #   include <device_support/f2806x/common/include/F2806x_Cla_typedefs.h>
 #   include <device_support/f2806x/common/include/F2806x_DefaultISR.h>
@@ -33,11 +36,6 @@ extern const ot_u16 isf_stock_files[];
 #   include <device_support/f2806x/common/include/F2806x_GlobalPrototypes.h>
 #   include <device_support/f2806x/common/include/F2806x_I2c_defines.h>
 #   include <device_support/f2806x/common/include/F2806x_SWPrioritizedIsrLevels.h>
-
-#   include <device_support/f2806x/common/include/
-#   include <device_support/f2806x/common/include/
-#   include <device_support/f2806x/common/include/
-#   include <device_support/f2806x/common/include/
 
 #   include <device_support/f2806x/headers/include/F2806x_Adc.h>
 #   include <device_support/f2806x/headers/include/F2806x_BootVars.h>
@@ -122,11 +120,11 @@ extern const ot_u16 isf_stock_files[];
 #define MCU_TYPE_INT            int32_t
 #define MCU_TYPE_PTRINT         (int32_t*)
 #define MCU_TYPE_PTRUINT        (uint32_t*)
-#define MCU_PARAM_ERRPTR        (void*)
+
 
 #define MCU_PARAM(VAL)                  MCU_PARAM_##VAL
 #define MCU_PARAM_POINTERSIZE           4
-#define MCU_PARAM_ERRPTR                ((int32_t)-1)
+#define MCU_PARAM_ERRPTR                (void*)
 #define MCU_PARAM_UART_9600BPS          9600
 #define MCU_PARAM_UART_28800BPS         28800
 #define MCU_PARAM_UART_57600BPS         57600

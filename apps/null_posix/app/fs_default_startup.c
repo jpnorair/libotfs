@@ -84,7 +84,7 @@
 const ot_u8 overhead_files[] = {
 #elif (CC_SUPPORT == GCC)
 const ot_u8 overhead_files[] __attribute__ ((section(".vl_ov"))) = {
-#elif (CC_SUPPORT == CL430)
+#elif (CC_SUPPORT == TI_C)
 #pragma DATA_SECTION(overhead_files, ".vl_ov")
 const ot_u8 overhead_files[] = {
 #endif
@@ -285,7 +285,7 @@ const ot_u8 overhead_files[] = {
 #   elif (CC_SUPPORT == GCC)
     const ot_u8 gfb_stock_files[GFB_TOTAL_BYTES] __attribute__((section(".vl_gfb"))) = { _ERS };
     
-#   elif (CC_SUPPORT == CL430)
+#   elif (CC_SUPPORT == TI_C)
 #   pragma DATA_SECTION(gfb_stock_files, ".vl_gfb")
     const ot_u8 gfb_stock_files[GFB_TOTAL_BYTES] = { _ERS };
 #   endif
@@ -316,7 +316,7 @@ const ot_u8 overhead_files[] = {
 const ot_u8 isf_stock_files[] = {
 #elif (CC_SUPPORT == GCC)
 const ot_u8 isf_stock_files[] __attribute__((section(".vl_isf"))) = {
-#elif (CC_SUPPORT == CL430)
+#elif (CC_SUPPORT == TI_C)
 #pragma DATA_SECTION(isf_stock_files, ".vl_isf")
 const ot_u8 isf_stock_files[] = {
 #endif
