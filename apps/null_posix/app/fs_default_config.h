@@ -116,10 +116,13 @@
 #define ISS_NUM_EXT_FILES       0
 
 #define ISS_START_VADDR         (GFB_START_VADDR + GFB_TOTAL_BYTES)
-#define ISS_NUM_USER_FILES      ISSS_NUM_EXT_FILES
-#define ISS_NUM_STOCK_FILES     (ISSS_NUM_M1_FILES + ISSS_NUM_M2_FILES)
-#define ISS_NUM_FILES           (ISSS_NUM_STOCK_FILES + ISSS_NUM_USER_FILES)
+#define ISS_NUM_USER_FILES      ISS_NUM_EXT_FILES
+#define ISS_NUM_STOCK_FILES     (ISS_NUM_M1_FILES + ISS_NUM_M2_FILES)
+#define ISS_NUM_FILES           (ISS_NUM_STOCK_FILES + ISS_NUM_USER_FILES)
 
+/// These parameters are derived from the stock configuration, which would 
+/// normally be described above, but there is no ISS in this system.
+#define ISS_STOCK_BYTES         0
 
 
 /** ISFB (Indexed Short File Block)  <BR>

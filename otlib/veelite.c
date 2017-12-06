@@ -58,7 +58,7 @@ static vlFILE vlfile[OT_PARAM(VLFPS)];
 
 
 // If creating new files is permitted, then we store a mirror of the filesystem header.
-#if ((OT_FEATURE(VLNEW) == ENABLED) 
+#if (OT_FEATURE(VLNEW) == ENABLED)
 static vlFSHEADER vlfs;
 
 
@@ -340,7 +340,7 @@ OT_WEAK ot_u8 vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod
     }
     
     /// 4. Update the filesystem header, on successful file creation.
-    {   vl_blkheader_t* block   = &vlfs.gfb;
+    {   vlBLOCKHEADER* block    = &vlfs.gfb;
         block[block_id].files  += 1;
     }
 
@@ -409,7 +409,7 @@ OT_WEAK ot_u8 vl_delete(vlBLOCK block_id, ot_u8 data_id, id_tmpl* user_id) {
     
     /// 4. Delete the file, and update the fs header.
     sub_delete_file(header);
-    {   vl_blkheader_t* block   = &vlfs.gfb;
+    {   vlBLOCKHEADER* block    = &vlfs.gfb;
         block[block_id].files  -= 1;
     }
     

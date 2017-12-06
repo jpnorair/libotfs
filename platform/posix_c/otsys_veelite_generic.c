@@ -100,6 +100,8 @@ ot_u8 vworm_format( ) {
 
 
 #ifndef EXTF_vworm_init
+
+/*
 ot_uint sub_copy_section(ot_u32* section, void* defaults, ot_uint defaults_size, ot_uint input_size) {
     // Dynamic sizing variant would require re-setting the input struct...
     //ot_uint  copylen;
@@ -111,7 +113,7 @@ ot_uint sub_copy_section(ot_u32* section, void* defaults, ot_uint defaults_size,
     ot_memcpy4(section, (void*)overhead_files, copylen);
 }
 
-/*
+
 ot_uint vworm_defaults_readout(const vlFSHEADER*, ot_uint limit) {
     if (sections != NULL) {
         if (sections->base != NULL) {

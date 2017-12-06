@@ -30,36 +30,30 @@
 // MULTIFS feature stores multiple filesystems keyed on 64 bit IDs.
 // It uses the "Judy" library, which is used as a sort of growable Hash Table.
 #if (OTFS_FEATURE_MULTIFS)
-#include "Judy.h"
-
-int otfs_init(otfs_t* config) {
-
-    vworm_init();
-    
-    vl_init();
-    
-    auth_init(config->cells);
-    
-    
-    
-    return 0;   
-}
-
-
-#else
-
-
-int otfs_init(otfs_t* config) {
-    vworm_init();
-    
-    vl_init();
-    
-    auth_init(config->cells);
-    
-    
-    
-    return 0;   
-}
-
+#   include "Judy.h"
 #endif
+
+int otfs_new(const otfs_t* fs) {
+    const vlFSHEADER* fsheader;
+    
+    // The filesystem header is at the front of the fs section
+    fsheader = fs->fs_base;
+
+    vworm_init(fsheader);
+    
+    ///@todo add to Judy: I did this somewhere -- see if it got clobbered.
+    
+    ///@note might be wise to put below features into otfs_setfs() (or a
+    ///      subroutine of such that takes a direct pointer).
+    
+    // Initialize veelite for this context
+    ///@todo veelite will need context input
+    vl_init(NULL);
+    
+    // Initialize auth_init for this FS context
+    auth_init();
+    
+    return 0;   
+}
+
 

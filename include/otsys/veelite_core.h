@@ -60,7 +60,7 @@ typedef enum {
 typedef struct OT_PACKED {
     ot_u16  alloc;
     ot_u16  files;
-} vl_blkheader_t;
+} vlBLOCKHEADER;
 
 
 /** @typedef vl_fsheader
@@ -73,9 +73,9 @@ typedef struct OT_PACKED {
     ot_u16          res2;
     ot_u16          res4;
     ot_u16          res6;
-    vl_blkheader_t  gfb;
-    vl_blkheader_t  iss;
-    vl_blkheader_t  isf;
+    vlBLOCKHEADER   gfb;
+    vlBLOCKHEADER   iss;
+    vlBLOCKHEADER   isf;
 } vlFSHEADER;
 
 

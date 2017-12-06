@@ -20,7 +20,8 @@ SEARCH := -I./ \
           -I./include \
           -I./apps/_common \
           -I./apps/null_posix \
-          -I./libs/OTEAX
+          -I./libs/OTEAX \
+          -I/usr/local/include
 
 DEFINES := -DBOARD_POSIX_SIM -D__NO_SECTIONS__
 
@@ -36,7 +37,7 @@ fs_default.o: clean libotfs
 	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(FS_DEFAULT) -o fs_default.o
 
 nullposix: liboteax libotfs nullposix.o
-	$(COMPILER) main.o -L. -L./libs/OTEAX -loteax -lotfs -o ./bin/otfs-test
+	$(COMPILER) main.o -L. -L./libs/OTEAX -L/usr/local/lib -ljudy -loteax -lotfs -o ./bin/otfs-test
 
 nullposix.o:
 	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(APP_NULLPOSIX)
