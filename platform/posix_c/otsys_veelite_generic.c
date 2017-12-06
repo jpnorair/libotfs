@@ -111,8 +111,8 @@ ot_uint sub_copy_section(ot_u32* section, void* defaults, ot_uint defaults_size,
     ot_memcpy4(section, (void*)overhead_files, copylen);
 }
 
-
-ot_uint vworm_defaults_readout(vworm_sections_t* sections, ot_uint limit) {
+/*
+ot_uint vworm_defaults_readout(const vlFSHEADER*, ot_uint limit) {
     if (sections != NULL) {
         if (sections->base != NULL) {
             ot_u16* data; 
@@ -132,9 +132,9 @@ ot_uint vworm_defaults_readout(vworm_sections_t* sections, ot_uint limit) {
     
     return limit;
 }
+*/
 
-
-ot_u8 vworm_init(const vworm_sections_t* init) {
+ot_u8 vworm_init(const vlFSHEADER* init) {
 /// If MultiFS is not used, all the arguments can be NULL.
 /// If MultiFS is required, the initialization process includes storing default
 /// filesystem values into a memory-base supplied by the caller.
@@ -151,15 +151,17 @@ ot_u8 vworm_init(const vworm_sections_t* init) {
     }
     
     
+    /// Something could go here (?)
     
-    if (init->gfb_u32alloc != 0) {
-        section += sub_copy_section(section, (void*)gfb_stock_files, sizeof(gfb_stock_files), init->gfb_u32alloc);
+    
+    if (init->gfb.alloc != 0) {
+        section += sub_copy_section(section, (void*)gfb_stock_files, sizeof(gfb_stock_files), init->gfb.alloc);
     }
-    if (init->iss_u32alloc != 0) {
-        section += sub_copy_section(section, (void*)iss_stock_files, sizeof(iss_stock_files), init->iss_u32alloc);
+    if (init->iss.alloc != 0) {
+        section += sub_copy_section(section, (void*)iss_stock_files, sizeof(iss_stock_files), init->iss.alloc);
     }
-    if (init->isf_u32alloc != 0) {
-        section += sub_copy_section(section, (void*)isf_stock_files, sizeof(isf_stock_files), init->isf_u32alloc);
+    if (init->isf.alloc != 0) {
+        section += sub_copy_section(section, (void*)isf_stock_files, sizeof(isf_stock_files), init->isf.alloc);
     }
     
     /// No MultiFS

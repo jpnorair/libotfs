@@ -51,17 +51,6 @@
 #   define vl_u8    ot_u8
 #endif
 
-/** @typedef vlBLOCK
-  * enumerated type.  There are specifically 3 blocks defined by Veelite.
-  */
-typedef enum {
-    VL_NULL_BLOCKID = 0,
-    VL_GFB_BLOCKID  = 1,
-    VL_ISFS_BLOCKID = 2,
-    VL_ISF_BLOCKID  = 3
-} vlBLOCK;
-
-
 
 /** @typedef vlFILE
   * The FILE structure for veelite.  Much like POSIX FILE, it is only ever used
@@ -69,6 +58,7 @@ typedef enum {
   */
 typedef ot_u16 (*vlread_fn)(ot_uint);
 typedef ot_u8  (*vlwrite_fn)(ot_uint, ot_u16);
+  
   
 typedef struct {
     vaddr       header;
@@ -81,34 +71,6 @@ typedef struct {
 } vlFILE;
 
 
-
-/** @typedef vl_blockheader
-  * Header for a Veelite block: meant for internal use only.
-  * It goes into the overhead section of the Veelite FS, via vlFSHEADER.
-  */
-typedef struct OT_PACKED {
-    ot_u16  alloc;
-    ot_u16  files;
-} vl_blkheader_t;
-
-
-/** @typedef vl_fsheader
-  * Filesystem Header: meant for internal/external use.
-  * Must be stored at the base of the filesystem.
-  * Must be the size of 2 vl_header_t structs.
-  */
-typedef struct OT_PACKED {
-    ot_u16          overhead_alloc;
-    ot_u16          res2;
-    ot_u16          res4;
-    ot_u16          res6;
-    vl_blkheader_t  gfb;
-    vl_blkheader_t  iss;
-    vl_blkheader_t  isf;
-} vlFSHEADER;
-
-
-      
 
 
 /** @typedef vl_header_t

@@ -41,6 +41,47 @@
 
 
 
+/** @typedef vlBLOCK
+  * enumerated type.  There are specifically 3 blocks defined by Veelite.
+  */
+typedef enum {
+    VL_NULL_BLOCKID = 0,
+    VL_GFB_BLOCKID  = 1,
+    VL_ISFS_BLOCKID = 2,
+    VL_ISF_BLOCKID  = 3
+} vlBLOCK;
+
+
+
+/** @typedef vl_blockheader
+  * Header for a Veelite block: meant for internal use only.
+  * It goes into the overhead section of the Veelite FS, via vlFSHEADER.
+  */
+typedef struct OT_PACKED {
+    ot_u16  alloc;
+    ot_u16  files;
+} vl_blkheader_t;
+
+
+/** @typedef vl_fsheader
+  * Filesystem Header: meant for internal/external use.
+  * Must be stored at the base of the filesystem.
+  * Must be the size of 2 vl_header_t structs.
+  */
+typedef struct OT_PACKED {
+    ot_u16          overhead_alloc;
+    ot_u16          res2;
+    ot_u16          res4;
+    ot_u16          res6;
+    vl_blkheader_t  gfb;
+    vl_blkheader_t  iss;
+    vl_blkheader_t  isf;
+} vlFSHEADER;
+
+
+
+
+
 /** @note Virtual Address Space:
   * OpenTag's Virtual Address Space for nonvolatile memory is, at the moment,
   * limited to 64K.  The addresses available are 0x0000 to 0xFFFE (0xFFFF is
@@ -161,7 +202,7 @@ ot_u8 vworm_format( );
 
 
 /** @brief Initializes the VWORM memory system
-  * @param init         (vworm_init_t*) use NULL on single-vworm systems
+  * @param init         (const vlFSHEADER*) use NULL on single-vworm systems
   * @retval ot_u8 :     Non-zero on memory fault
   * @ingroup Veelite
   *
@@ -169,7 +210,7 @@ ot_u8 vworm_format( );
   * vworm_init() loads the backed up data into local SRAM.  If you have just
   * formatted, you do not need to init.
   */
-ot_u8 vworm_init(vworm_init_t* init);
+ot_u8 vworm_init(const vlFSHEADER* init);
 
 
 
