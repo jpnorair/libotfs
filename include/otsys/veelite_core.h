@@ -200,7 +200,7 @@ ot_u8 vworm_format( );
 
 
 
-void vworm_fsheader_defload(const vlFSHEADER* fs);
+void vworm_fsheader_defload(vlFSHEADER* fs);
 
 ot_uint vworm_fsdata_defload(void* fs_base, const vlFSHEADER* fs);
 

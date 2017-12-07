@@ -39,11 +39,27 @@
 #   include "Judy.h"
 #endif
 
-int otfs_defaults(otfs_t* fs, size_t maxalloc) {
+int otfs_defaults(otfs_t* otfs, size_t maxalloc) {
+    vlFSHEADER header;
     
+    if (otfs == NULL) {
+        return -1;
+    }
     
-
+    vworm_fsheader_defload(&header);
+    otfs->fs_alloc = vworm_fsalloc((const vlFSHEADER*)&header);
+    if (otfs->fs_alloc >= maxalloc) {
+        return -2;
+    }
+    
+    otfs->fs_base = malloc(otfs->fs_alloc);
+    if (otfs->fs_base == NULL) {
+        return -3;
+    }
+    
+    return vworm_fsdata_defload(otfs->fs_base, (const vlFSHEADER*)&header);
 }
+
 
 
 int otfs_new(const otfs_t* fs) {
@@ -53,7 +69,7 @@ int otfs_new(const otfs_t* fs) {
     // The filesystem header is at the front of the fs section
     fsheader = fs->fs_base;
 
-    vworm_init(fsheader);
+    vworm_init(fs->fs_base, fsheader);
     
 #   if (OTFS_FEATURE_MULTIFS)
     vl_multifs_init(NULL);

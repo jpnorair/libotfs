@@ -90,6 +90,19 @@ vas_loc vas_check(vaddr addr) {
 /** VWORM Functions <BR>
   * ========================================================================<BR>
   */
+ot_uint sub_copy_section(ot_u32* section, void* defaults, ot_uint defaults_size, ot_uint input_size) {
+    // Dynamic sizing variant would require re-setting the input struct...
+    ot_uint  copylen;
+    copylen = ((defaults_size+3) / 4);
+    copylen = (copylen < input_size) ? copylen : input_size;
+    
+    ot_memcpy4(section, defaults, copylen);
+    
+    return copylen;
+    
+    //ot_memcpy4(section, (void*)overhead_files, copylen);
+}
+
 
 #ifndef EXTF_vworm_format
 ot_u8 vworm_format( ) {
@@ -118,7 +131,7 @@ ot_u32 vworm_fsalloc(const vlFSHEADER* fs) {
 
 
 
-void vworm_fsheader_defload(const vlFSHEADER* fs) {
+void vworm_fsheader_defload(vlFSHEADER* fs) {
     if (fs != NULL) {
         memcpy((void*)fs, (void*)overhead_files, sizeof(vlFSHEADER));
     }
@@ -141,7 +154,7 @@ ot_uint vworm_fsdata_defload(void* fs_base, const vlFSHEADER* fs) {
     
 #   if (GFB_TOTAL_BYTES > 0)
     if (fs->gfb.alloc != 0) {
-        sub_copy_section(section, (void*)gfb_stock_files, GFB_STOCK_BYTES, fs->gfb.alloc);
+        sub_copy_section(section, (void*)gfb_stock_files, GFB_TOTAL_BYTES, fs->gfb.alloc);
         section += fs->gfb.alloc / 4;
     }
 #   endif
@@ -158,24 +171,12 @@ ot_uint vworm_fsdata_defload(void* fs_base, const vlFSHEADER* fs) {
     }
 #   endif
     
-    return (ot_uint)(section - fs_base);
+    return (ot_uint)(((void*)section - fs_base)*2);
 }
 
 
 
 #ifndef EXTF_vworm_init
-ot_uint sub_copy_section(ot_u32* section, void* defaults, ot_uint defaults_size, ot_uint input_size) {
-    // Dynamic sizing variant would require re-setting the input struct...
-    ot_uint  copylen;
-    copylen = ((defaults_size+3) / 4);
-    copylen = (copylen < input_size) ? copylen : input_size;
-    
-    ot_memcpy4(section, defaults, copylen);
-    
-    return copylen;
-    
-    //ot_memcpy4(section, (void*)overhead_files, copylen);
-}
 
 ot_u8 vworm_init(void* fs_base, const vlFSHEADER* fs) {
 /// If MultiFS is not used, all the arguments can be NULL.
@@ -191,10 +192,8 @@ ot_u8 vworm_init(void* fs_base, const vlFSHEADER* fs) {
         return 2; 
     }
 
-    fsram   = (ot_u32*)fs_base;
-    section = fsram;
-    
-    vworm_fsdata_defload(fs_base, fs);
+    fsram = (ot_u32*)fs_base;
+    vworm_fsdata_defload(fsram, fs);
     
     /// No MultiFS
 #   else
