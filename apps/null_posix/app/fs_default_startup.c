@@ -89,14 +89,14 @@ const ot_u8 overhead_files[] __attribute__ ((section(".vl_ov"))) = {
 const ot_u8 overhead_files[] = {
 #endif
     /* Filesystem Header: Same size as two file headers (20 bytes) */
-    SPLIT_SHORT_LE(GFB_NUM_STOCK_FILES + ISS_NUM_STOCK_FILES + ISF_NUM_STOCK_FILES),
-    SPLIT_SHORT_LE(0),
-    SPLIT_SHORT_LE(0),
-    SPLIT_SHORT_LE(0),
+    SPLIT_SHORT_LE(OVERHEAD_TOTAL_BYTES),
     SPLIT_SHORT_LE(GFB_TOTAL_BYTES),
+    SPLIT_SHORT_LE(GFB_STOCK_BYTES),
     SPLIT_SHORT_LE(GFB_NUM_STOCK_FILES),
+    SPLIT_SHORT_LE(ISS_TOTAL_BYTES),
     SPLIT_SHORT_LE(ISS_STOCK_BYTES),
     SPLIT_SHORT_LE(ISS_NUM_STOCK_FILES),
+    SPLIT_SHORT_LE(ISF_TOTAL_BYTES),
     SPLIT_SHORT_LE(ISF_STOCK_BYTES),
     SPLIT_SHORT_LE(ISF_NUM_STOCK_FILES),
     
@@ -291,6 +291,23 @@ const ot_u8 overhead_files[] = {
 #   endif
 #endif
 
+
+
+#if (ISS_TOTAL_BYTES > 0)
+#   if defined(__NO_SECTIONS__)
+    const ot_u8 iss_stock_files[] = { _ERS };
+
+#   elif (CC_SUPPORT == GCC)
+    const ot_u8 iss_stock_files[ISS_TOTAL_BYTES] __attribute__((section(".vl_iss"))) = { _ERS };
+    
+#   elif (CC_SUPPORT == TI_C)
+#   pragma DATA_SECTION(gfb_stock_files, ".vl_iss")
+    const ot_u8 iss_stock_files[ISS_TOTAL_BYTES] = { _ERS };
+#   endif
+#else
+
+    const ot_u8 iss_stock_files[] = { 0 };
+#endif
 
 
 

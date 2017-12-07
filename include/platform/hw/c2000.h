@@ -9,7 +9,8 @@
 
 
 extern const ot_u16 overhead_files[];
-extern const ot_u16 gfb_stock_files[GFB_TOTAL_BYTES];
+extern const ot_u16 gfb_stock_files[GFB_TOTAL_BYTES/2];
+extern const ot_u16 iss_stock_files[];
 extern const ot_u16 isf_stock_files[];
 
 

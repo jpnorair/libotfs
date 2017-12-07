@@ -18,8 +18,8 @@ SOURCES_POSIXC := $(OTLIB_C) $(PLATFORM_POSIX_C)
 
 SEARCH := -I./ \
           -I./include \
-          -I./apps/_common \
           -I./apps/null_posix \
+          -I./apps/_common \
           -I./libs/OTEAX \
           -I/usr/local/include
 

@@ -27,22 +27,44 @@
 
 #include "otfs.h"
 
+#include <otstd.h>
+#include <otlib.h>
+
+// for malloc
+#include <stdlib.h>
+
 // MULTIFS feature stores multiple filesystems keyed on 64 bit IDs.
 // It uses the "Judy" library, which is used as a sort of growable Hash Table.
-#if (OTFS_FEATURE_MULTIFS)
+#if (OT_FEATURE(MULTIFS))
 #   include "Judy.h"
 #endif
 
+int otfs_defaults(otfs_t* fs, size_t maxalloc) {
+    
+    
+
+}
+
+
 int otfs_new(const otfs_t* fs) {
     const vlFSHEADER* fsheader;
+    id_tmpl user_id;
     
     // The filesystem header is at the front of the fs section
     fsheader = fs->fs_base;
 
     vworm_init(fsheader);
     
-    ///@todo add to Judy: I did this somewhere -- see if it got clobbered.
-    
+#   if (OTFS_FEATURE_MULTIFS)
+    vl_multifs_init(NULL);
+
+    user_id.length  = 8;
+    user_id.value   = fs->fs_id.u8;
+    if (vl_multifs_add(fsheader, &user_id) != 0) {
+        return -1;
+    }
+#   endif
+
     ///@note might be wise to put below features into otfs_setfs() (or a
     ///      subroutine of such that takes a direct pointer).
     

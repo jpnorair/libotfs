@@ -59,6 +59,7 @@ typedef enum {
   */
 typedef struct OT_PACKED {
     ot_u16  alloc;
+    ot_u16  used;
     ot_u16  files;
 } vlBLOCKHEADER;
 
@@ -69,10 +70,7 @@ typedef struct OT_PACKED {
   * Must be the size of 2 vl_header_t structs.
   */
 typedef struct OT_PACKED {
-    ot_u16          overhead_alloc;
-    ot_u16          res2;
-    ot_u16          res4;
-    ot_u16          res6;
+    ot_u16          ftab_alloc;
     vlBLOCKHEADER   gfb;
     vlBLOCKHEADER   iss;
     vlBLOCKHEADER   isf;
@@ -201,8 +199,25 @@ ot_u8 vworm_format( );
 
 
 
+
+void vworm_fsheader_defload(const vlFSHEADER* fs);
+
+ot_uint vworm_fsdata_defload(void* fs_base, const vlFSHEADER* fs);
+
+
+
+/** @brief Return the maximum size (allocation) of the filesystem heap.
+  * @param fs           (const vlFSHEADER*) use NULL on single-vworm systems
+  * @retval ot_u32      Number of bytes (octets) of allocation
+  * @ingroup Veelite
+  *
+  */
+ot_u32 vworm_fsalloc(const vlFSHEADER* fs);
+
+
 /** @brief Initializes the VWORM memory system
-  * @param init         (const vlFSHEADER*) use NULL on single-vworm systems
+  * @param fs_base      (void*) filesystem heap pointer.
+  * @param fs           (const vlFSHEADER*) use NULL on single-vworm systems
   * @retval ot_u8 :     Non-zero on memory fault
   * @ingroup Veelite
   *
@@ -210,7 +225,7 @@ ot_u8 vworm_format( );
   * vworm_init() loads the backed up data into local SRAM.  If you have just
   * formatted, you do not need to init.
   */
-ot_u8 vworm_init(const vlFSHEADER* init);
+ot_u8 vworm_init(void* fs_base, const vlFSHEADER* fs);
 
 
 

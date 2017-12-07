@@ -29,16 +29,21 @@
 
 #include <app/build_config.h>
 
+
+
 /** Filesystem constants, setup, and boundaries <BR>
   * ========================================================================<BR>
-  * For this app, we use default features from: 
-  * /apps/_common/features_default_config.h
-  *
   * Before the #include statement below, you can set-up some overriding feature
   * and parameter settings.  Take a look at features_default_config.h to see
   * what the features are.
   */
+
+#define OT_FEATURE_MULTIFS          ENABLED
+
 #include "features_default_config.h"
+
+
+
 
 
 /** Filesystem constants, setup, and boundaries <BR>

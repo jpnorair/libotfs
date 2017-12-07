@@ -98,79 +98,115 @@ ot_u8 vworm_format( ) {
 #endif
 
 
+#ifndef EXTF_vworm_fsalloc
+ot_u32 vworm_fsalloc(const vlFSHEADER* fs) {
+    ot_u32 alloc;
 
-#ifndef EXTF_vworm_init
-
-/*
-ot_uint sub_copy_section(ot_u32* section, void* defaults, ot_uint defaults_size, ot_uint input_size) {
-    // Dynamic sizing variant would require re-setting the input struct...
-    //ot_uint  copylen;
-    //copylen = ((defaults_size+3) >> 2);
-    //copylen = (copylen < input_size) ? copylen : input_size;
-    //ot_memcpy4(section, defaults, copylen);
-    //return copylen;
-    
-    ot_memcpy4(section, (void*)overhead_files, copylen);
-}
-
-
-ot_uint vworm_defaults_readout(const vlFSHEADER*, ot_uint limit) {
-    if (sections != NULL) {
-        if (sections->base != NULL) {
-            ot_u16* data; 
-            ot_uint offset;
-            ot_uint dlen;
-            
-            data    = (uint32_t*)sections->base;
-            sections->  = (sizeof(overhead_files) + 1) >> 1;
-            dlen
-            
-            ot_memcpy2(data, )
-            
-            sec += sub_copy_section(sec, (void*)overhead_files, sizeof(overhead_files), init->ovh_u32alloc);
-            
-        }
+    if (fs == NULL) {
+        alloc   = 0;
+    }
+    else {
+        alloc   = fs->ftab_alloc;
+        alloc  += fs->gfb.alloc;
+        alloc  += fs->iss.alloc;
+        alloc  += fs->isf.alloc;
     }
     
-    return limit;
+    return alloc;
 }
-*/
+#endif
 
-ot_u8 vworm_init(const vlFSHEADER* init) {
+
+
+void vworm_fsheader_defload(const vlFSHEADER* fs) {
+    if (fs != NULL) {
+        memcpy((void*)fs, (void*)overhead_files, sizeof(vlFSHEADER));
+    }
+}
+
+
+
+
+ot_uint vworm_fsdata_defload(void* fs_base, const vlFSHEADER* fs) {
+    ot_u32* section;
+
+    if ((fs_base == NULL) || (fs == NULL)) {
+        return 0;
+    }
+    
+    section = fs_base;
+    
+    sub_copy_section(section, (void*)overhead_files, OVERHEAD_TOTAL_BYTES, fs->ftab_alloc);
+    section += fs->ftab_alloc / 4;
+    
+#   if (GFB_TOTAL_BYTES > 0)
+    if (fs->gfb.alloc != 0) {
+        sub_copy_section(section, (void*)gfb_stock_files, GFB_STOCK_BYTES, fs->gfb.alloc);
+        section += fs->gfb.alloc / 4;
+    }
+#   endif
+#   if (ISS_TOTAL_BYTES > 0)
+    if (fs->iss.alloc != 0) {
+        sub_copy_section(section, (void*)iss_stock_files, ISS_STOCK_BYTES, fs->iss.alloc);
+        section += fs->iss.alloc / 4;
+    }
+#   endif
+#   if (ISF_TOTAL_BYTES > 0)
+    if (fs->isf.alloc != 0) {
+        sub_copy_section(section, (void*)isf_stock_files, ISF_STOCK_BYTES, fs->isf.alloc);
+        section += fs->isf.alloc / 4;
+    }
+#   endif
+    
+    return (ot_uint)(section - fs_base);
+}
+
+
+
+#ifndef EXTF_vworm_init
+ot_uint sub_copy_section(ot_u32* section, void* defaults, ot_uint defaults_size, ot_uint input_size) {
+    // Dynamic sizing variant would require re-setting the input struct...
+    ot_uint  copylen;
+    copylen = ((defaults_size+3) / 4);
+    copylen = (copylen < input_size) ? copylen : input_size;
+    
+    ot_memcpy4(section, defaults, copylen);
+    
+    return copylen;
+    
+    //ot_memcpy4(section, (void*)overhead_files, copylen);
+}
+
+
+ot_u8 vworm_init(void* fs_base, const vlFSHEADER* fs) {
 /// If MultiFS is not used, all the arguments can be NULL.
 /// If MultiFS is required, the initialization process includes storing default
 /// filesystem values into a memory-base supplied by the caller.
 
 #   if (OT_FEATURE(MULTIFS))
-    ot_u32_t* section;
-    
-    if (init == NULL) {
+    if ((fs == NULL) || (fs_base == NULL))  {
         return 1;
     }
-    
-    if (init->base == NULL) {
-        return 2;
+    if (fs->ftab_alloc == 0) {
+        /// Error when ftab has no bytes
+        return 2; 
     }
+
+    fsram   = (ot_u32*)fs_base;
+    section = fsram;
     
-    
-    /// Something could go here (?)
-    
-    
-    if (init->gfb.alloc != 0) {
-        section += sub_copy_section(section, (void*)gfb_stock_files, sizeof(gfb_stock_files), init->gfb.alloc);
-    }
-    if (init->iss.alloc != 0) {
-        section += sub_copy_section(section, (void*)iss_stock_files, sizeof(iss_stock_files), init->iss.alloc);
-    }
-    if (init->isf.alloc != 0) {
-        section += sub_copy_section(section, (void*)isf_stock_files, sizeof(isf_stock_files), init->isf.alloc);
-    }
+    vworm_fsdata_defload(fs_base, fs);
     
     /// No MultiFS
 #   else
-    ot_memcpy4(&fsram[OVERHEAD_START_VADDR], (void*)overhead_files, OVERHEAD_TOTAL_BYTES);
-    ot_memcpy4(&fsram[GFB_START_VADDR], (void*)gfb_stock_files, GFB_TOTAL_BYTES);
-    ot_memcpy4(&fsram[ISF_START_VADDR], (void*)isf_stock_files, ISF_VWORM_STOCK_BYTES);
+
+    ot_memcpy4(&fsram[OVERHEAD_START_VADDR/4], (void*)overhead_files, OVERHEAD_TOTAL_BYTES/4);
+#   if (GFB_TOTAL_BYTES > 0)
+    ot_memcpy4(&fsram[GFB_START_VADDR/4], (void*)gfb_stock_files, GFB_TOTAL_BYTES/4);
+#   endif
+#   if (ISF_TOTAL_BYTES > 0)
+    ot_memcpy4(&fsram[ISF_START_VADDR/4], (void*)isf_stock_files, ISF_VWORM_STOCK_BYTES/4);
+#   endif
     
 #   endif
 

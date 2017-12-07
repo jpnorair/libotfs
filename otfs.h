@@ -43,9 +43,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#ifndef OTFS_FEATURE_MULTIFS
-#   define OTFS_FEATURE_MULTIFS    1
-#endif
 
 typedef struct OT_PACKED {
     uint8_t oui24[3];
@@ -64,6 +61,8 @@ typedef struct {
     size_t          fs_alloc;
 } otfs_t;
 
+
+int otfs_defaults(otfs_t* fs, size_t maxalloc);
 
 int otfs_new(const otfs_t* fs);
 

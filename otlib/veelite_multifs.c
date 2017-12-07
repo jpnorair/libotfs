@@ -45,7 +45,7 @@
 
 // For implementation using Judy datatype.
 // Intended for larger-scale POSIX system with CPU cache
-#include <judy.h>
+#include <Judy.h>
 
 static void* fstab = NULL;     // Judy-based FS Table
 
@@ -92,7 +92,7 @@ ot_u8 vl_multifs_add(vlFSHEADER* newfs, id_tmpl* fsid) {
 
 
 ot_u8 vl_multifs_del(id_tmpl* fsid) {
-    MCU_TYPE_INT* rc;
+    MCU_TYPE_INT rc;
     
     JHSD(rc, fstab, fsid->value, fsid->length);
     
