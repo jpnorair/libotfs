@@ -121,7 +121,7 @@ typedef struct {
 } alp_tmpl;
 
 
-typedef ot_bool (*alp_fn)(alp_tmpl*, id_tmpl*);
+typedef ot_bool (*alp_fn)(alp_tmpl*, const id_tmpl*);
 
 
 #if ( OT_FEATURE(ALP) )
@@ -259,7 +259,7 @@ ot_u8 alp_get_handle(ot_u8 alp_id);
   * 0x02:       Sensor Configuration subprotocol (pending)
   * 0x11-14:    Security subprotocols (pending)
   */
-ot_bool alp_proc(alp_tmpl* alp, id_tmpl* user_id);
+ot_bool alp_proc(alp_tmpl* alp, const id_tmpl* user_id);
 
 
 
@@ -338,7 +338,7 @@ void alp_load_header(ot_queue* appq, alp_record* rec);
   * @retval ot_bool		Always True
   * @ingroup ALP
   */
-ot_bool alp_proc_null(alp_tmpl* alp, id_tmpl* user_id);
+ot_bool alp_proc_null(alp_tmpl* alp, const id_tmpl* user_id);
 
 
 /** @brief  Process a received filesystem ALP record

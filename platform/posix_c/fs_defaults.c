@@ -23,4 +23,5 @@
   */
 
 /// The only thing this file needs to do is include the fs_defaults header
+#include <app/config.h>
 #include <app/fs_defaults.h>

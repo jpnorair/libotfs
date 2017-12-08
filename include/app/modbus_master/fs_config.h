@@ -27,7 +27,7 @@
 #define __DEFAULT_FS_CONFIG_H
 
 #include "build_config.h"
-
+#include "features_config.h"
 
 /// MultiFS feature requires that active data is stored in RAM.
 /// MultiFS is not for embedded devices.
@@ -90,6 +90,7 @@
 #define GFB_NUM_FILES           (GFB_NUM_STOCK_FILES + GFB_NUM_USER_FILES)
 #define GFB_HEAP_BYTES          (GFB_FILE_BYTES*GFB_NUM_STOCK_FILES)
 
+#define GFB_STOCK_BYTES         (GFB_FILE_BYTES * (GFB_NUM_STOCK_FILES))
 #define GFB_TOTAL_BYTES         (GFB_FILE_BYTES * (GFB_NUM_STOCK_FILES + GFB_NUM_USER_FILES))
 
 

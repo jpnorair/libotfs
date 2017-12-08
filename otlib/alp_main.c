@@ -128,7 +128,7 @@ void sub_insert_header(alp_tmpl* alp, ot_u8* hdr_position, ot_u8 hdr_len) {
  * The Null Processor is implemented here.  The rest of the processors are
  * implemented in separate C files, named alp_...c
  */
-OT_WEAK ot_bool alp_proc_null(alp_tmpl* a0, id_tmpl* a1) {
+OT_WEAK ot_bool alp_proc_null(alp_tmpl* a0, const id_tmpl* a1) {
     return True;   // Atomic, with no payload data
 }
 
@@ -185,7 +185,7 @@ const alp_elem_t* sub_get_elem(ot_u8 alp_id) {
 }
     
     
-ot_bool alp_proc(alp_tmpl* alp, id_tmpl* user_id) {
+ot_bool alp_proc(alp_tmpl* alp, const id_tmpl* user_id) {
     const alp_elem_t*   proc_elem;
     ot_bool             output_code;
     

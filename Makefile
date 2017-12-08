@@ -1,7 +1,7 @@
 CC=gcc
 
 TARGET      ?= libotfs
-TARGETDIR   ?= bin
+TARGETDIR   ?= pkg
 EXT_DEF     ?= -DBOARD_posix_a -DAPP_modbus_master -DOT_FEATURE_DLL_SECURITY=0
 EXT_INC     ?= 
 EXT_LIBS    ?= 
@@ -14,7 +14,7 @@ LIBMODULES  :=
 PLATFORMS   := ./platform/posix_c
 SUBMODULES  := otlib $(PLATFORMS)
 
-BUILDDIR    := build
+BUILDDIR    := ./build
 
 SRCEXT      := c
 DEPEXT      := d
@@ -39,7 +39,7 @@ export OTFS_INC
 export OTFS_LIB
 
 all: $(TARGET)
-lib: libotfs.a
+lib: $(TARGET).a
 remake: cleaner all
 
 
@@ -55,16 +55,17 @@ clean:
 cleaner: clean
 	@$(RM) -rf $(TARGETDIR)
 
-#Linker -- only for building library test suite
-$(TARGET): libotfs.a
-	$(CC) $(CFLAGS) -I. $(OTFS_INC) -c -o $(BUILDDIR)/libotfs-test.o ./libotfs-test.c
-	$(CC) $(CFLAGS) $(OTFS_DEF) -o $(TARGETDIR)/$(TARGET) $(OBJECTS) $(OTFS_LIB)
+#Packaging stage: copy/move files to pkg output directory
+$(TARGET): $(TARGET).a
+	@cp -R ./include/* ./$(TARGETDIR)
+	@cp ./otfs.h ./$(TARGETDIR)
 
 #Build the static library
 #Note: testing with libtool now, which may be superior to ar
-libotfs.a: $(SUBMODULES) $(LIBMODULES)
+$(TARGET).a: $(SUBMODULES) $(LIBMODULES)
 	$(eval OBJECTS := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
-	libtool -o libotfs.a -static $(OBJECTS)
+	libtool -o $(TARGET).a -static $(OBJECTS)
+	@mv $(TARGET).a $(TARGETDIR)/
 
 #Library dependencies (not in otfs sources)
 $(LIBMODULES): %: 

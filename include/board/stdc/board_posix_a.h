@@ -29,10 +29,12 @@
 #ifndef __board_posix_a_H
 #define __board_posix_a_H
 
+#ifndef __NO_SECTIONS__
+#   define __NO_SECTIONS__
+#endif
+
 #include <app/config.h>
-
 #include <platform/hw/stdc.h>
-
 
 
 

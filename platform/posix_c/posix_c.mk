@@ -8,7 +8,7 @@ OTFS_LIB    ?=
 #CFLAGS      := -std=gnu99 -O -g -Wall
 CFLAGS      := -std=gnu99 -O3
 
-BUILDDIR    := ../build/$(TARGET)
+BUILDDIR    := ../../build/$(TARGET)
 TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
@@ -18,7 +18,7 @@ INC         := $(patsubst -I./%, -I./../../%, $(OTFS_INC))
 INCDEP      := $(INC)
 
 SOURCES     := $(shell find . -type f -name "*.$(SRCEXT)")
-OBJECTS     := $(patsubst ./%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
+OBJECTS     := $(patsubst ./%, $(BUILDDIR)/%, $(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
 
 
 all: resources $(TARGET)

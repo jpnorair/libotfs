@@ -34,6 +34,8 @@
 #   include <app/modbus_master/board_config.h>
 #   include <app/modbus_master/build_config.h>
 #   include <app/modbus_master/extf_config.h>
+//#   include <app/modbus_master/features_config.h>
+//#   include <app/modbus_master/fs_config.h>
 
 #elif defined(APP_modbus_slave)
 #   include <app/modbus_slave/app_config.h>

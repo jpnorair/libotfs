@@ -28,8 +28,8 @@
   ******************************************************************************
   */
 
-#ifndef __PARENT_APP_CONFIG_H
-#define __PARENT_APP_CONFIG_H
+#ifndef __PARENT_FS_CONFIG_H
+#define __PARENT_FS_CONFIG_H
 
 
 #if defined(APP_modbus_master)

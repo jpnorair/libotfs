@@ -29,6 +29,8 @@
 #include <otstd.h>
 #include <board.h>
 
+//#include "board_config.h"
+//#include "features_config.h"
 #include "fs_config.h"
 
 
@@ -301,9 +303,9 @@ const ot_u8 overhead_files[] = {
 #   pragma DATA_SECTION(gfb_stock_files, ".vl_iss")
     const ot_u8 iss_stock_files[ISS_TOTAL_BYTES] = { _ERS };
 #   endif
-#else
-
-    const ot_u8 iss_stock_files[] = { 0 };
+// #else
+// 
+//     const ot_u8 iss_stock_files[] = { 0 };
 #endif
 
 
