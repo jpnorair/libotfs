@@ -1,17 +1,11 @@
 /* Replace License */
 /**
-  * @file       /apps/null_posix/extf_config.h
+  * @file       /app/modbus_slave_c2000/extf_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    V1.0
   * @date       31 July 2012
-  * @brief      Extension Function Configuration File for Opmode Demo
+  * @brief      Extension Function Configuration File
   *
-  * Don't actually include this.  Include OTAPI.h or OT_config.h instead.
-  *
-  * This include file specifies all extension functions that should be compiled
-  * into the build.  Extension functions are replacements/patches for functions
-  * declared in OTlib, so if you define an Extension Function (EXTF), OpenTag
-  * will build and link your function instead of the regular OTlib version.
   ******************************************************************************
   */
 

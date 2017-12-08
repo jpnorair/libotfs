@@ -1,4 +1,4 @@
-/* Copyright 2014 JP Norair
+/* Copyright 2017 JP Norair
   *
   * Licensed under the OpenTag License, Version 1.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -11,22 +11,16 @@
   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   * See the License for the specific language governing permissions and
   * limitations under the License.
-  *
   */
 /**
-  * @file       /include/board.h
+  * @file       /platform/posix_c/fs_defaults.c
   * @author     JP Norair (jpnorair@indigresso.com)
-  * @version    R100
-  * @date       27 August 2014
-  * @brief      Top-Level wrapper header that includes relevant board headers
+  * @version    R101
+  * @date       31 Oct 2017
+  * @brief      Default Filesystem
   *
   ******************************************************************************
   */
 
-#ifndef __BOARD_H
-#define __BOARD_H
-
-#include <platform/config.h>
-#include <app/config.h>
-
-#endif
+/// The only thing this file needs to do is include the fs_defaults header
+#include <app/fs_defaults.h>

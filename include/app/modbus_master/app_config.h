@@ -14,11 +14,11 @@
   *
   */
 /**
-  * @file       /apps/null_posix/app/app_config.h
+  * @file       /app/modbus_master/app_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       31 Oct 2017
-  * @brief      Application Configuration File for Null Posix Build
+  * @brief      Application Configuration File
   *
   ******************************************************************************
   */
@@ -27,26 +27,29 @@
 #define __APP_CONFIG_H
 
 
-#include <app/build_config.h>
+#include "build_config.h"
+
+
 
 /** Filesystem constants, setup, and boundaries <BR>
   * ========================================================================<BR>
-  * For this app, we use default features from: 
-  * /apps/_common/features_default_config.h
-  *
   * Before the #include statement below, you can set-up some overriding feature
-  * and parameter settings.  Take a look at features_default_config.h to see
+  * and parameter settings.  Take a look at features_config.h to see
   * what the features are.
   */
-#include "features_default_config.h"
+
+#define OT_FEATURE_MULTIFS          ENABLED
+
+#include "features_config.h"
+
+
+
 
 
 /** Filesystem constants, setup, and boundaries <BR>
   * ========================================================================<BR>
-  * For this app, we are just using the default FS setup, which is located in
-  * /apps/_common/
   */
-#include "fs_default_config.h"
+#include "fs_config.h"
 
 
 #endif 

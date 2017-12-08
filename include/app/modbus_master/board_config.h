@@ -14,37 +14,29 @@
   *
   */
 /**
-  * @file       /apps/null_posix/platform_config.h
+  * @file       /app/modbus_master/board_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    V1.0
-  * @date       31 July 2012
-  * @brief      Board & Platform Selection for Null POSIX
+  * @date       31 July 2017
+  * @brief      Board & HW Selection 
   *
-  * Don't actually include this.  Include OT_platform.h instead.  This file and
-  * others like it are important to the preprocessor-based configuration scheme.
   ******************************************************************************
   */
 
-#ifndef __PLATFORM_CONFIG_H
-#define __PLATFORM_CONFIG_H
+#ifndef __BOARD_CONFIG_H
+#define __BOARD_CONFIG_H
 
-#include <app/build_config.h>
+#include "build_config.h"
 
-
-
-
-/// Default Board setting:  
-#define BOARD_posix_a
 
 #if defined(BOARD_posix_a)
-#   include "stdc/board_posix_a.h"
+#   include <board/stdc/board_posix_a.h>
 
 #else
-#   error "No support BOARD is defined"
+#   warning "No BOARD is defined.  Using default: BOARD_posix_a"
+#   include <board/stdc/board_posix_a.h>
 
 #endif
-
-
 
 
 
@@ -63,13 +55,6 @@
 #   undef NOT_AVAILABLE
 #endif
 #define NOT_AVAILABLE   DISABLED
-
-
-
-
-
-
-
 
 
 

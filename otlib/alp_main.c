@@ -37,7 +37,7 @@
 #include <otlib/ndef.h>
 #include <otlib/memcpy.h>
 
-#include <app/app_config.h>
+#include <app/config.h>
 
 
 #define ALP_FILESYSTEM  1

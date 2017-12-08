@@ -14,22 +14,30 @@
   *
   */
 /**
-  * @file       /apps/posix_c/app/board_config.h
+  * @file       /app/modbus_slave_c2000/platform_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    V1.0
-  * @date       31 July 2017
-  * @brief      Board & HW Selection ]
+  * @date       31 July 2012
+  * @brief      Board & Platform Selection
   *
-  * Don't actually include this.  Include <otplatform.h> instead.  This file and
-  * others like it are important to the preprocessor-based configuration scheme.
   ******************************************************************************
   */
 
-#ifndef __BOARD_CONFIG_H
-#define __BOARD_CONFIG_H
+#ifndef __PLATFORM_CONFIG_H
+#define __PLATFORM_CONFIG_H
 
-#include <app/build_config.h>
-#include <board/c2000/board_null.h>
+#include "build_config.h"
+
+
+#if defined(BOARD_C2000_null)
+#   include <board/c2000/board_null.h>
+
+#else
+#   warning "No BOARD defined, using default: BOARD_C2000_null"
+#   include <board/c2000/board_null.h>
+
+#endif
+
 
 
 
@@ -49,6 +57,11 @@
 #   undef NOT_AVAILABLE
 #endif
 #define NOT_AVAILABLE   DISABLED
+
+
+
+
+
 
 
 

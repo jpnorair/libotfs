@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include <app/board_config.h>
+#include <app/config.h>
 
 
 

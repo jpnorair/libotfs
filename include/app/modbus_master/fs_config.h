@@ -14,24 +14,19 @@
   *
   */
 /**
-  * @file       /apps/_common/fs_default_config.h
+  * @file       /app/modbus_master/fs_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       30 Apr 2017
   * @brief      Configuration for typical demo filesystem
   *
-  * To use this typical FS configuration, include into your app/config.h header
-  * following the FEATURE configuration section.
-  *
-  * #include <../_common/fs_default_config.h>
-  * 
   ******************************************************************************
   */
 
 #ifndef __DEFAULT_FS_CONFIG_H
 #define __DEFAULT_FS_CONFIG_H
 
-#include <app/build_config.h>
+#include "build_config.h"
 
 
 /// MultiFS feature requires that active data is stored in RAM.

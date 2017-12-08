@@ -1,59 +1,80 @@
-COMPILER=gcc
+CC=gcc
 
-OTLIB_C := $(wildcard ./otlib/*.c)
-OTLIB_H := $(wildcard ./include/otlib/*.h)
+TARGET      ?= libotfs
+TARGETDIR   ?= bin
+EXT_DEF     ?= -DBOARD_posix_a -DAPP_modbus_master -DOT_FEATURE_DLL_SECURITY=0
+EXT_INC     ?= 
+EXT_LIBS    ?= 
 
-PLATFORM_STDC_C := $(wildcard ./platform/stdc/*.c)
-PLATFORM_POSIX_C := $(wildcard ./platform/posix_c/*.c)
+# Note: Potentially need to add OTEAX to LIBMODULES
+DEFAULT_DEF := 
+DEFAULT_INC := ./include
+LIBMODULES  := 
+#PLATFORMS   := $(shell find ./platform -type d)
+PLATFORMS   := ./platform/posix_c
+SUBMODULES  := otlib $(PLATFORMS)
 
-APP_NULLPOSIX := $(wildcard ./apps/null_posix/app/*.c)
+BUILDDIR    := build
 
-FS_DEFAULT := ./apps/null_posix/app/fs_default_startup.c
+SRCEXT      := c
+DEPEXT      := d
+OBJEXT      := o
 
-SOURCES_STDC := $(OTLIB_C) $(PLATFORM_STDC_C)
-SOURCES_POSIXC := $(OTLIB_C) $(PLATFORM_POSIX_C)
+#CFLAGS      := -std=gnu99 -O -g -Wall -pthread
+CFLAGS      := -std=gnu99 -O3 -pthread
+INC         := -I$(DEFAULT_INC)
+INCDEP      := -I$(DEFAULT_INC)
+LIB         := -lotfs -L.
+OTFS_DEF    := $(DEFAULT_DEF) $(EXT_DEF)
+OTFS_INC    := $(INC) $(EXT_INC)
+OTFS_LIB    := $(LIB) $(EXT_LIBS)
+
+#OBJECTS     := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)")
+#MODULES     := $(SUBMODULES) $(LIBMODULES)
 
 
-#HEADERS := $(OTLIB_H)
+# Export the following variables to the shell: will affect submodules
+export OTFS_DEF
+export OTFS_INC
+export OTFS_LIB
 
-SEARCH := -I./ \
-          -I./include \
-          -I./apps/null_posix \
-          -I./apps/_common \
-          -I./libs/OTEAX \
-          -I/usr/local/include
-
-DEFINES := -DBOARD_POSIX_SIM -D__NO_SECTIONS__
+all: $(TARGET)
+lib: libotfs.a
+remake: cleaner all
 
 
-#FLAGS = -std=gnu99 -O -g -Wall
-FLAGS = -std=gnu99 -O3
+directories:
+	@mkdir -p $(TARGETDIR)
+	@mkdir -p $(BUILDDIR)
 
-all: nullposix
-
-lib: clean libotfs
-
-fs_default.o: clean libotfs
-	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(FS_DEFAULT) -o fs_default.o
-
-nullposix: liboteax libotfs nullposix.o
-	$(COMPILER) main.o -L. -L./libs/OTEAX -L/usr/local/lib -ljudy -loteax -lotfs -o ./bin/otfs-test
-
-nullposix.o:
-	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(APP_NULLPOSIX)
-
-libotfs: libotfs.o
-	$(eval OBJS := $(shell ls ./*.o))
-#	ar -rcs libotfs.a $(OBJS)
-#	ranlib libotfs.a
-	libtool -o libotfs.a -static $(OBJS)
-
-libotfs.o: $(SOURCES_POSIXC)
-	$(COMPILER) $(FLAGS) $(DEFINES) $(SEARCH) -c $(SOURCES_POSIXC) otfs.c
-
-liboteax:
-	cd ./libs/OTEAX && $(MAKE) all && $(MAKE) install
-
+#Clean only Objects
 clean:
-	rm -rf ./*.o
-	rm -f ./*.gch
+	@$(RM) -rf $(BUILDDIR)
+
+#Full Clean, Objects and Binaries
+cleaner: clean
+	@$(RM) -rf $(TARGETDIR)
+
+#Linker -- only for building library test suite
+$(TARGET): libotfs.a
+	$(CC) $(CFLAGS) -I. $(OTFS_INC) -c -o $(BUILDDIR)/libotfs-test.o ./libotfs-test.c
+	$(CC) $(CFLAGS) $(OTFS_DEF) -o $(TARGETDIR)/$(TARGET) $(OBJECTS) $(OTFS_LIB)
+
+#Build the static library
+#Note: testing with libtool now, which may be superior to ar
+libotfs.a: $(SUBMODULES) $(LIBMODULES)
+	$(eval OBJECTS := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
+	libtool -o libotfs.a -static $(OBJECTS)
+
+#Library dependencies (not in otfs sources)
+$(LIBMODULES): %: 
+	cd ./../$@ && $(MAKE) all
+
+#libotfs submodules
+$(SUBMODULES): %: $(LIBMODULES) directories
+	$(eval MKFILE := $(notdir $@))
+	cd ./$@ && $(MAKE) -f $(MKFILE).mk obj
+
+#Non-File Targets
+.PHONY: all remake clean cleaner
+

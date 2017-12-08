@@ -34,8 +34,9 @@
 
 #include <otsys/types.h>
 #include <otsys/config.h>
-#include <app/build_config.h>
 
+#include <app/config.h>
+#include <otsys/support.h>
 
 /** @brief platform-specific memcpy, in some cases wraps to OS-level memcpy
   * @param  dest        (void*) destination memory address

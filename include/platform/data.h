@@ -30,7 +30,9 @@
 
 #include <otsys/types.h>
 #include <otsys/config.h>
-#include <app/build_config.h>
+
+#include <app/config.h>
+#include <otsys/support.h>
 
 
 

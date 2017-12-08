@@ -33,8 +33,8 @@
 
 // These will include the Board file
 // The Board file must include the appropriate HW headers
-#include <app/build_config.h>
-#include <app/board_config.h>
+#include <app/config.h>
+#include <otsys/support.h>
 
 
 #endif

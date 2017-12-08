@@ -29,7 +29,7 @@
 #ifndef __board_posix_a_H
 #define __board_posix_a_H
 
-#include <app/build_config.h>
+#include <app/config.h>
 
 #include <platform/hw/stdc.h>
 

@@ -14,50 +14,37 @@
   *
   */
 /**
-  * @file       /platform/stdc/otlib_rand.c
-  * @author     JP Norair
-  * @version    R100
-  * @date       27 Oct 2017
-  * @brief      Random Number driver for POSIX C & STD C
-  * @ingroup    Rand
+  * @file       /app/config.h
+  * @author     JP Norair (jpnorair@indigresso.com)
+  * @version    R101
+  * @date       31 Oct 2017
+  * @brief      Parent Filesystem Defaults File
+  *
+  * You need to update this file any time an app is added.
+  *
+  * For most platforms, this file should be included in only one place:
+  * /platform/xxx/fs_defaults.c
   *
   ******************************************************************************
   */
 
-
-#include <otstd.h>
-#include <otplatform.h>
-#include <otlib/rand.h>
-
-#include <time.h>
-#include <stdlib.h>
+#ifndef __PARENT_APP_CONFIG_H
+#define __PARENT_APP_CONFIG_H
 
 
-void rand_stream(ot_u8* rand_out, ot_int bytes_out) {
-    while (--bytes_out >= 0) {
-        *rand_out++ = rand_prn8();
-    }
-}
+#if defined(APP_modbus_master)
+#   include <app/modbus_master/fs_defaults.h>
 
-void rand_prnseed(ot_u32 seed) {
-    if (seed == 0) {
-        seed = time(NULL);
-    }
-    srand(seed);
-}
+#elif defined(APP_modbus_slave)
+#   include <app/modbus_slave/fs_defaults.h>
 
+#elif defined(APP_modbus_slave_c2000)
+#   include <app/modbus_slave_c2000/fs_defaults.h>
 
-ot_u32 rand_prn32() {
-    return (ot_u32)rand();
-}
+#else
+#   error "APP not defined!"
+
+#endif
 
 
-ot_u8 rand_prn8() {
-    return (ot_u8)(rand() & 255);
-}
-
-
-ot_u16 rand_prn16() {
-    return (ot_u8)(rand() & 65535)
-}
-
+#endif 

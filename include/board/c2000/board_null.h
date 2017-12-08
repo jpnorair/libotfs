@@ -29,7 +29,7 @@
 #ifndef __board_null_H
 #define __board_null_H
 
-#include <app/build_config.h>
+#include <app/config.h>
 
 #include <platform/hw/c2000.h>
 

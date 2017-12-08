@@ -37,7 +37,9 @@
 #include <otsys/types.h>
 #include <otsys/config.h>
 #include <platform/config.h>
-#include <app/build_config.h>
+
+#include <app/config.h>
+#include <otsys/support.h>
 
 
 /** Platform D <BR>
@@ -79,7 +81,7 @@
   * header can use inline functions calling the functions defined above.
   */
 
-#include <app/board_config.h>
+#include <app/config.h>
 
 
 /// Errors for missing critical parameters

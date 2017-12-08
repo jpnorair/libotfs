@@ -14,14 +14,12 @@
   *
   */
 /**
-  * @file       /apps/null_posix/build_config.h
+  * @file       /app/modbus_slave_c2000/build_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    V1.0
   * @date       31 July 2012
   * @brief      Most basic list of constants needed to configure build
   *
-  * Do not include this file.  Include OTAPI.h (or OT_config.h + OT_types.h)
-  * for device-independent stuff, and OT_platform.h for device-dependent stuff.
   ******************************************************************************
   */
 
@@ -75,19 +73,6 @@
 #define OS_FEATURE(VAL)                 OS_FEATURE_##VAL
 #define OS_FEATURE_MEMCPY               ENABLED
 #define OS_FEATURE_MALLOC               ENABLED
-
-
-//Experimental
-#define ISR_EMBED(VAL)                  ISR_EMBED_##VAL
-#define ISR_EMBED_GPTIM                 ENABLED
-#define ISR_EMBED_MPIPE                 ENABLED
-#define ISR_EMBED_RADIO                 ENABLED
-#define ISR_EMBED_POWER                 ENABLED
-#define ISR_EMBED_RNG                   ENABLED
-#define ISR_EMBED_RTC                   ENABLED
-
-
-
 
 
 

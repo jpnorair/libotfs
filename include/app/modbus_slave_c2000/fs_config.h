@@ -14,7 +14,7 @@
   *
   */
 /**
-  * @file       /apps/_common/fs_default_config.h
+  * @file       /app/modbus_slave_c2000/fs_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       30 Apr 2017
@@ -31,7 +31,7 @@
 #ifndef __DEFAULT_FS_CONFIG_H
 #define __DEFAULT_FS_CONFIG_H
 
-#include <app/build_config.h>
+#include "build_config.h"
 
 
 #if defined(__VLSRAM__)

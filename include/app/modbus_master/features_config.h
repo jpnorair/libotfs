@@ -14,19 +14,17 @@
   *
   */
 /**
-  * @file       /apps/_common/features_default_config.h
+  * @file       /app/modbus_master/features_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       31 Aug 2014
   * @brief      Feature configuration for a typical app & platform
   *
-  * #include <../_common/feathers_default_config.h>
-  *
   ******************************************************************************
   */
 
-#ifndef __FEATURES_DEFAULT_CONFIG_H
-#define __FEATURES_DEFAULT_CONFIG_H
+#ifndef __FEATURES_CONFIG_H
+#define __FEATURES_CONFIG_H
 
 
 /// Macro settings: ENABLED, DISABLED, NOT_AVAILABLE
@@ -113,6 +111,9 @@
 #endif
 #ifndef OT_FEATURE_NDEF
 #   define OT_FEATURE_NDEF              DISABLED                            // NDEF wrapper for Messaging API
+#endif
+#ifndef OT_FEATURE_MULTIFS
+#   define OT_FEATURE_MULTIFS           DISABLED
 #endif
 #ifndef OT_FEATURE_VEELITE
 #   define OT_FEATURE_VEELITE           ENABLED                             // Veelite DASH7 File System

@@ -34,8 +34,7 @@
 #define __OTLIB_MEMCPY_H
 
 #include <otstd.h>
-#include <app/build_config.h>
-
+#include <app/config.h>
 
 #if (OS_FEATURE(MEMCPY) == ENABLED)
 #   include <string.h>

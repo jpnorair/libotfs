@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <otsys/types.h>
 
 /// These parameters are sourced from:
 /// https://sourceforge.net/p/predef/wiki/Architectures/
@@ -47,10 +48,10 @@
 #endif
 
 
-extern const ot_u8 overhead_files[];
+extern const ot_u8 overhead_files[OVERHEAD_TOTAL_BYTES];
 extern const ot_u8 gfb_stock_files[GFB_TOTAL_BYTES];
-extern const ot_u8 iss_stock_files[];
-extern const ot_u8 isf_stock_files[];
+extern const ot_u8 iss_stock_files[ISS_TOTAL_BYTES];
+extern const ot_u8 isf_stock_files[ISF_TOTAL_BYTES];
 
 
 #define FLASH_PAGE_SIZE     512
