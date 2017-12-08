@@ -50,7 +50,6 @@ Thumbs.db
 # CCS Generated Files #
 #########################
 *.map
-*.mk
 *.obj
 *.opt
 *.out
