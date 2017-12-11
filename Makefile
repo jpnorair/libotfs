@@ -12,7 +12,7 @@ DEFAULT_INC := ./include
 LIBMODULES  := 
 #PLATFORMS   := $(shell find ./platform -type d)
 PLATFORMS   := ./platform/posix_c
-SUBMODULES  := otlib $(PLATFORMS)
+SUBMODULES  := main otlib $(PLATFORMS)
 
 BUILDDIR    := ./build
 
@@ -22,9 +22,9 @@ OBJEXT      := o
 
 #CFLAGS      := -std=gnu99 -O -g -Wall -pthread
 CFLAGS      := -std=gnu99 -O3 -pthread
-INC         := -I$(DEFAULT_INC)
+INC         := -I$(DEFAULT_INC) -I/usr/local/include
 INCDEP      := -I$(DEFAULT_INC)
-LIB         := -lotfs -L.
+LIB         := -Wl,-Bstatic -lJudy -L./ -L/usr/local/lib
 OTFS_DEF    := $(DEFAULT_DEF) $(EXT_DEF)
 OTFS_INC    := $(INC) $(EXT_INC)
 OTFS_LIB    := $(LIB) $(EXT_LIBS)
@@ -58,13 +58,17 @@ cleaner: clean
 #Packaging stage: copy/move files to pkg output directory
 $(TARGET): $(TARGET).a
 	@cp -R ./include/* ./$(TARGETDIR)
-	@cp ./otfs.h ./$(TARGETDIR)
+	@cp ./main/otfs.h ./$(TARGETDIR)
 
 #Build the static library
 #Note: testing with libtool now, which may be superior to ar
 $(TARGET).a: $(SUBMODULES) $(LIBMODULES)
-	$(eval OBJECTS := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
-	libtool -o $(TARGET).a -static $(OBJECTS)
+	@cd $(BUILDDIR)
+	$(eval LIBTOOL_OBJ := $(shell find . -type f -name "*.$(OBJEXT)"))
+	$(eval LIBTOOL_INC := $(patsubst ./%, $../%, $(OTFS_INC)) )
+	$(eval LIBTOOL_LIB := $(patsubst ./%, $../%, $(OTFS_LIB)) )
+#	libtool -o $(TARGET).a -static $(OBJECTS)
+	libtool -static --mode=link gcc -g -O3 -o $(TARGET).la $(LIBTOOL_OBJ) $(LIBTOOL_INC) $(LIBTOOL_LIB)
 	@mv $(TARGET).a $(TARGETDIR)/
 
 #Library dependencies (not in otfs sources)
