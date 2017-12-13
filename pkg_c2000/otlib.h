@@ -1,4 +1,4 @@
-/* Copyright 2017 JP Norair
+/* Copyright 2014 JP Norair
   *
   * Licensed under the OpenTag License, Version 1.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -14,45 +14,30 @@
   *
   */
 /**
-  * @file       /platform/c2000/otlib_delay.c
+  * @file       /include/otlib.h
   * @author     JP Norair
   * @version    R100
-  * @date       26 Oct 2017
-  * @brief      Delay OTlib Functions for POSIX
-  * @ingroup    Delay
+  * @date       27 Aug 2014
+  * @brief      Global OTlib interface header
   *
   ******************************************************************************
   */
 
-#include <otstd.h>
-#include <otplatform.h>
+
+#ifndef __OTLIB_H
+#define __OTLIB_H
+
+#include <otlib/alp.h>
+#include <otlib/auth.h>
+#include <otlib/buffers.h>
+#include <otlib/crypto.h>
 #include <otlib/delay.h>
+#include <otlib/logger.h>
+#include <otlib/memcpy.h>
+#include <otlib/ndef.h>
+#include <otlib/queue.h>
+#include <otlib/rand.h>
+#include <otlib/triggers.h>
 
 
-#ifndef EXTF_delay_sti
-void delay_sti(ot_u16 sti) {
-    delay_us( sti*31 );
-}
 #endif
-
-
-#ifndef EXTF_delay_ti
-void delay_ti(ot_u16 n) {
-    delay_us(n*977);
-}
-#endif
-
-
-#ifndef EXTF_delay_ms
-void delay_ms(ot_u16 n) {
-    delay_us(n*1000);
-}
-#endif
-
-
-#ifndef EXTF_delay_us
-void delay_us(ot_u16 n) {
-    DELAY_US(n);
-}
-#endif
-

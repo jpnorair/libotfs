@@ -1,23 +1,23 @@
-TARGET      := otlib
+TARGET      := c2000
 
 # Global vars that get exported from primary makefile
-OTFS_CC	    ?= gcc
-OTFS_CFLAGS ?= -std=gnu99 -O3
-OTFS_DEF    ?= 
+OTFS_CC	    ?= cl2000
+OTFS_CFLAGS ?= --c99 -O2
+OTFS_DEF    ?= -DBOARD_c2000 -DOT_FEATURE_DLL_SECURITY=0 -D__C2000__ -D__TI_C__ -D__NO_SECTIONS__
 OTFS_INC    ?= 
 OTFS_LIB    ?= 
 
-BUILDDIR    := ../build/$(TARGET)
+BUILDDIR    := ../../build/$(TARGET)
 TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
 OBJEXT      := o
 LIB         := $(OTFS_LIB)
-INC         := $(patsubst -I./%, -I./../%, $(OTFS_INC)) 
+INC         := $(patsubst -I./%, -I./../../%, $(OTFS_INC)) 
 INCDEP      := $(INC)
 
 SOURCES     := $(shell find . -type f -name "*.$(SRCEXT)")
-OBJECTS     := $(patsubst ./%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
+OBJECTS     := $(patsubst ./%, $(BUILDDIR)/%, $(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
 
 # Need to specify compiler input flags because TI compiler is stupid (doesn't abide by documentation)
 ifeq ($(OTFS_CC),gcc)

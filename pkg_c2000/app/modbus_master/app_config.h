@@ -14,11 +14,11 @@
   *
   */
 /**
-  * @file       /app/modbus_slave_c2000/app_config.h
+  * @file       /app/modbus_master/app_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       31 Oct 2017
-  * @brief      Application Configuration File for Null Posix Build
+  * @brief      Application Configuration File
   *
   ******************************************************************************
   */
@@ -34,10 +34,16 @@
 /** Filesystem constants, setup, and boundaries <BR>
   * ========================================================================<BR>
   * Before the #include statement below, you can set-up some overriding feature
-  * and parameter settings.  Take a look at features_default_config.h to see
+  * and parameter settings.  Take a look at features_config.h to see
   * what the features are.
   */
+
+#define OT_FEATURE_MULTIFS          ENABLED
+
 #include "features_config.h"
+
+
+
 
 
 /** Filesystem constants, setup, and boundaries <BR>

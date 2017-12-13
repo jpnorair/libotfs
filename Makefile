@@ -1,4 +1,3 @@
-CC=gcc
 LIBTOOL=libtool
 
 TARGET      ?= libotfs
@@ -7,36 +6,37 @@ EXT_DEF     ?= -DBOARD_posix_a -DAPP_modbus_master -DOT_FEATURE_DLL_SECURITY=0
 EXT_INC     ?= 
 EXT_LIBS    ?= 
 
+BUILDDIR    := ./build
+SRCEXT      := c
+DEPEXT      := d
+OBJEXT      := o
+
 # Note: Potentially need to add OTEAX to LIBMODULES
-DEFAULT_DEF := 
 DEFAULT_INC := ./include
 LIBMODULES  := 
 #PLATFORMS   := $(shell find ./platform -type d)
 PLATFORMS   := ./platform/posix_c
 SUBMODULES  := main otlib $(PLATFORMS)
 
-BUILDDIR    := ./build
-
-SRCEXT      := c
-DEPEXT      := d
-OBJEXT      := o
-
-#CFLAGS      := -std=gnu99 -O -g -Wall -pthread
-CFLAGS      := -std=gnu99 -O3 -pthread
 INC         := -I$(DEFAULT_INC) -I/usr/local/include
 INCDEP      := -I$(DEFAULT_INC)
 LIB         := -Wl,-Bstatic -L./ -L/usr/local/lib -lJudy
-OTFS_DEF    := $(DEFAULT_DEF) $(EXT_DEF)
+
+# Global vars that get exported to sub-makefiles
+OTFS_CC	    := gcc
+OTFS_CFLAGS := -std=gnu99 -O3 -pthread
+OTFS_DEF    := $(EXT_DEF)
 OTFS_INC    := $(INC) $(EXT_INC)
 OTFS_LIB    := $(LIB) $(EXT_LIBS)
 
-#OBJECTS     := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)")
-#MODULES     := $(SUBMODULES) $(LIBMODULES)
-
 # Export the following variables to the shell: will affect submodules
+export OTFS_CC
+export OTFS_CFLAGS
 export OTFS_DEF
 export OTFS_INC
 export OTFS_LIB
+
+
 
 all: $(TARGET)
 lib: $(TARGET).a
@@ -68,7 +68,7 @@ $(TARGET).a: $(SUBMODULES) $(LIBMODULES)
 #	$(eval LIBTOOL_INC := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_INC)) )
 #	$(eval LIBTOOL_LIB := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_LIB)) )
 	$(LIBTOOL) -static -o $(TARGET).a /usr/local/lib/libJudy.a $(LIBTOOL_OBJ)
-#	$(LIBTOOL) --tag=CC --mode=link gcc -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o $(TARGET).a $(LIBTOOL_OBJ)
+#	$(LIBTOOL) --tag=CC --mode=link $(OTFS_CC) -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o $(TARGET).a $(LIBTOOL_OBJ)
 	@mv $(TARGET).a $(TARGETDIR)/
 
 #Library dependencies (not in otfs sources)

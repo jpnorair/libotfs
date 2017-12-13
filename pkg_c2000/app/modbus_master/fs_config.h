@@ -14,26 +14,30 @@
   *
   */
 /**
-  * @file       /app/modbus_slave_c2000/fs_config.h
+  * @file       /app/modbus_master/fs_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       30 Apr 2017
   * @brief      Configuration for typical demo filesystem
   *
-  * To use this typical FS configuration, include into your app/config.h header
-  * following the FEATURE configuration section.
-  *
-  * #include <../_common/fs_default_config.h>
-  * 
   ******************************************************************************
   */
 
-#ifndef __FS_CONFIG_H
-#define __FS_CONFIG_H
+#ifndef __DEFAULT_FS_CONFIG_H
+#define __DEFAULT_FS_CONFIG_H
 
 #include "build_config.h"
+#include "features_config.h"
 
+/// MultiFS feature requires that active data is stored in RAM.
+/// MultiFS is not for embedded devices.
+#if OT_FEATURE(MULTIFS)
+#   undef __VLSRAM__
+#   define __VLSRAM__
+#endif
 
+/// VLSRAM puts all the filesystem in RAM (not necessarily SRAM, but whatever),
+/// so additional mirroring into SRAM is disabled.
 #if defined(__VLSRAM__)
 #   define _NOMIRROR    1
 #else
@@ -91,6 +95,8 @@
 
 
 
+
+
 /** ISSB Files (Indexed Short Series Block)   <BR>
   * ========================================================================<BR>
   * ISSB Files are strings of ISF IDs that bundle/batch related ISF's.  ISSs
@@ -115,7 +121,6 @@
 #define ISS_STOCK_BYTES         0
 
 
-
 /** ISFB (Indexed Short File Block)  <BR>
  * ========================================================================<BR>
  * The ISFB contains up to 256 files (IDs 0x00 to 0xFF), length <= 255 bytes.
@@ -126,18 +131,18 @@
  * typically between 512-1024, depending on how many features you are using.
  * plus at least two additional user ISFs.
  */
-#define ISF_TOTAL_BYTES                         512
-#define ISF_NUM_M1_FILES                        7
-#define ISF_NUM_M2_FILES                        16
-#define ISF_NUM_EXT_FILES                       1   // Usually at least 1 (app ext)
-#define ISF_NUM_USER_FILES                      0  //max allowed user files
+#define ISF_TOTAL_BYTES         512
+#define ISF_NUM_M1_FILES        7
+#define ISF_NUM_M2_FILES        16
+#define ISF_NUM_EXT_FILES       1   // Usually at least 1 (app ext)
+#define ISF_NUM_USER_FILES      0  //max allowed user files
 
 ///@todo define this after mirror is alloc'ed
-#define ISF_MIRROR_VADDR                        0xC000
+#define ISF_MIRROR_VADDR        0xC000
 
-#define ISF_START_VADDR                         (GFB_START_VADDR + GFB_TOTAL_BYTES)
-#define ISF_NUM_STOCK_FILES                     (ISF_NUM_M1_FILES + ISF_NUM_M2_FILES)
-#define ISF_NUM_FILES                           (ISF_NUM_STOCK_FILES + ISF_NUM_USER_FILES + ISF_NUM_EXT_FILES)
+#define ISF_START_VADDR         (ISS_START_VADDR + ISS_TOTAL_BYTES)
+#define ISF_NUM_STOCK_FILES     (ISF_NUM_M1_FILES + ISF_NUM_M2_FILES)
+#define ISF_NUM_FILES           (ISF_NUM_STOCK_FILES + ISF_NUM_USER_FILES + ISF_NUM_EXT_FILES)
 
 
 /** ISFB Structure    <BR>
@@ -457,6 +462,7 @@
 #define ISF_MIRROR_HEAP_BYTES   ((ISF_MIRROR_NEXT) - (ISF_MIRROR_VADDR))
 
 /// END OF AUTOMATIC ISF STUFF
+
 
 
 

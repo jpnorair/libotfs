@@ -274,7 +274,7 @@ ot_u8 vworm_mark_physical(ot_u16* addr, ot_u16 value) {
 #endif
 
 #ifndef EXTF_vworm_get
-ot_u16* vworm_get(vaddr addr) {
+void* vworm_get(vaddr addr) {
     addr -= VWORM_BASE_VADDR;
     
     /// C2000 has 16bit byte, so need to divide offset by two.
@@ -318,7 +318,7 @@ ot_u8 vsram_mark_physical(ot_u16* addr, ot_u16 value) {
 #endif
 
 #ifndef EXTF_vsram_get
-ot_u8* vsram_get(vaddr addr) {
+void* vsram_get(vaddr addr) {
     return vworm_get(addr);
 }
 #endif

@@ -1,4 +1,4 @@
-/* Copyright 2017 JP Norair
+/* Copyright 2013-14 JP Norair
   *
   * Licensed under the OpenTag License, Version 1.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -14,45 +14,39 @@
   *
   */
 /**
-  * @file       /platform/c2000/otlib_delay.c
+  * @file       /include/platform/data.h
   * @author     JP Norair
-  * @version    R100
-  * @date       26 Oct 2017
-  * @brief      Delay OTlib Functions for POSIX
-  * @ingroup    Delay
+  * @version    R101
+  * @date       27 Mar 2014
+  * @brief      Platform Data Elements
+  * @ingroup    Platform
   *
   ******************************************************************************
   */
 
-#include <otstd.h>
-#include <otplatform.h>
-#include <otlib/delay.h>
+
+#ifndef __PLATFORM_DATA_H
+#define __PLATFORM_DATA_H
+
+#include <otsys/types.h>
+#include <otsys/config.h>
+
+#include <app/config.h>
+#include <otsys/support.h>
 
 
-#ifndef EXTF_delay_sti
-void delay_sti(ot_u16 sti) {
-    delay_us( sti*31 );
-}
+
+/** Required Platform Data <BR>
+  * ========================================================================<BR>
+  */
+
+typedef struct {
+	ot_u16	error_module;	
+    ot_int	error_code;
+} platform_struct;
+
+extern platform_struct platform;
+
+
+
 #endif
-
-
-#ifndef EXTF_delay_ti
-void delay_ti(ot_u16 n) {
-    delay_us(n*977);
-}
-#endif
-
-
-#ifndef EXTF_delay_ms
-void delay_ms(ot_u16 n) {
-    delay_us(n*1000);
-}
-#endif
-
-
-#ifndef EXTF_delay_us
-void delay_us(ot_u16 n) {
-    DELAY_US(n);
-}
-#endif
-

@@ -1,18 +1,21 @@
-CC=gcc
-LIBTOOL=libtool
-
 TARGET      ?= libotfs
-TARGETDIR   ?= pkg
-EXT_DEF     ?= -DBOARD_posix_a -DAPP_modbus_master -DOT_FEATURE_DLL_SECURITY=0
-EXT_INC     ?= 
-EXT_LIBS    ?= 
+TARGETDIR   ?= pkg_c2000
+
+# C2000 compiler and directory parameters
+# Change these to comply with your folder organization
+C2000_WARE  ?= /Applications/ti/c2000/C2000Ware_1_00_02_00
+TICC_DIR    ?= /Applications/ti/ccsv7/tools/compiler/ti-cgt-c2000_17.9.0.STS
+
+EXT_CC		?= cl2000
+EXT_DEF     ?= -DAPP_modbus_slave_c2000 -DOT_FEATURE_DLL_SECURITY=0 -DBOARD_C2000_null -D__TMS320F2806x__ -D__C2000__ -D__TI_C__ -D__NO_SECTIONS__
+EXT_INC     ?= -I$(TICC_DIR)/include -I$(C2000_WARE)
+EXT_LIBS    ?= -L$(TICC_DIR)/lib
 
 # Note: Potentially need to add OTEAX to LIBMODULES
 DEFAULT_DEF := 
 DEFAULT_INC := ./include
 LIBMODULES  := 
-#PLATFORMS   := $(shell find ./platform -type d)
-PLATFORMS   := ./platform/posix_c
+PLATFORMS   := ./platform/c2000
 SUBMODULES  := main otlib $(PLATFORMS)
 
 BUILDDIR    := ./build
@@ -21,19 +24,21 @@ SRCEXT      := c
 DEPEXT      := d
 OBJEXT      := o
 
-#CFLAGS      := -std=gnu99 -O -g -Wall -pthread
-CFLAGS      := -std=gnu99 -O3 -pthread
-INC         := -I$(DEFAULT_INC) -I/usr/local/include
+CFLAGS      := --c99 -O2
+INC         := -I$(DEFAULT_INC)
 INCDEP      := -I$(DEFAULT_INC)
-LIB         := -Wl,-Bstatic -L./ -L/usr/local/lib -lJudy
+LIB         := -Wl,-Bstatic -L./
+
+# Global vars that get exported to sub-makefiles
+OTFS_CC	    := $(EXT_CC)
+OTFS_CFLAGS := $(CFLAGS)
 OTFS_DEF    := $(DEFAULT_DEF) $(EXT_DEF)
 OTFS_INC    := $(INC) $(EXT_INC)
 OTFS_LIB    := $(LIB) $(EXT_LIBS)
 
-#OBJECTS     := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)")
-#MODULES     := $(SUBMODULES) $(LIBMODULES)
-
 # Export the following variables to the shell: will affect submodules
+export OTFS_CC
+export OTFS_CFLAGS
 export OTFS_DEF
 export OTFS_INC
 export OTFS_LIB
@@ -59,7 +64,6 @@ cleaner: clean
 $(TARGET): $(TARGET).a
 	@cp -R ./include/* ./$(TARGETDIR)
 	@cp ./main/otfs.h ./$(TARGETDIR)
-	@cp /usr/local/include/Judy.h ./$(TARGETDIR)
 
 #Build the static library
 #Note: testing with libtool now, which may be superior to ar
@@ -67,18 +71,19 @@ $(TARGET).a: $(SUBMODULES) $(LIBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find . -type f -name "*.$(OBJEXT)"))
 #	$(eval LIBTOOL_INC := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_INC)) )
 #	$(eval LIBTOOL_LIB := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_LIB)) )
-	$(LIBTOOL) -static -o $(TARGET).a /usr/local/lib/libJudy.a $(LIBTOOL_OBJ)
-#	$(LIBTOOL) --tag=CC --mode=link gcc -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o $(TARGET).a $(LIBTOOL_OBJ)
+	ar2000 -a $(TARGET).a $(LIBTOOL_OBJ)
 	@mv $(TARGET).a $(TARGETDIR)/
 
 #Library dependencies (not in otfs sources)
 $(LIBMODULES): %: 
 	cd ./../$@ && $(MAKE) all
 
-#libotfs submodules
+# libotfs submodules
+# TI compiler doesn't have reliable output specifier, so .obj files must be purged.
 $(SUBMODULES): %: $(LIBMODULES) directories
 	$(eval MKFILE := $(notdir $@))
 	cd ./$@ && $(MAKE) -f $(MKFILE).mk obj
+	cd ./$@ && find . -name "*.obj" -delete
 
 #Non-File Targets
 .PHONY: all remake clean cleaner

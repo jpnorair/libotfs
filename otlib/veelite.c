@@ -541,7 +541,7 @@ OT_WEAK ot_u8 vl_chmod(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user
         sub_write_header((header+4), &idmod.ushort, 2);
 #   else
         ot_u16 idmod    = JOIN_2B(data_id, mod);
-        sub_write_header((header+4), &idmod.ushort, 2);
+        sub_write_header((header+4), &idmod, 2);
 #   endif
     }
 

@@ -14,20 +14,19 @@
   *
   */
 /**
-  * @file       /app/modbus_slave_c2000/platform_config.h
+  * @file       /app/modbus_slave_c2000/board_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    V1.0
-  * @date       31 July 2012
-  * @brief      Board & Platform Selection
+  * @date       31 July 2017
+  * @brief      Board & HW Selection
   *
   ******************************************************************************
   */
 
-#ifndef __PLATFORM_CONFIG_H
-#define __PLATFORM_CONFIG_H
+#ifndef __BOARD_CONFIG_H
+#define __BOARD_CONFIG_H
 
 #include "build_config.h"
-
 
 #if defined(BOARD_C2000_null)
 #   include <board/c2000/board_null.h>
@@ -57,9 +56,6 @@
 #   undef NOT_AVAILABLE
 #endif
 #define NOT_AVAILABLE   DISABLED
-
-
-
 
 
 

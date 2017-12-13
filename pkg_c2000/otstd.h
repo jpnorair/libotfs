@@ -1,4 +1,4 @@
-/* Copyright 2017 JP Norair
+/* Copyright 2014 JP Norair
   *
   * Licensed under the OpenTag License, Version 1.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -14,45 +14,21 @@
   *
   */
 /**
-  * @file       /platform/c2000/otlib_delay.c
-  * @author     JP Norair
+  * @file       /include/otstd.h
+  * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R100
-  * @date       26 Oct 2017
-  * @brief      Delay OTlib Functions for POSIX
-  * @ingroup    Delay
+  * @date       27 August 2014
+  * @brief      Include file that groups common sys/...h headers
   *
   ******************************************************************************
   */
 
-#include <otstd.h>
-#include <otplatform.h>
-#include <otlib/delay.h>
+#ifndef __OTSTD_H
+#define __OTSTD_H
 
+#include <otsys/config.h>
+#include <otsys/support.h>
+#include <otsys/types.h>
+#include <otsys/version.h>
 
-#ifndef EXTF_delay_sti
-void delay_sti(ot_u16 sti) {
-    delay_us( sti*31 );
-}
 #endif
-
-
-#ifndef EXTF_delay_ti
-void delay_ti(ot_u16 n) {
-    delay_us(n*977);
-}
-#endif
-
-
-#ifndef EXTF_delay_ms
-void delay_ms(ot_u16 n) {
-    delay_us(n*1000);
-}
-#endif
-
-
-#ifndef EXTF_delay_us
-void delay_us(ot_u16 n) {
-    DELAY_US(n);
-}
-#endif
-
