@@ -50,10 +50,11 @@ OT_WEAK ot_bool alp_proc_logger(alp_tmpl* alp, id_tmpl* user_id) {
 
     // Only root can log directly (this is an important security firewall)
     if (auth_isroot(user_id)) {
-        alp->OUTREC(FLAGS)  = *alp->inq->getcursor++;
-        alp->OUTREC(PLEN)   = *alp->inq->getcursor++;
-        alp->inq->getcursor+= 2;
+        alp->OUTREC(FLAGS)  = q_readbyte(alp->inq);
+        alp->OUTREC(PLEN)   = q_readbyte(alp->inq);
+        alp->inq->getcursor+= 2;        //__q_getcursor_move(alp->inq, 2);
 
+        ///@note on non-byte architectures this can fail.
         if (alp->inq != alp->outq) {
             q_writestring(alp->outq, alp->inq->getcursor, alp->OUTREC(PLEN));
         }

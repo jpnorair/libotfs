@@ -91,7 +91,7 @@ void sub_insert_header(alp_tmpl* alp, ot_u8* hdr_position, ot_u8 hdr_len) {
 /// <LI> Finally, always clear MB because now the first record is done. </LI>
     if (hdr_position == NULL) {
         hdr_position            = alp->outq->putcursor;
-        alp->outq->putcursor   += hdr_len;
+        alp->outq->putcursor   += hdr_len;      //__q_putcursor_move(alp->outq, hdr_len);
     }
 
 #   if (OT_FEATURE(NDEF) == ENABLED)
@@ -202,6 +202,8 @@ ot_bool alp_proc(alp_tmpl* alp, const id_tmpl* user_id) {
         if (alp->INREC(FLAGS) & ALP_FLAG_MB) {
             q_empty(proc_elem->appq);
         }
+        
+        ///@note make q_transfer
         q_writestring(proc_elem->appq, &alp->inq->getcursor[4], alp->INREC(PLEN));
     }
     

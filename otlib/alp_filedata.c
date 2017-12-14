@@ -132,9 +132,9 @@ OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, id_tmpl* user_id) {
           &sub_return
     };
 
-    ot_int  data_in     = (ot_u8)alp->inq->getcursor[1];
-    ot_u8   cmd_in      = alp->inq->getcursor[3];
-    alp->inq->getcursor+= 4;
+    ot_int  data_in     = (ot_u8)alp->inq->getcursor[1];    //__q_getcursor_array(alp->inq, 1);
+    ot_u8   cmd_in      = alp->inq->getcursor[3];           //__q_getcursor_array(alp->inq, 3);
+    alp->inq->getcursor+= 4;                                //__q_getcursor_move(alp->inq, 4);
 
     // Return value is the number of bytes of output the command has produced
     alp->OUTREC(PLEN) = cmd_fn[cmd_in & 0x0F](alp, user_id, (cmd_in & 0x80), cmd_in, data_in);
@@ -150,7 +150,8 @@ OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, id_tmpl* user_id) {
     else {
         ///@todo find if this is even necessary.  I don't think it is.  It is
         /// here now for safety purposes.
-        alp->outq->putcursor   -= alp->OUTREC(PLEN);
+        alp->outq->putcursor   -= alp->OUTREC(PLEN);        //__q_putcursor_move(alp->outq, -(alp->OUTREC(PLEN)));
+        
     }
 
     return True;
@@ -174,7 +175,10 @@ ot_bool sub_testchunk(ot_int data_in) {
 
 /// This is a form of overwrite protection
 ot_bool sub_qnotfull(ot_u8 write, ot_u8 write_size, ot_queue* q) {
-    return (ot_bool)(((q->putcursor+write_size) < q->back) || (write == 0));
+    return (ot_bool)((write_size <= q_space(q)) || (write_size == 0));
+
+    ///@note impl used prior to q_space()
+    //return (ot_bool)(((q->putcursor+write_size) < q->back) || (write == 0));
 }
 
 
@@ -276,8 +280,8 @@ ot_int sub_filedata( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_i
         ot_u8   file_id;
         ot_u16  limit;
 
-        //alp->BOOKMARK_IN    = inq->getcursor;
-        //alp->BOOKMARK_OUT   = NULL;
+        
+        
 
         file_id     = q_readbyte(inq);
         offset      = q_readshort(inq);
@@ -285,7 +289,7 @@ ot_int sub_filedata( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_i
         limit       = offset + span;
         err_code    = vl_getheader_vaddr(&header, file_block, file_id, file_mod, user_id);
         file_mod    = ((file_mod & VL_ACCESS_W) != 0);
-        //fp          = NULL;
+        
 
         // A. File error catcher Stage
         // (In this case, gotos make it more readable)
@@ -337,10 +341,14 @@ ot_int sub_filedata( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_i
             overhead    = 6;
             overhead   += (inc_header != 0) << 2;
 
-            if ((outq->putcursor+overhead) >= outq->back) {
+            ///@note impl before q_space() existed
+            //if ((outq->putcursor+overhead) >= outq->back) {
+            //    goto sub_filedata_overrun;
+            //}
+            if (overhead >= q_space(outq)) {
                 goto sub_filedata_overrun;
             }
-
+            
             q_writeshort_be(outq, vworm_read(header + 4)); // id & mod
             if (inc_header) {
                 q_writeshort(outq, vworm_read(header + 0));    // length
@@ -352,9 +360,14 @@ ot_int sub_filedata( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_i
             data_out += 6;
 
             for (; offset<limit; offset+=2, span-=2, data_out+=2) {
-                if ((outq->putcursor+2) >= outq->back) {
+                ///@note impl before q_space() existed
+                //if ((outq->putcursor+2) >= outq->back) {
+                //    goto sub_filedata_overrun;
+                //}
+                if (2 >= q_space(outq)) {
                     goto sub_filedata_overrun;
                 }
+                
                 q_writeshort_be(outq, vl_read(fp, offset));
             }
         }
@@ -362,9 +375,14 @@ ot_int sub_filedata( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_i
         // C. Error Sending Stage
         sub_filedata_senderror:
         if ((respond != 0) && (err_code | file_mod)) {
-            if ((outq->putcursor+2) >= outq->back) {
+            ///@note impl before q_space() existed
+            //if ((outq->putcursor+2) >= outq->back) {
+            //    goto sub_filedata_overrun;
+            //}
+            if (2 >= q_space(outq)) {
                 goto sub_filedata_overrun;
             }
+            
             q_writebyte(outq, file_id);
             q_writebyte(outq, err_code);
             q_markbyte(inq, span);         // go past any leftover input data
@@ -395,16 +413,6 @@ ot_int sub_filedata( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_i
     vl_close(fp);
 
     ///@todo alp_next_chunk(alp);
-
-//    {
-//        ot_u8* scratch;
-//        inq->getcursor  = (ot_u8*)alp->BOOKMARK_IN;
-//        scratch         = inq->getcursor + 1;
-//        *scratch++      = ((ot_u8*)&offset)[UPPER];
-//        *scratch++      = ((ot_u8*)&offset)[LOWER];
-//        *scratch++      = ((ot_u8*)&span)[UPPER];
-//        *scratch        = ((ot_u8*)&span)[LOWER];
-//    }
 
     return data_out;
 }
@@ -452,9 +460,9 @@ ot_int sub_filecreate(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_
         ot_u8       err_code;
 
         data_in            -= 6;
-        id                  = *alp->inq->getcursor++;
-        mod                 = *alp->inq->getcursor;
-        alp->inq->getcursor+= 3;                        // cursor goes past mod+length (length ignored)
+        id                  = q_readbyte(alp->inq);
+        mod                 = q_readbyte(alp->inq);
+        alp->inq->getcursor+= 2;        // __q_getcursor_move(alp->inq, 2);            
         alloc               = q_readshort(alp->inq);
         err_code            = vl_new(&fp, file_block, id, mod, alloc, user_id);
 
