@@ -58,12 +58,16 @@ $(TARGET): $(OBJECTS)
 #Compile Stages
 $(BUILDDIR)/%.$(OBJEXT): ./%.$(SRCEXT)
 	@mkdir -p $(dir $@)
-	$(OTFS_CC) $(OTFS_CFLAGS) $(OTFS_DEF) $(INC) -c $(CCOUT)$@ $<
+ifeq ($(OTFS_CC),gcc)
+	$(OTFS_CC) $(OTFS_CFLAGS) $(OTFS_DEF) $(INC) -c -o $@ $<
 	@$(OTFS_CC) $(OTFS_CFLAGS) $(OTFS_DEF) $(INCDEP) -MM ./$*.$(SRCEXT) > $(BUILDDIR)/$*.$(DEPEXT)
 	@cp -f $(BUILDDIR)/$*.$(DEPEXT) $(BUILDDIR)/$*.$(DEPEXT).tmp
 	@sed -e 's|.*:|$(BUILDDIR)/$*.$(OBJEXT):|' < $(BUILDDIR)/$*.$(DEPEXT).tmp > $(BUILDDIR)/$*.$(DEPEXT)
 	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR)/$*.$(DEPEXT).tmp | fmt -1 | sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR)/$*.$(DEPEXT)
 	@rm -f $(BUILDDIR)/$*.$(DEPEXT).tmp
+else
+	$(OTFS_CC) $(OTFS_CFLAGS) $(OTFS_DEF) $(INC) -c $(CCOUT)$@ $<
+endif
 
 #Non-File Targets
 .PHONY: all remake clean cleaner resources

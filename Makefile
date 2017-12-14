@@ -1,33 +1,43 @@
-LIBTOOL=libtool
-
+# Default Configuration
 TARGET      ?= libotfs
-TARGETDIR   ?= pkg
-EXT_DEF     ?= -DBOARD_posix_a -DAPP_modbus_master -DOT_FEATURE_DLL_SECURITY=0
+EXT_DEF     ?= -DOT_FEATURE_DLL_SECURITY=0
 EXT_INC     ?= 
 EXT_LIBS    ?= 
 
+DEFAULT_INC := ./include
+LIBMODULES  := 
 BUILDDIR    := ./build
 SRCEXT      := c
 DEPEXT      := d
 OBJEXT      := o
 
-# Note: Potentially need to add OTEAX to LIBMODULES
-DEFAULT_INC := ./include
-LIBMODULES  := 
-#PLATFORMS   := $(shell find ./platform -type d)
-PLATFORMS   := ./platform/posix_c
-SUBMODULES  := main otlib $(PLATFORMS)
+# Conditional Settings per Target
+ifeq ($(TARGET),libotfs)
+	OTFS_CC	    := gcc
+	OTFS_LIBTOOL:= libtool
+	OTFS_CFLAGS := -std=gnu99 -O3 -pthread
+	OTFS_DEF    := -DBOARD_posix_a -DAPP_modbus_master $(EXT_DEF)
+	OTFS_INC    := -I$(DEFAULT_INC) -I/usr/local/include $(EXT_INC)
+	OTFS_LIB    := -Wl,-Bstatic -L./ -L/usr/local/lib -lJudy $(EXT_LIBS)
+	PLATFORM    := ./platform/posix_c
+	TARGETDIR   := pkg
 
-INC         := -I$(DEFAULT_INC) -I/usr/local/include
-INCDEP      := -I$(DEFAULT_INC)
-LIB         := -Wl,-Bstatic -L./ -L/usr/local/lib -lJudy
+else ifeq ($(TARGET),libotfs.c2000)
+	C2000_WARE  ?= /Applications/ti/c2000/C2000Ware_1_00_02_00
+	TICC_DIR    ?= /Applications/ti/ccsv7/tools/compiler/ti-cgt-c2000_17.9.0.STS
 
-# Global vars that get exported to sub-makefiles
-OTFS_CC	    := gcc
-OTFS_CFLAGS := -std=gnu99 -O3 -pthread
-OTFS_DEF    := $(EXT_DEF)
-OTFS_INC    := $(INC) $(EXT_INC)
-OTFS_LIB    := $(LIB) $(EXT_LIBS)
+	OTFS_CC	    := cl2000
+	OTFS_LIBTOOL:= ar2000
+	OTFS_CFLAGS := --c99 -O2
+	OTFS_DEF    := -DAPP_modbus_slave_c2000 -DBOARD_C2000_null -D__TMS320F2806x__ -D__C2000__ -D__TI_C__ -D__NO_SECTIONS__ $(EXT_DEF)
+	OTFS_INC    := -I$(TICC_DIR)/include -I$(C2000_WARE) -I$(DEFAULT_INC) $(EXT_INC)
+	OTFS_LIB    := -Wl,-Bstatic -L$(TICC_DIR)/lib -L./ $(EXT_LIBS)
+	PLATFORM    := ./platform/c2000
+	TARGETDIR   := pkg
+
+else
+	error "TARGET set to unknown value: $(TARGET)"
+endif
 
 # Export the following variables to the shell: will affect submodules
 export OTFS_CC
@@ -36,8 +46,11 @@ export OTFS_DEF
 export OTFS_INC
 export OTFS_LIB
 
+# Derived Parameters
+SUBMODULES  := main otlib $(PLATFORM)
+INCDEP      := -I$(DEFAULT_INC)
 
-
+# Global vars that get exported to sub-makefiles
 all: $(TARGET)
 lib: $(TARGET).a
 remake: cleaner all
@@ -62,13 +75,19 @@ $(TARGET): $(TARGET).a
 	@cp /usr/local/include/Judy.h ./$(TARGETDIR)
 
 #Build the static library
-#Note: testing with libtool now, which may be superior to ar
-$(TARGET).a: $(SUBMODULES) $(LIBMODULES)
+libotfs.a: $(SUBMODULES) $(LIBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find . -type f -name "*.$(OBJEXT)"))
 #	$(eval LIBTOOL_INC := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_INC)) )
 #	$(eval LIBTOOL_LIB := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_LIB)) )
-	$(LIBTOOL) -static -o $(TARGET).a /usr/local/lib/libJudy.a $(LIBTOOL_OBJ)
-#	$(LIBTOOL) --tag=CC --mode=link $(OTFS_CC) -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o $(TARGET).a $(LIBTOOL_OBJ)
+	$(OTFS_LIBTOOL) -static -o $(TARGET).a /usr/local/lib/libJudy.a $(LIBTOOL_OBJ)
+#	$(OTFS_LIBTOOL) --tag=CC --mode=link $(OTFS_CC) -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o $(TARGET).a $(LIBTOOL_OBJ)
+	@mv $(TARGET).a $(TARGETDIR)/
+
+#Build the static library
+#Note: testing with libtool now, which may be superior to ar
+libotfs.c2000.a: $(SUBMODULES) $(LIBMODULES)
+	$(eval LIBTOOL_OBJ := $(shell find . -type f -name "*.$(OBJEXT)"))
+	ar2000 -a $(TARGET).a $(LIBTOOL_OBJ)
 	@mv $(TARGET).a $(TARGETDIR)/
 
 #Library dependencies (not in otfs sources)
@@ -81,5 +100,5 @@ $(SUBMODULES): %: $(LIBMODULES) directories
 	cd ./$@ && $(MAKE) -f $(MKFILE).mk obj
 
 #Non-File Targets
-.PHONY: all remake clean cleaner
+.PHONY: all lib remake clean cleaner
 
