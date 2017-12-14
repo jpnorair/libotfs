@@ -45,10 +45,35 @@
 
 
 /// Queue Options flags
-#define GETCURSOR_SHIFT(Q)  (Q->options.ushort & 1) 
-#define PUTCURSOR_SHIFT(Q)  ((Q->options.ushort >> 1) & 1)
-#define FRONT_SHIFT(Q)      ((Q->options.ushort >> 2) & 1) 
-#define BACK_SHIFT(Q)       ((Q->options.ushort >> 3) & 1) 
+#define GETCURSOR_SHIFT(Q)  ((Q)->options.ushort & 1) 
+#define PUTCURSOR_SHIFT(Q)  (((Q)->options.ushort >> 1) & 1)
+#define FRONT_SHIFT(Q)      (((Q)->options.ushort >> 2) & 1) 
+#define BACK_SHIFT(Q)       (((Q)->options.ushort >> 3) & 1) 
+
+
+
+
+
+/** Queue "Intrinsics"
+  */
+
+OT_INLINE ot_u8 __q_getcursor_array(ot_queue* q, ot_u16 offset) {
+    return __byte(q->getcursor, offset + GETCURSOR_SHIFT(q) );
+}
+
+OT_INLINE ot_u8 __q_putcursor_array(ot_queue* q, ot_u16 offset) {
+    return __byte(q->putcursor, offset + PUTCURSOR_SHIFT(q) );
+}
+
+OT_INLINE void __q_getcursor_move(ot_queue* q, ot_int move) {
+    q_markbyte(q, move);
+}
+
+OT_INLINE void __q_putcursor_move(ot_queue* q, ot_int move) {
+    q_markbyte(q, move);
+}
+
+
 
 
 /** Queue "Object" functions
@@ -227,10 +252,19 @@ void q_writelong(ot_queue* q, ot_ulong long_in) {
 
 
 ot_u8 q_readbyte(ot_queue* q) {
+    ot_u8 output;
+    ot_u16 alignment;
     
-    // Use Byte intrinsics
+    alignment = q->options.ushort & 1;
     
-    return *q->getcursor++;
+    /// Use Byte Intrinsic (C2000) to get byte output
+    output = __byte(q->getcursor, alignment);
+    
+    /// Update getcursor and/or q->options flag
+    q->getcursor       += alignment;
+    q->options.ushort  ^= 1;
+    
+    return output;
 }
 
 
@@ -242,7 +276,6 @@ ot_u16 q_readshort(ot_queue* q) {
     
     return output;
 }
-#endif
 
 
 
@@ -282,19 +315,11 @@ void q_writestring(ot_queue* q, ot_u8* string, ot_int length) {
     while (length > 1) {
         length -= 2;
         q_writeshort(*string++);
-         = q_readshort(q);
-    }
-    if (length > 0) {
-        *string++ = q_readbyte(q);
     }
     
-    limit = (q->back - q->putcursor);
-    if (length > limit) {
-        length = limit;
-    } 
+    ///@todo make sure this write is aligned properly
     if (length > 0) {
-        memcpy(q->putcursor, string, length);
-        q->putcursor   += length;
+        q_writebyte(*string);
     }
 }
 
@@ -317,7 +342,6 @@ void q_readstring(ot_queue* q, ot_u8* string, ot_int length) {
         *string++ = q_readbyte(q);
     }
 }
-
 
 
 
