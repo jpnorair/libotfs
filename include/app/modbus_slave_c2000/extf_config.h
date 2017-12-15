@@ -13,6 +13,16 @@
 #define __EXTF_CONFIG_H
 
 
+#define EXTF_q_writeshort
+#define EXTF_q_writeshort_be
+#define EXTF_q_writelong
+#define EXTF_q_readbyte
+#define EXTF_q_readshort
+#define EXTF_q_readshort_be
+#define EXTF_q_readlong
+
+
+
 /// ALP Module EXTFs
 
 
