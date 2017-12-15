@@ -38,6 +38,10 @@ void otutils_sig2_null(ot_int a, ot_int b);
 void otutils_sigv_null(void* a);
 
 
+// Not guaranteed to be implemented
+void otutils_pack2(void* dst, ot_u16* src, ot_u16 size);
+void otutils_unpack2(ot_u16* dst, void* src, ot_u16 size);
+
 
 // Exp-Mantissa expansion for common 7-bit field
 ot_ulong otutils_calc_timeout(ot_u8 timeout_code);
