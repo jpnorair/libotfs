@@ -268,6 +268,7 @@ void auth_putnonce(ot_u8* dst, ot_uint limit) {
 
 
 // EAX has a symmetric cipher (Yay!)
+#if (_SEC_DLL)
 ot_int __eaxcrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index, ot_u8 options,
                      ot_int (*__crypt)(ot_u8*, ot_u8*, ot_uint, EAXdrv_t*) )   {
     EAXdrv_t context;
@@ -280,7 +281,7 @@ ot_int __eaxcrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index, o
     }
     return retval;
 }
-
+#endif
 
 #ifndef EXTF_auth_encrypt
 ot_int auth_encrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index, ot_u8 options) {

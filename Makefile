@@ -28,7 +28,7 @@ else ifeq ($(TARGET),libotfs.c2000)
 
 	OTFS_CC	    := cl2000
 	OTFS_LIBTOOL:= ar2000
-	OTFS_CFLAGS := --c99 -O2
+	OTFS_CFLAGS := --c99 -O2 -v28 -ml -mt -g --cla_support=cla0 --float_support=fpu32 --vcu_support=vcu0 
 	OTFS_DEF    := -DAPP_modbus_slave_c2000 -DBOARD_C2000_null -D__TMS320F2806x__ -D__C2000__ -D__TI_C__ -D__NO_SECTIONS__ $(EXT_DEF)
 	OTFS_INC    := -I$(TICC_DIR)/include -I$(C2000_WARE) -I$(DEFAULT_INC) $(EXT_INC)
 	OTFS_LIB    := -Wl,-Bstatic -L$(TICC_DIR)/lib -L./ $(EXT_LIBS)

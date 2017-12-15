@@ -139,7 +139,6 @@ void vworm_fsheader_defload(vlFSHEADER* fs) {
 
 
 
-
 ot_uint vworm_fsdata_defload(void* fs_base, const vlFSHEADER* fs) {
     ot_u32* section;
 
@@ -177,7 +176,6 @@ ot_uint vworm_fsdata_defload(void* fs_base, const vlFSHEADER* fs) {
 
 
 #ifndef EXTF_vworm_init
-
 ot_u8 vworm_init(void* fs_base, const vlFSHEADER* fs) {
 /// If MultiFS is not used, all the arguments can be NULL.
 /// If MultiFS is required, the initialization process includes storing default

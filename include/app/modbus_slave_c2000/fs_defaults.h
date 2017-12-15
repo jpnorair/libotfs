@@ -23,8 +23,8 @@
   ******************************************************************************
   */
 
-#ifndef __DEFAULT_FS_STARTUP_H
-#define __DEFAULT_FS_STARTUP_H
+//#ifndef __DEFAULT_FS_STARTUP_H
+//#define __DEFAULT_FS_STARTUP_H
 
 #include <otstd.h>
 #include <board.h>
@@ -426,5 +426,5 @@ const ot_u16 isf_stock_files[] = {
 
 
 
-#endif
+//#endif
 

@@ -49,11 +49,18 @@ typedef struct OT_PACKED {
     uint8_t ext40[5];
 } otfs_eui64_t;
 
+
 typedef union {
-    otfs_eui64_t    eui64;
     uint64_t        u64;
+    uint32_t        u32[2];
+    uint16_t        u16[4];
+    
+#   if !defined(__C2000__)
     uint8_t         u8[8];
+    otfs_eui64_t    eui64;
+#   endif
 } otfs_id_union;
+
 
 typedef struct {
     otfs_id_union   fs_id;

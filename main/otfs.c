@@ -63,15 +63,15 @@ int otfs_defaults(otfs_t* otfs, size_t maxalloc) {
 
 
 int otfs_new(const otfs_t* fs) {
-    const vlFSHEADER* fsheader;
+#if (OTFS_FEATURE_MULTIFS)
     id_tmpl user_id;
-    
+    const vlFSHEADER* fsheader;
+
     // The filesystem header is at the front of the fs section
     fsheader = fs->fs_base;
-
-    vworm_init(fs->fs_base, fsheader);
     
-#   if (OTFS_FEATURE_MULTIFS)
+    vworm_init(fs->fs_base, fsheader);
+
     vl_multifs_init(NULL);
 
     user_id.length  = 8;
@@ -79,7 +79,11 @@ int otfs_new(const otfs_t* fs) {
     if (vl_multifs_add(fsheader, &user_id) != 0) {
         return -1;
     }
-#   endif
+
+#else
+    vworm_init(NULL, NULL);
+ 
+#endif
 
     ///@note might be wise to put below features into otfs_setfs() (or a
     ///      subroutine of such that takes a direct pointer).
