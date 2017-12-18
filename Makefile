@@ -76,7 +76,7 @@ $(TARGET): $(TARGET).a
 
 #Build the static library
 libotfs.a: $(SUBMODULES) $(LIBMODULES)
-	$(eval LIBTOOL_OBJ := $(shell find . -type f -name "*.$(OBJEXT)"))
+	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR)/libotfs -type f -name "*.$(OBJEXT)"))
 #	$(eval LIBTOOL_INC := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_INC)) )
 #	$(eval LIBTOOL_LIB := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_LIB)) )
 	$(OTFS_LIBTOOL) -static -o $(TARGET).a /usr/local/lib/libJudy.a $(LIBTOOL_OBJ)
@@ -86,7 +86,7 @@ libotfs.a: $(SUBMODULES) $(LIBMODULES)
 #Build the static library
 #Note: testing with libtool now, which may be superior to ar
 libotfs.c2000.a: $(SUBMODULES) $(LIBMODULES)
-	$(eval LIBTOOL_OBJ := $(shell find . -type f -name "*.$(OBJEXT)"))
+	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR)/libotfs.c2000 -type f -name "*.$(OBJEXT)"))
 	ar2000 -a $(TARGET).a $(LIBTOOL_OBJ)
 	@mv $(TARGET).a $(TARGETDIR)/
 

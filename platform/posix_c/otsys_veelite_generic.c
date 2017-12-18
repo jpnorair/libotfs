@@ -267,9 +267,9 @@ ot_u8 vworm_mark_physical(ot_u16* addr, ot_u16 value) {
 #endif
 
 #ifndef EXTF_vworm_get
-ot_u8* vworm_get(vaddr addr) {
+void* vworm_get(vaddr addr) {
     addr -= VWORM_BASE_VADDR;
-    return (ot_u8*)fsram + addr;
+    return (void*)((ot_u8*)fsram + addr);
 }
 #endif
 
@@ -307,8 +307,8 @@ ot_u8 vsram_mark_physical(ot_u16* addr, ot_u16 value) {
 #endif
 
 #ifndef EXTF_vsram_get
-ot_u8* vsram_get(vaddr addr) {
-    return vworm_get(addr);
+void* vsram_get(vaddr addr) {
+    return (void*)vworm_get(addr);
 }
 #endif
 
