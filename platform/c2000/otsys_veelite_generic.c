@@ -45,7 +45,7 @@
 #if (OT_FEATURE(MULTIFS))
     static ot_u32* fsram;
 #else
-    static ot_u32 fsram[FLASH_FS_ALLOC/4];
+    static ot_u32 fsram[512];      ///@note limiting to 2KB for test
 #endif
 
 #define FSRAM ((ot_u16*)fsram)
@@ -170,7 +170,7 @@ ot_uint vworm_fsdata_defload(void* fs_base, const vlFSHEADER* fs) {
     }
 #   endif
     
-    return (ot_uint)(((void*)section - fs_base)*2);
+    return ((ot_uint)((MCU_TYPE_UINT)section - (MCU_TYPE_UINT)fs_base)) *2;
 }
 
 

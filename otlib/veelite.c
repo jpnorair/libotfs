@@ -73,11 +73,15 @@ static vlFSHEADER vlfs;
   * valid.
   */
 
+#define OCTETS_IN_U16           (2 / sizeof(ot_u16))
+#define OCTETS_IN_vlFSHEADER    (sizeof(vlFSHEADER) * OCTETS_IN_U16)
+#define OCTETS_IN_vl_header_t   (sizeof(vl_header_t) * OCTETS_IN_U16)
+
 /// Virtual Address Shortcuts for the header blocks (VWORM)
-#define GFB_Header_START        (OVERHEAD_START_VADDR + sizeof(vlFSHEADER))
-#define GFB_Header_START_USER   (GFB_Header_START + (GFB_NUM_STOCK_FILES*sizeof(vl_header_t)))
-#define ISF_Header_START        (GFB_Header_START + (GFB_NUM_FILES*sizeof(vl_header_t)))
-#define ISF_Header_START_USER   (ISF_Header_START + (ISF_NUM_STOCK_FILES*sizeof(vl_header_t)))
+#define GFB_Header_START        ( (OVERHEAD_START_VADDR) + OCTETS_IN_vlFSHEADER )
+#define GFB_Header_START_USER   ( (GFB_Header_START) + (GFB_NUM_STOCK_FILES*OCTETS_IN_vl_header_t) )
+#define ISF_Header_START        ( (GFB_Header_START) + (GFB_NUM_FILES*OCTETS_IN_vl_header_t) )
+#define ISF_Header_START_USER   ( (ISF_Header_START) + (ISF_NUM_STOCK_FILES*OCTETS_IN_vl_header_t) )
 
 /// GFB HEAP Virtual address shortcuts (VWORM)
 #define GFB_HEAP_START          GFB_START_VADDR
@@ -586,6 +590,7 @@ OT_WEAK vl_u8* vl_memptr( vlFILE* fp ) {
 #endif
 
 
+
 #ifndef EXTF_vl_load
 OT_WEAK ot_uint vl_load( vlFILE* fp, ot_uint length, vl_u8* data ) {
     ot_uint     cursor;
@@ -919,7 +924,7 @@ vaddr sub_isf_search(ot_u8 id) {
     }
 #   endif
     
-    return (sizeof(vl_header_t) * id) + ISF_Header_START;
+    return (OCTETS_IN_vl_header_t * id) + ISF_Header_START;
 }
 
 
@@ -938,7 +943,7 @@ ot_u8 sub_isf_mirror(ot_u8 direction) {
 
     // Go through ISF Header array
     header = ISF_Header_START;
-    for (i=0; i<ISF_NUM_STOCK_FILES; i++, header+=sizeof(vl_header_t)) {
+    for (i=0; i<ISF_NUM_STOCK_FILES; i++, header+=OCTETS_IN_vl_header_t) {
 
         //get header data
         header_alloc    = vworm_read(header+2);
@@ -1022,7 +1027,7 @@ vlFILE* sub_new_file(vl_header_t* new_header, vaddr heap_base, vaddr heap_end, v
         return NULL;
 
     // Write header to the header array
-    sub_write_header(header_addr, (ot_u16*)new_header, sizeof(vl_header_t));
+    sub_write_header(header_addr, (ot_u16*)new_header, OCTETS_IN_vl_header_t);
 
     return vl_open_file( header_addr );
 #else
@@ -1071,7 +1076,7 @@ vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers) {
 
 #       endif
 
-        header += sizeof(vl_header_t);
+        header += OCTETS_IN_vl_header_t;
     }
     return NULL_vaddr;
 }
@@ -1079,7 +1084,7 @@ vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers) {
 
 void sub_copy_header( vaddr header, ot_u16* output_header ) {
     ot_int i;
-    ot_int copy_length = sizeof(vl_header_t) / 2;
+    ot_int copy_length = (OCTETS_IN_vl_header_t / 2);
 
     for (i=0; i<copy_length; i++) {
         output_header[i] = vworm_read(header);
@@ -1106,7 +1111,7 @@ vaddr sub_find_empty_header(vaddr header, ot_int num_headers) {
         if ( header_base == NULL_vaddr ) {
             return header;
         }
-        header += sizeof(vl_header_t);
+        header += OCTETS_IN_vl_header_t;
     }
 
     return NULL_vaddr;
@@ -1135,7 +1140,7 @@ vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
     ot_int  bestfit_alloc   = (ot_int)(32767);
     vaddr   bestfit_base    = NULL_vaddr;
 
-    for (i=0; i<num_headers; i++, loop1+=sizeof(vl_header_t) ) {
+    for (i=0; i<num_headers; i++, loop1+=OCTETS_IN_vl_header_t ) {
         loop1_alloc = vworm_read(loop1 + 2);                                    // load alloc (max) from header
         loop1_base  = vworm_read(loop1 + 6);                                    // load base from header
 
@@ -1143,7 +1148,7 @@ vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
             heap_base   = (vaddr)(loop1_base + loop1_alloc);
             loop2       = header;
 
-            for (j=0; j<num_headers; j++, loop2+=sizeof(vl_header_t) ) {
+            for (j=0; j<num_headers; j++, loop2+=OCTETS_IN_vl_header_t ) {
                 loop2_base  = vworm_read(loop2 + 6);
 
                 if ( (loop2_base != NULL_vaddr) && (loop2_base > heap_base) ) { // if header is valid ...

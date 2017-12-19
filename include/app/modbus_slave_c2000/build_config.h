@@ -29,7 +29,8 @@
 #include <otsys/support.h>
 
 
-//#define __VLSRAM__
+///@note Current system uses VLSRAM model, no read from FLASH
+#define __VLSRAM__
 
 
 

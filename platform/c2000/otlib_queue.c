@@ -85,18 +85,18 @@ ot_u16 q_readshort(ot_queue* q) {
 
 
 ot_u16 q_readshort_be(ot_queue* q) {
-    q_readshort(q);
+    return q_readshort(q);
 }
 
 
 
 ot_u32 q_readlong(ot_queue* q)  {
     ot_u32 data;
-    data    = (*q->getcursor++) << 24;
-    data   |= (*q->getcursor++ & 0xFF) << 16;
-    data   |= (*q->getcursor++ & 0xFF) << 8;
-    data   |= (*q->getcursor++ & 0xFF) << 0;
-        
+    data    = ((ot_u32)*q->getcursor++) << 24;
+    data   |= ((ot_u32)*q->getcursor++ & 0xFF) << 16;
+    data   |= ((ot_u32)*q->getcursor++ & 0xFF) << 8;
+    data   |= ((ot_u32)*q->getcursor++ & 0xFF) << 0;
+
     return data;
 }
 
