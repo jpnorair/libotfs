@@ -347,7 +347,7 @@ ot_bool alp_proc_null(alp_tmpl* alp, const id_tmpl* user_id);
   * @retval ot_bool		True if atomic, False if this ALP needs delayed processing
   * @ingroup ALP
   */
-ot_bool alp_proc_filedata(alp_tmpl* alp, id_tmpl* user_id);
+ot_bool alp_proc_filedata(alp_tmpl* alp, const id_tmpl* user_id);
 
 
 

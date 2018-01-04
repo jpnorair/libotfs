@@ -154,8 +154,10 @@ static const alp_elem_t null_elem = { &alp_proc_null, NULL };
 #if (ALP_EXT)
 static const alp_elem_t ext_elem = { &alp_ext_proc, NULL };
 #endif
-    
-static alp_elem_t alp_table[ALP_FUNCTIONS];
+
+static const alp_elem_t alp_table[ALP_FUNCTIONS] = {
+    { &alp_proc_filedata, NULL },
+};
 
 const alp_elem_t* sub_get_elem(ot_u8 alp_id) {
     const alp_elem_t* element;
@@ -164,9 +166,11 @@ const alp_elem_t* sub_get_elem(ot_u8 alp_id) {
         element = &null_elem;
     }
     else {
+        alp_id--;
+
 #       if (ALP_API)
         if (alp_id >= 0x80) {
-            alp_id -= (0x80 - 1 - (ALP_FUNCTIONS-ALP_API));
+            alp_id -= (0x80 - (ALP_FUNCTIONS-ALP_API));
         }
 #       endif
         if (alp_id >= ALP_FUNCTIONS) {
@@ -184,7 +188,7 @@ const alp_elem_t* sub_get_elem(ot_u8 alp_id) {
     return (const alp_elem_t*)element;
 }
     
-    
+
 ot_bool alp_proc(alp_tmpl* alp, const id_tmpl* user_id) {
     const alp_elem_t*   proc_elem;
     ot_bool             output_code;
@@ -200,15 +204,18 @@ ot_bool alp_proc(alp_tmpl* alp, const id_tmpl* user_id) {
     /// <LI>Store payload to it in any case</LI>
     if (proc_elem->appq != NULL) {
         if (alp->INREC(FLAGS) & ALP_FLAG_MB) {
+        //if (alp->inq->getcursor[0] & ALP_FLAG_MB) {
             q_empty(proc_elem->appq);
         }
         
         ///@note make q_transfer
-        q_writestring(proc_elem->appq, &alp->inq->getcursor[4], alp->INREC(PLEN));
+        q_writestring(proc_elem->appq, alp->inq->getcursor, alp->INREC(PLEN));
+        //q_writestring(proc_elem->appq, alp->inq->getcursor, alp->inq->getcursor[1]);
     }
     
     /// If the Message-End flag is set, then run the processor callback
     if (alp->INREC(FLAGS) & ALP_FLAG_ME) {
+    //if (alp->inq->getcursor[0] & ALP_FLAG_ME) {
         output_code = proc_elem->callback(alp, user_id);
     }
     else {
@@ -256,13 +263,10 @@ ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id) {
     ot_int      bytes;
 
     /// Lock the ot_queues while ALP is parsing/processing
-    alp->inq->options.ubyte[0]  = 1;
-    alp->outq->options.ubyte[0] = 1;
-    ///@todo migrate to this usage in the future
-    //q_lock(alp->inq);
-    //q_lock(alp->outq);
-
-    input_position = alp->inq->getcursor;
+    //alp->inq->options.ubyte[0]  = 1;
+    //alp->outq->options.ubyte[0] = 1;
+    q_lock(alp->inq);
+    q_lock(alp->outq);
 
     /// Safety check: make sure both queues have room remaining for the
     /// most minimal type of message, an empty message
@@ -279,8 +283,10 @@ ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id) {
     /// OpenTag requirement, bypass it and go to the next.  Else, copy
     /// the input record to the output record.  alp_proc() will adjust
     /// the output payload length and flags, as necessary.
+    input_position      = alp->inq->getcursor;
+    alp->inq->getcursor+= 4;
+
     if (alp->OUTREC(FLAGS) & ALP_FLAG_ME) {
-        input_position      = alp->inq->getcursor;
         alp->OUTREC(FLAGS)  = input_position[0];
         alp->OUTREC(PLEN)   = 0;
         alp->OUTREC(ID)     = input_position[2];
@@ -319,11 +325,10 @@ ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id) {
     alp->inq->getcursor = input_position;
     
     /// Unlock the ot_queues after ALP is parsing/processing
-    alp->inq->options.ubyte[0]  = 0;
-    alp->outq->options.ubyte[0] = 0;
-    ///@todo migrate to this usage in the future
-    //q_unlock(alp->inq);
-    //q_unlock(alp->outq);
+    //alp->inq->options.ubyte[0]  = 0;
+    //alp->outq->options.ubyte[0] = 0;
+    q_unlock(alp->inq);
+    q_unlock(alp->outq);
     
     exit_code = MSG_End;
 

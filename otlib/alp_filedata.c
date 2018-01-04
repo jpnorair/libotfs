@@ -70,7 +70,7 @@
 #if (OT_FEATURE(ALP) && OT_FEATURE(VEELITE))
 
 #if (0)
-OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, id_tmpl* user_id) {
+OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, const id_tmpl* user_id) {
     return True;
 }
 
@@ -84,24 +84,24 @@ OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, id_tmpl* user_id) {
 
 
 // Processing subroutines
-typedef ot_int (*sub_file)(alp_tmpl*, id_tmpl*, ot_u8, ot_u8, ot_int);
+typedef ot_int (*sub_file)(alp_tmpl*, const id_tmpl*, ot_u8, ot_u8, ot_int);
 
 
-ot_int sub_return(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+ot_int sub_return(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_fileperms(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+ot_int sub_fileperms(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_fileheaders(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+ot_int sub_fileheaders(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_filedata(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_filedelete(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+ot_int sub_filedelete(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_filecreate(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+ot_int sub_filecreate(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_filerestore(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+ot_int sub_filerestore(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-//ot_int sub_fileerror(ot_bool respond, alp_tmpl* alp, id_tmpl* user_id );
+//ot_int sub_fileerror(ot_bool respond, alp_tmpl* alp, const id_tmpl* user_id );
 
 
 
@@ -111,7 +111,7 @@ ot_int sub_filerestore(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd
 
 
 // Callable processing function
-OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, id_tmpl* user_id) {
+OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, const id_tmpl* user_id) {
     //sub_file cmd;
     static const sub_file cmd_fn[] = {
           &sub_fileperms,
@@ -132,9 +132,11 @@ OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, id_tmpl* user_id) {
           &sub_return
     };
 
-    ot_int  data_in     = (ot_u8)alp->inq->getcursor[1];    //__q_getcursor_array(alp->inq, 1);
-    ot_u8   cmd_in      = alp->inq->getcursor[3];           //__q_getcursor_array(alp->inq, 3);
-    alp->inq->getcursor+= 4;                                //__q_getcursor_move(alp->inq, 4);
+    ot_int  data_in     = alp->INREC(PLEN);
+    ot_u8   cmd_in      = alp->INREC(CMD);
+    //ot_int  data_in     = (ot_u8)alp->inq->getcursor[1];
+    //ot_u8   cmd_in      = alp->inq->getcursor[3];
+    //alp->inq->getcursor+= 4;
 
     // Return value is the number of bytes of output the command has produced
     alp->OUTREC(PLEN) = cmd_fn[cmd_in & 0x0F](alp, user_id, (cmd_in & 0x80), cmd_in, data_in);
@@ -144,7 +146,7 @@ OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, id_tmpl* user_id) {
         // - for write and control funcs, error is the only type of response
         // - for read, data return is the response
         // - 02 is the write-cmd mask, 03 is the return-cmd mask, 0F is the error cmd
-        alp->OUTREC(CMD)  &= ~0x80;
+        alp->OUTREC(CMD)  ^= 0x80;
         alp->OUTREC(CMD)  |= (cmd_in & 0x02) ? 0x0F : 0x01;
     }
     else {
@@ -162,7 +164,7 @@ OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, id_tmpl* user_id) {
 
 
 // Return functions are not handled by the server (ignore)
-ot_int sub_return(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
+ot_int sub_return(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
     return 0;
 }
 
@@ -184,7 +186,7 @@ ot_bool sub_qnotfull(ot_u8 write, ot_u8 write_size, ot_queue* q) {
 
 
 
-ot_int sub_fileperms( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
+ot_int sub_fileperms( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
     ot_int  data_out    = 0;
     vlBLOCK file_block  = (vlBLOCK)((cmd_in >> 4) & 0x07);
     ot_u8   file_mod    = ((cmd_in & 0x02) ? VL_ACCESS_W : VL_ACCESS_R);
@@ -209,9 +211,9 @@ ot_int sub_fileperms( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_
             allow_write = (ot_bool)(vl_getheader_vaddr(&header, file_block, file_id, \
                                                     VL_ACCESS_R, NULL) == 0);
             if (allow_write) {
-                ot_uni16 filemod;
-                filemod.ushort  = vworm_read(header + 4);   //shortcut to idmod, hack-ish but fast
-                file_mod        = filemod.ubyte[1];
+                ot_u16 file_idmod;
+                file_idmod  = vworm_read(header + 4);   //shortcut to idmod, hack-ish but fast
+                file_mod    = file_idmod >> 8;          ///@todo this might be endian dependent
             }
         }
         if (allow_write) {
@@ -230,7 +232,7 @@ ot_int sub_fileperms( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_
 
 
 
-ot_int sub_fileheaders( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
+ot_int sub_fileheaders( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
     ot_int  data_out    = 0;
     vlBLOCK file_block  = (vlBLOCK)((cmd_in >> 4) & 0x07);
 
@@ -261,7 +263,7 @@ ot_int sub_fileheaders( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cm
 
 
 
-ot_int sub_filedata( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
+ot_int sub_filedata( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
     ot_u16  offset;
     ot_u16  span;
     ot_int  data_out    = 0;
@@ -422,7 +424,7 @@ ot_int sub_filedata( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_i
 
 
 
-ot_int sub_filedelete( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
+ot_int sub_filedelete( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
     ot_int  data_out    = 0;
     vlBLOCK file_block  = (vlBLOCK)((cmd_in >> 4) & 0x07);
 
@@ -448,7 +450,7 @@ ot_int sub_filedelete( alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd
 
 
 
-ot_int sub_filecreate(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
+ot_int sub_filecreate(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
     ot_int  data_out    = 0;
     vlBLOCK file_block  = (vlBLOCK)((cmd_in >> 4) & 0x07);
 
@@ -483,7 +485,7 @@ ot_int sub_filecreate(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_
 
 
 /// Not currently supported, always returns "unrestorable" error
-ot_int sub_filerestore(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
+ot_int sub_filerestore(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
     ot_int  data_out    = 0;
     //vlBLOCK file_block  = ((cmd_in >> 4) & 0x07);
 
@@ -510,7 +512,7 @@ ot_int sub_filerestore(alp_tmpl* alp, id_tmpl* user_id, ot_u8 respond, ot_u8 cmd
 //#include <otlib/logger.h>
 //ot_int sub_fileerror(ot_bool respond, ot_bool include_header,
 //                        vlBLOCK file_block, ot_u8 file_mod, ot_int data_in,
-//                        ot_queue* alp->inq, ot_queue* alp->outq., id_tmpl* user_id ) {
+//                        ot_queue* alp->inq, ot_queue* alp->outq., const id_tmpl* user_id ) {
 //    return logger_msg(6, data_in, "ERR_VL", q_markbyte(alp->inq, data_in) );
 //}
 
