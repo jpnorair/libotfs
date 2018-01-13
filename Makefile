@@ -79,9 +79,19 @@ libotfs.a: $(SUBMODULES) $(LIBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR)/libotfs -type f -name "*.$(OBJEXT)"))
 #	$(eval LIBTOOL_INC := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_INC)) )
 #	$(eval LIBTOOL_LIB := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_LIB)) )
+
+#   BSD/Mac version of libtool
 	$(OTFS_LIBTOOL) -static -o $(TARGET).a /usr/local/lib/libJudy.a $(LIBTOOL_OBJ)
+
+#   GNU/Linux version of libtool
 #	$(OTFS_LIBTOOL) --tag=CC --mode=link $(OTFS_CC) -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o $(TARGET).a $(LIBTOOL_OBJ)
+
+#   Traditional ar method (alternative to libtool)
+#	ar -rcs ./$(TARGET).a $(LIBTOOL_OBJ)
+#	ranlib $(TARGET).a
+	
 	@mv $(TARGET).a $(TARGETDIR)/
+
 
 #Build the static library
 #Note: testing with libtool now, which may be superior to ar
