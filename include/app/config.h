@@ -49,8 +49,13 @@
 #   include <app/modbus_slave_c2000/build_config.h>
 #   include <app/modbus_slave_c2000/extf_config.h>
 
+// Default app is "Null", which is a POSIX Std C target on a 32 or 64 bit x86 or ARM
+// machine.
 #else
-#   error "APP not defined!"
+#   include <app/null/app_config.h>
+#   include <app/null/board_config.h>
+#   include <app/null/build_config.h>
+#   include <app/null/extf_config.h>
 
 #endif
 

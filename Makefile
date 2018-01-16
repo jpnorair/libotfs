@@ -16,11 +16,11 @@ ifeq ($(TARGET),libotfs)
 	OTFS_CC	    := gcc
 	OTFS_LIBTOOL:= libtool
 	OTFS_CFLAGS := -std=gnu99 -O3 -pthread
-	OTFS_DEF    := -DBOARD_posix_a -DAPP_modbus_master $(EXT_DEF)
+	OTFS_DEF    := $(EXT_DEF)
 	OTFS_INC    := -I$(DEFAULT_INC) -I/usr/local/include $(EXT_INC)
 	OTFS_LIB    := -Wl,-Bstatic -L./ -L/usr/local/lib -lJudy $(EXT_LIBS)
 	PLATFORM    := ./platform/posix_c
-	TARGETDIR   := pkg
+	TARGETDIR   ?= pkg
 
 else ifeq ($(TARGET),libotfs.c2000)
 	C2000_WARE  ?= /Applications/ti/c2000/C2000Ware_1_00_02_00
@@ -33,7 +33,7 @@ else ifeq ($(TARGET),libotfs.c2000)
 	OTFS_INC    := -I$(TICC_DIR)/include -I$(C2000_WARE) -I$(DEFAULT_INC) $(EXT_INC)
 	OTFS_LIB    := -Wl,-Bstatic -L$(TICC_DIR)/lib -L./ $(EXT_LIBS)
 	PLATFORM    := ./platform/c2000
-	TARGETDIR   := pkg
+	TARGETDIR   ?= pkg
 
 else
 	error "TARGET set to unknown value: $(TARGET)"
@@ -55,6 +55,11 @@ all: $(TARGET)
 lib: $(TARGET).a
 remake: cleaner all
 
+install: 
+	@cp ./pkg/$(TARGET).a ./$(TARGETDIR)
+	@cp -R ./include/* ./$(TARGETDIR)
+	@cp ./main/otfs.h ./$(TARGETDIR)
+	@cp /usr/local/include/Judy.h ./$(TARGETDIR)
 
 directories:
 	@mkdir -p $(TARGETDIR)
@@ -76,7 +81,7 @@ $(TARGET): $(TARGET).a
 
 #Build the static library
 libotfs.a: $(SUBMODULES) $(LIBMODULES)
-	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR)/libotfs -type f -name "*.$(OBJEXT)"))
+	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
 #	$(eval LIBTOOL_INC := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_INC)) )
 #	$(eval LIBTOOL_LIB := $(patsubst $(BUILDDIR)%, $./%, $(OTFS_LIB)) )
 
