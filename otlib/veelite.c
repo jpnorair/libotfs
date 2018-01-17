@@ -933,6 +933,7 @@ vaddr sub_isf_search(ot_u8 id) {
 
 ot_u8 sub_isf_mirror(ot_u8 direction) {
 #if (ISF_MIRROR_HEAP_BYTES > 0)
+#   error "should be no mirror"
     vaddr   header;
     vaddr   header_base;
     vaddr   header_alloc;
@@ -956,7 +957,7 @@ ot_u8 sub_isf_mirror(ot_u8 direction) {
         // 2. Load/Save Mirror Data (header_alloc is repurposed)
         if ((header_mirror != NULL_vaddr) && (header_alloc  != 0)) {
         	mirror_ptr = (ot_u16*)vsram_get(header_mirror);
-            if (direction == MIRROR_TO_SRAM) {  // LOAD
+            if (direction == MIRROR_TO_SRAM) { // LOAD
                 *mirror_ptr = vworm_read(header+0);
             }
             if (header_base == NULL_vaddr) {	// EXIT if file is mirror-only
@@ -969,11 +970,11 @@ ot_u8 sub_isf_mirror(ot_u8 direction) {
             header_alloc = header_base + *mirror_ptr;
             mirror_ptr++;
             for ( ; header_base<header_alloc; header_base+=2, mirror_ptr++) {
-                if (direction == MIRROR_TO_SRAM) {
+                if (direction == MIRROR_TO_SRAM) { 
                     *mirror_ptr = vworm_read(header_base);
                 }
-                else {
-                    vworm_write(header_base, *mirror_ptr);
+                else { 
+                    vworm_write(header_base, *mirror_ptr); 
                 }
             }
         }

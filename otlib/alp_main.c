@@ -187,7 +187,7 @@ const alp_elem_t* sub_get_elem(ot_u8 alp_id) {
     
     return (const alp_elem_t*)element;
 }
-    
+
 
 ot_bool alp_proc(alp_tmpl* alp, const id_tmpl* user_id) {
     const alp_elem_t*   proc_elem;
@@ -195,10 +195,10 @@ ot_bool alp_proc(alp_tmpl* alp, const id_tmpl* user_id) {
     
     // Always flush payload length of output before any data is written
     alp->OUTREC(PLEN) = 0;
-    
+
     /// Get the processing element based on the input record ID
     proc_elem = sub_get_elem(alp->INREC(ID));
-    
+
     /// If an application queue exists:
     /// <LI>Empty it on Message-Begin set</LI>
     /// <LI>Store payload to it in any case</LI>
@@ -221,10 +221,10 @@ ot_bool alp_proc(alp_tmpl* alp, const id_tmpl* user_id) {
     else {
         output_code = True;
     }
-    
+
     ///@todo Presently responses are immediate.  This could be fixed later.
     alp->OUTREC(FLAGS) |= ALP_FLAG_ME;
-    
+
     // Return 0 length (False) or non-zero length (True)
     return output_code;
 }

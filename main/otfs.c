@@ -80,9 +80,8 @@ int otfs_new(const otfs_t* fs) {
         return -1;
     }
 
-#else
+#else 
     vworm_init(NULL, NULL);
- 
 #endif
 
     ///@note might be wise to put below features into otfs_setfs() (or a
@@ -94,7 +93,7 @@ int otfs_new(const otfs_t* fs) {
     
     // Initialize auth_init for this FS context
     auth_init();
-    
+
     return 0;   
 }
 

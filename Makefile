@@ -56,6 +56,7 @@ lib: $(TARGET).a
 remake: cleaner all
 
 install: 
+	@mkdir -p $(TARGETDIR)
 	@cp ./pkg/$(TARGET).a ./$(TARGETDIR)
 	@cp -R ./include/* ./$(TARGETDIR)
 	@cp ./main/otfs.h ./$(TARGETDIR)

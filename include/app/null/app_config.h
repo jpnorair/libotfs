@@ -38,8 +38,6 @@
   * what the features are.
   */
 
-#define OT_FEATURE_MULTIFS          ENABLED
-
 #include "features_config.h"
 
 
@@ -49,6 +47,8 @@
 /** Filesystem constants, setup, and boundaries <BR>
   * ========================================================================<BR>
   */
+#define __VLSRAM__
+
 #include "fs_config.h"
 
 
