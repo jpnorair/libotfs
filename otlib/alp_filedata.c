@@ -382,11 +382,11 @@ ot_int sub_filedata( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8
                 goto sub_filedata_overrun;
             }
             if (file_mod | err_code) {
-//                if (file_mod == 0) {
-//                    outq->putcursor     = outq_marker;
-//                    alp->OUTREC(CMD)   |= 0x0F;
-//                    data_in             = 0;
-//                }
+                if (file_mod == 0) {
+                    outq->putcursor     = outq_marker;
+                    alp->OUTREC(CMD)   |= 0x0F;
+                    data_in             = 0;
+                }
                 q_writebyte(outq, file_id);
                 q_writebyte(outq, err_code);
                 q_markbyte(inq, span);         // go past any leftover input data

@@ -458,7 +458,7 @@ OT_WEAK ot_u8 vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id,
 #   else
         ot_u16 filemod;
         filemod = vworm_read(*header + 4);
-        if ( auth_check(BYTE1(filemod), mod, user_id) == 0 ) {
+        if ( auth_check(BYTE0(filemod), mod, user_id) == 0 ) {
             return 0x04;
         }
 #   endif
