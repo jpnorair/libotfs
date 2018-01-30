@@ -65,6 +65,8 @@
 #define SPLIT_LONG_LE(VAL)  (ot_u8)((ot_u32)(VAL) & 0xFF), (ot_u8)(((ot_u32)(VAL) >> 8) & 0xFF), \
                             (ot_u8)(((ot_u32)(VAL) >> 16) & 0xFF), (ot_u8)((ot_u32)(VAL) >> 24)
 
+#define ACTIONCODE(COND,ID) ((ot_u8)COND), ((ot_u8)ID)
+
 
 #ifndef OT_ACTIVE_SETTINGS
 #   define OT_ACTIVE_SETTINGS 0
@@ -87,8 +89,9 @@ const ot_u8 overhead_files[] __attribute__ ((section(".vl_ov"))) = {
 #pragma DATA_SECTION(overhead_files, ".vl_ov")
 const ot_u8 overhead_files[] = {
 #endif
-    /* Filesystem Header: Same size as two file headers (20 bytes) */
+    /* Filesystem Header: Same size as two file headers (24 bytes) */
     SPLIT_SHORT_LE(OVERHEAD_TOTAL_BYTES),
+    SPLIT_SHORT_LE(0),
     SPLIT_SHORT_LE(GFB_TOTAL_BYTES),
     SPLIT_SHORT_LE(GFB_STOCK_BYTES),
     SPLIT_SHORT_LE(GFB_NUM_STOCK_FILES),
@@ -103,6 +106,7 @@ const ot_u8 overhead_files[] = {
     0x00, 0x00, 0x00, 0x01,                 /* GFB Elements 0 */
     0x00, GFB_MOD_standard,
     0x00, 0x14, 0xFF, 0xFF,
+    ACTIONCODE(0,0),
     
     /* Mode 2 ISFs, written as little endian */
     ISF_LEN(network_settings), 0x00,                /* Length, little endian */

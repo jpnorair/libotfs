@@ -497,6 +497,8 @@ OT_WEAK vlFILE* vl_open_file(vaddr header) {
         fp->alloc   = vworm_read(header + 2);               //alloc
         fp->idmod   = vworm_read(header + 4);
         fp->start   = vworm_read(header + 8);               //mirror base addr
+        
+        
 
         if (fp->start != NULL_vaddr) {
             ot_u16 mlen = fp->start;

@@ -91,6 +91,7 @@ typedef struct OT_PACKED {
     ot_u16  idmod;
     vaddr   base;
     vaddr   mirror;
+    ot_u16  actioncode;
 } vl_header_t;
 
 

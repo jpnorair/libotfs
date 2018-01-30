@@ -71,6 +71,8 @@ typedef struct OT_PACKED {
   */
 typedef struct OT_PACKED {
     ot_u16          ftab_alloc;
+    ot_u16          res2;
+    ot_u16          res4;
     vlBLOCKHEADER   gfb;
     vlBLOCKHEADER   iss;
     vlBLOCKHEADER   isf;
