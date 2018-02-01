@@ -100,8 +100,10 @@ const ot_u8 overhead_files[] = {
 #endif
     /* Filesystem Header: Same size as two file headers (20 bytes) */
     SPLIT_SHORT_LE(OVERHEAD_TOTAL_BYTES),
+#   if (OT_FEATURE(VLACTIONS) == ENABLED)
     SPLIT_SHORT_LE(0),
     SPLIT_SHORT_LE(0),
+#   endif
     SPLIT_SHORT_LE(GFB_TOTAL_BYTES),
     SPLIT_SHORT_LE(GFB_STOCK_BYTES),
     SPLIT_SHORT_LE(GFB_NUM_STOCK_FILES),
@@ -111,12 +113,17 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_TOTAL_BYTES),
     SPLIT_SHORT_LE(ISF_STOCK_BYTES),
     SPLIT_SHORT_LE(ISF_NUM_STOCK_FILES),
-    
+#   if (OT_FEATURE(VLMODTIME) == ENABLED)
+    SPLIT_LONG_LE(0),
+    SPLIT_LONG_LE(0),
+#   endif
+
     /* GFB Files */
     0x00, 0x00, 0x00, 0x01,                 /* GFB Elements 0 */
     0x00, GFB_MOD_standard,
     0x00, 0x14, 0xFF, 0xFF,
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
     
     /* Mode 2 ISFs, written as little endian */
     ISF_LEN(network_settings), 0x00,                /* Length, little endian */
@@ -126,6 +133,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(network_settings)),
     SPLIT_SHORT_LE(ISF_MIRROR(network_settings)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(device_features), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(device_features)),
@@ -134,6 +142,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(device_features)),
     SPLIT_SHORT_LE(ISF_MIRROR(device_features)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(channel_configuration), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(channel_configuration)),
@@ -142,6 +151,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(channel_configuration)),
     SPLIT_SHORT_LE(ISF_MIRROR(channel_configuration)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(real_time_scheduler), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(real_time_scheduler)),
@@ -150,6 +160,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(real_time_scheduler)),
     SPLIT_SHORT_LE(ISF_MIRROR(real_time_scheduler)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(hold_scan_sequence), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(hold_scan_sequence)),
@@ -158,6 +169,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(hold_scan_sequence)),
     SPLIT_SHORT_LE(ISF_MIRROR(hold_scan_sequence)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(sleep_scan_sequence), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(sleep_scan_sequence)),
@@ -166,6 +178,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(sleep_scan_sequence)),
     SPLIT_SHORT_LE(ISF_MIRROR(sleep_scan_sequence)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(beacon_transmit_sequence), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(beacon_transmit_sequence)),
@@ -174,6 +187,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(beacon_transmit_sequence)),
     SPLIT_SHORT_LE(ISF_MIRROR(beacon_transmit_sequence)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(isf_list), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(isf_list)),
@@ -182,6 +196,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(isf_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(isf_list)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(isfs_list), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(isfs_list)),
@@ -190,6 +205,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(isfs_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(isfs_list)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(gfb_file_list), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(gfb_file_list)),
@@ -198,6 +214,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(gfb_file_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(gfb_file_list)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(location_data_list), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(location_data_list)),
@@ -206,6 +223,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(location_data_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(location_data_list)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(ipv6_addresses), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(ipv6_addresses)),
@@ -214,6 +232,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(ipv6_addresses)),
     SPLIT_SHORT_LE(ISF_MIRROR(ipv6_addresses)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(sensor_list), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(sensor_list)),
@@ -222,6 +241,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(sensor_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(sensor_list)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(sensor_alarms), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(sensor_alarms)),
@@ -230,6 +250,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(sensor_alarms)),
     SPLIT_SHORT_LE(ISF_MIRROR(sensor_alarms)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(root_authentication_key), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(root_authentication_key)),
@@ -238,6 +259,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(root_authentication_key)),
     SPLIT_SHORT_LE(ISF_MIRROR(root_authentication_key)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(user_authentication_key), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(user_authentication_key)),
@@ -246,6 +268,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(user_authentication_key)),
     SPLIT_SHORT_LE(ISF_MIRROR(user_authentication_key)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(routing_code), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(routing_code)),
@@ -254,6 +277,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(routing_code)),
     SPLIT_SHORT_LE(ISF_MIRROR(routing_code)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(user_id), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(user_id)),
@@ -262,6 +286,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(user_id)),
     SPLIT_SHORT_LE(ISF_MIRROR(user_id)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(optional_command_list), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(optional_command_list)),
@@ -270,6 +295,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(optional_command_list)),
     SPLIT_SHORT_LE(ISF_MIRROR(optional_command_list)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(memory_size), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(memory_size)),
@@ -278,6 +304,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(memory_size)),
     SPLIT_SHORT_LE(ISF_MIRROR(memory_size)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(table_query_size), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(table_query_size)),
@@ -286,6 +313,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(table_query_size)),
     SPLIT_SHORT_LE(ISF_MIRROR(table_query_size)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(table_query_results), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(table_query_results)),
@@ -294,6 +322,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(table_query_results)),
     SPLIT_SHORT_LE(ISF_MIRROR(table_query_results)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(hardware_fault_status), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(hardware_fault_status)),
@@ -302,6 +331,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(hardware_fault_status)),
     SPLIT_SHORT_LE(ISF_MIRROR(hardware_fault_status)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 
     ISF_LEN(application_extension), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(application_extension)),
@@ -310,6 +340,7 @@ const ot_u8 overhead_files[] = {
     SPLIT_SHORT_LE(ISF_BASE(application_extension)),
     SPLIT_SHORT_LE(ISF_MIRROR(application_extension)),
     FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
 };
 
 

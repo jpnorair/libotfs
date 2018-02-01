@@ -46,6 +46,13 @@
 #endif
 
 
+/// File flags
+#define VLFLAG_OPENED       (1<<0)
+#define VLFLAG_MODDED       (1<<1)
+#define VLFLAG_RESIZED      (1<<2)
+
+
+
 
 // You can open a finite number of files simultaneously
 static vlFILE vlfile[OT_PARAM(VLFPS)];
@@ -498,7 +505,7 @@ OT_WEAK vlFILE* vl_open_file(vaddr header) {
         fp->alloc   = vworm_read(header + 2);               //alloc
         fp->idmod   = vworm_read(header + 4);
         fp->start   = vworm_read(header + 8);               //mirror base addr
-        fp->flags   = 0;
+        fp->flags   = VLFILE_OPENED;
 
         if (fp->start != NULL_vaddr) {
             ot_u16 mlen = fp->start;
@@ -574,9 +581,9 @@ OT_WEAK ot_u8 vl_write( vlFILE* fp, ot_uint offset, ot_u16 data ) {
     }
     if (offset >= fp->length) {
         fp->length  = offset+2;
-        fp->flags  |= (1<<1);   ///@todo Define Data-added flag
+        fp->flags  |= VLFLAG_RESIZED;
     }
-    fp->flags |= (1<<0);        ///@todo Define Data-modified flag
+    fp->flags |= VLFLAG_MODDED;
 
     return fp->write( (offset+fp->start), data);
 }
@@ -642,6 +649,7 @@ OT_WEAK ot_u8 vl_store( vlFILE* fp, ot_uint length, vl_u8* data ) {
         return 255;
     }
 
+    fp->flags  |= (length != fp->length) ? (VLFLAG_RESIZED|VLFLAG_MODDED) : VLFLAG_MODDED;
     fp->length  = length;
     cursor      = fp->start;
     length      = cursor+length;
@@ -672,6 +680,7 @@ OT_WEAK ot_u8 vl_append( vlFILE* fp, ot_uint length, vl_u8* data ) {
         cursor      = fp->start + fp->length;
         fp->length  = length;
         length     += cursor;
+        fp->flags  |= (VLFLAG_RESIZED|VLFLAG_MODDED);
 
         for (test=0; cursor<length; cursor+=2) {
 #       if !defined(__C2000__)
@@ -692,8 +701,8 @@ OT_WEAK ot_u8 vl_append( vlFILE* fp, ot_uint length, vl_u8* data ) {
 
 #ifndef EXTF_vl_close
 OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
-    if (FP_ISVALID(fp)) {
 
+    if (FP_ISVALID(fp)) {
         if (fp->read == &vsram_read) {
             ot_u16* mhead;
             mhead   = (ot_u16*)vsram_get(fp->start-2);
@@ -703,10 +712,37 @@ OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
             sub_write_header( (fp->header+0), &(fp->length), 2);
         }
 
+        // Change Modification Time if there was a modification
+        ///@todo make sure all platforms are supporting the time module from OpenTag,
+        ///      which itself must be added to libotfs
+        ///@todo make sure enabling VLMODTIME also mandatorily enables TIME features
+#       if (OT_FEATURE(VLMODTIME) == ENABLED)
+        if (fp->flags & VLFLAG_MODDED) {
+            ot_u32 epoch_s = time_get_utc();
+            sub_write_header( (fp->header+12), &epoch_s, 4);    ///@todo make offset constant instead of 12
+        }
+#       endif
+
+        // Treatment of Actions
+#       if (OT_FEATURE(VLACTIONS) == ENABLED)
+        {   ot_uni16 action; 
+            action.ushort       = vworm_read(fp->header+10);    ///@todo make offset constant instead of 10
+            action.ubyte[0]    &= (ot_u8)fp->flags;
+            
+            ///@todo implement this sub_action() function
+            ///@todo initialize action table in vl_init
+            ///@todo have action add and remove features
+            if (action.ubyte[0] != 0) {
+                sub_action(fp);
+            }
+        }
+#       endif
+
         // Kill file attributes
         fp->start   = 0;
         fp->length  = 0;
         //fp->header  = NULL_vaddr;
+        fp->flags   = 0;
         fp->read    = NULL;
         fp->write   = NULL;
 

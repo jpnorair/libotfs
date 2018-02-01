@@ -92,7 +92,12 @@ typedef struct OT_PACKED {
     ot_u16  idmod;
     vaddr   base;
     vaddr   mirror;
+#   if (OT_FEATURE(VLACTIONS) == ENABLED)
     ot_u16  actioncode;
+#   endif
+#   if (OT_FEATURE(VLMODTIME) == ENABLED)
+    ot_u32  modtime;
+#   endif
 } vl_header_t;
 
 
