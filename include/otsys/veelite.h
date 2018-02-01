@@ -66,6 +66,7 @@ typedef struct {
     ot_u16      alloc;
     ot_u16      idmod;
     ot_u16      length;
+    ot_u16      flags;
     vlread_fn   read;
     vlwrite_fn  write;
 } vlFILE;

@@ -489,6 +489,7 @@ OT_WEAK ot_u8 vl_getheader(vl_header_t* header, vlBLOCK block_id, ot_u8 data_id,
 #ifndef EXTF_vl_open_file
 OT_WEAK vlFILE* vl_open_file(vaddr header) {
     vlFILE* fp;
+    ot_u16 actioncode;
 
     fp = sub_new_fp();
 
@@ -497,8 +498,7 @@ OT_WEAK vlFILE* vl_open_file(vaddr header) {
         fp->alloc   = vworm_read(header + 2);               //alloc
         fp->idmod   = vworm_read(header + 4);
         fp->start   = vworm_read(header + 8);               //mirror base addr
-        
-        
+        fp->flags   = 0;
 
         if (fp->start != NULL_vaddr) {
             ot_u16 mlen = fp->start;
@@ -549,6 +549,8 @@ OT_WEAK ot_u8 vl_chmod(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user
         ot_u16 idmod    = JOIN_2B(data_id, mod);
         sub_write_header((header+4), &idmod, 2);
 #   endif
+
+        ///@todo could put file action for chmod here, if ever required
     }
 
     return output;
@@ -571,8 +573,10 @@ OT_WEAK ot_u8 vl_write( vlFILE* fp, ot_uint offset, ot_u16 data ) {
         return 255;
     }
     if (offset >= fp->length) {
-        fp->length = offset+2;
+        fp->length  = offset+2;
+        fp->flags  |= (1<<1);   ///@todo Define Data-added flag
     }
+    fp->flags |= (1<<0);        ///@todo Define Data-modified flag
 
     return fp->write( (offset+fp->start), data);
 }
@@ -689,6 +693,7 @@ OT_WEAK ot_u8 vl_append( vlFILE* fp, ot_uint length, vl_u8* data ) {
 #ifndef EXTF_vl_close
 OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
     if (FP_ISVALID(fp)) {
+
         if (fp->read == &vsram_read) {
             ot_u16* mhead;
             mhead   = (ot_u16*)vsram_get(fp->start-2);

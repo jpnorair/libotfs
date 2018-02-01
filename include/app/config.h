@@ -29,6 +29,23 @@
 #define __PARENT_APP_CONFIG_H
 
 
+/// Macro settings: ENABLED, DISABLED, NOT_AVAILABLE
+#ifdef ENABLED
+#   undef ENABLED
+#endif
+#define ENABLED  1
+
+#ifdef DISABLED
+#   undef DISABLED
+#endif
+#define DISABLED  0
+
+#ifdef NOT_AVAILABLE
+#   undef NOT_AVAILABLE
+#endif
+#define NOT_AVAILABLE   DISABLED
+
+
 #if defined(APP_modbus_master)
 #   include <app/modbus_master/app_config.h>
 #   include <app/modbus_master/board_config.h>
@@ -58,6 +75,12 @@
 #   include <app/null/extf_config.h>
 
 #endif
+
+
+// Default Features.
+// These can be overriden in the application specific feature configuration
+#include "features_defaults.h"
+
 
 
 #endif 
