@@ -46,16 +46,20 @@
 #endif
 
 
-/// File flags
-#define VLFLAG_OPENED       (1<<0)
-#define VLFLAG_MODDED       (1<<1)
-#define VLFLAG_RESIZED      (1<<2)
-
-
 
 
 // You can open a finite number of files simultaneously
 static vlFILE vlfile[OT_PARAM(VLFPS)];
+
+
+// If file actions are enabled, you can have a certain number of callbacks
+#if (OT_FEATURE(VLACTIONS))
+static ot_sigv  vlaction[OT_PARAM(VLACTIONS)];
+static ot_u8    vlaction_users[OT_PARAM(VLACTIONS)];
+
+#endif
+
+
 
 // Two checks for File Pointer Validity
 // Bottom option is slower but more robust.  Good for Debug.
@@ -236,6 +240,8 @@ vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers);
 
 
 
+void sub_action(vlFILE* fp);
+
 
 
 
@@ -253,6 +259,12 @@ vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers);
 #ifndef EXTF_vl_init
 OT_WEAK ot_u8 vl_init(void* handle) {
     ot_int i;
+
+    /// Initialize vlactions, if enabled
+#   if (OT_FEATURE(VLACTIONS))
+    memset(vlaction, 0, sizeof(vlaction));
+    memset(vlaction_users, 0, sizeof(vlaction_users));
+#   endif
 
     /// Initialize environment variables
     for (i=0; i<OT_PARAM(VLFPS); i++) {
@@ -279,6 +291,93 @@ OT_WEAK ot_u8 vl_init(void* handle) {
     return 0;
 }
 #endif
+
+
+// Add Action (Infrequently called)
+// This function is only accessible from internal code (not via protocol)
+#ifndef EXTF_vl_add_action
+OT_WEAK ot_int vl_add_action(vlBLOCK block_id, ot_u8 data_id, ot_u8 condition, ot_sigv action) {
+#   if (OT_FEATURE(VLACTIONS))
+    /// 1. See if action parameter is already in the list.
+    /// 2. If so, then return the index.
+    /// 3. If not present, add at first NULL
+    
+    ot_int select = -1;
+    vaddr header = NULL_vaddr;
+    
+    if (0 == vl_getheader_vaddr(&header, block_id, data_id, VL_ACCESS_SU, NULL) {
+        for (ot_int i=0, select=-1; i<OT_PARAM(VLACTIONS); i++) {
+            if (vlaction[i] == NULL) {
+                if (select < 0) {
+                    select = i;
+                }
+            }
+            else if (vlaction[i] == action) {
+                select = i;
+                break;
+            }
+        }
+    
+        ///@todo make work for C2000
+        if (select >= 0) {
+            ot_uni16 actioncode;
+            
+            vlaction[select]        = action;
+            vlaction_users[select] += 1;
+            
+            actioncode.ubyte[0]     = condition;
+            actioncode.ubyte[1]     = select;
+            
+            vworm_write(header+10, actioncode.ushort);
+        }
+    }
+    
+    return select;
+    
+#   else
+    return -1;
+    
+#   endif
+}
+#endif
+
+
+#ifndef EXTF_vl_remove_action
+OT_WEAK void vl_remove_action(vlBLOCK block_id, ot_u8 data_id) {
+#   if (OT_FEATURE(VLACTIONS))
+    vaddr header = NULL_vaddr;
+    
+    if (0 == vl_getheader_vaddr(&header, block_id, data_id, VL_ACCESS_SU, NULL) {
+        ot_u16 select;
+        select = vworm_read(header+10) >> 8;        ///@todo this is little endian only
+        vworm_write(header+10, 0);
+        
+        if (select < OT_PARAMS(VLACTIONS)) {
+            if (vlaction_users[select] != 0) {
+                vlaction_users[select]--;
+                if (vlaction_users[select] == 0) {
+                    vlaction[select] = NULL;
+                }
+            }
+        }
+    }
+#   endif
+}
+#endif
+
+
+void sub_action(vlFILE* fp) {
+    ot_u16 select;
+    select = vworm_read(fp->header+10) >> 8;        ///@todo this is little endian only
+    
+    if (select < OT_PARAMS(VLACTIONS)) {
+        vlaction[select](fp);
+    }
+}
+
+
+
+
 
 
 // General File Functions
@@ -581,9 +680,9 @@ OT_WEAK ot_u8 vl_write( vlFILE* fp, ot_uint offset, ot_u16 data ) {
     }
     if (offset >= fp->length) {
         fp->length  = offset+2;
-        fp->flags  |= VLFLAG_RESIZED;
+        fp->flags  |= VL_FLAG_RESIZED;
     }
-    fp->flags |= VLFLAG_MODDED;
+    fp->flags |= VL_FLAG_MODDED;
 
     return fp->write( (offset+fp->start), data);
 }
@@ -649,7 +748,7 @@ OT_WEAK ot_u8 vl_store( vlFILE* fp, ot_uint length, vl_u8* data ) {
         return 255;
     }
 
-    fp->flags  |= (length != fp->length) ? (VLFLAG_RESIZED|VLFLAG_MODDED) : VLFLAG_MODDED;
+    fp->flags  |= (length != fp->length) ? (VL_FLAG_RESIZED|VL_FLAG_MODDED) : VL_FLAG_MODDED;
     fp->length  = length;
     cursor      = fp->start;
     length      = cursor+length;
@@ -680,7 +779,7 @@ OT_WEAK ot_u8 vl_append( vlFILE* fp, ot_uint length, vl_u8* data ) {
         cursor      = fp->start + fp->length;
         fp->length  = length;
         length     += cursor;
-        fp->flags  |= (VLFLAG_RESIZED|VLFLAG_MODDED);
+        fp->flags  |= (VL_FLAG_RESIZED|VL_FLAG_MODDED);
 
         for (test=0; cursor<length; cursor+=2) {
 #       if !defined(__C2000__)
@@ -717,21 +816,19 @@ OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
         ///      which itself must be added to libotfs
         ///@todo make sure enabling VLMODTIME also mandatorily enables TIME features
 #       if (OT_FEATURE(VLMODTIME) == ENABLED)
-        if (fp->flags & VLFLAG_MODDED) {
+        if (fp->flags & VL_FLAG_MODDED) {
             ot_u32 epoch_s = time_get_utc();
             sub_write_header( (fp->header+12), &epoch_s, 4);    ///@todo make offset constant instead of 12
         }
 #       endif
 
         // Treatment of Actions
+        ///@todo make this work on C2000
 #       if (OT_FEATURE(VLACTIONS) == ENABLED)
         {   ot_uni16 action; 
             action.ushort       = vworm_read(fp->header+10);    ///@todo make offset constant instead of 10
             action.ubyte[0]    &= (ot_u8)fp->flags;
             
-            ///@todo implement this sub_action() function
-            ///@todo initialize action table in vl_init
-            ///@todo have action add and remove features
             if (action.ubyte[0] != 0) {
                 sub_action(fp);
             }

@@ -141,7 +141,10 @@ typedef struct {
 #define VL_ACCESS_RW        (VL_ACCESS_R | VL_ACCESS_W)
 #define VL_ACCESS_CRYPTO    (ot_u8)b01000000
 
-
+/// File Action flags
+#define VL_FLAG_OPENED      (1<<0)
+#define VL_FLAG_MODDED      (1<<1)
+#define VL_FLAG_RESIZED     (1<<2)
 
 
 
@@ -158,6 +161,32 @@ typedef struct {
   * The input parameter "handle" is RFU.  NULL may be used.
   */
 ot_u8 vl_init(void* handle);
+
+
+
+/** @brief Adds a File Action to a specified File
+  * @param  block_id    (vlBLOCK) Block ID of file (GFB, ISFB, etc)
+  * @param  data_id     (ot_u8) 0-255 file ID of file
+  * @param  condition   (ot_u8) Condition to call action: OR'ed combination 
+  *                     of VL_FLAG_OPENED, VL_FLAG_MODDED, VL_FLAG_RESIZED.
+  * @param  action      (ot_sigv) 
+  * @retval ot_int      Returns non-negative on success.
+  * @ingroup Veelite
+  *
+  */
+ot_int vl_add_action(vlBLOCK block_id, ot_u8 data_id, ot_u8 condition, ot_sigv action);
+
+
+
+/** @brief Removes File Action from a specified file
+  * @param  block_id    (vlBLOCK) Block ID of file (GFB, ISFB, etc)
+  * @param  data_id     (ot_u8) 0-255 file ID of file
+  * @retval None
+  * @ingroup Veelite
+  *
+  */
+void vl_remove_action(vlBLOCK block_id, ot_u8 data_id);
+
 
 
 // Multi-FS functions
