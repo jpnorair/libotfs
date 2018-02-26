@@ -35,6 +35,7 @@
 #include <platform/config.h>
 #include <otlib/utils.h>
 #include <otlib/auth.h>
+#include <otlib/memcpy.h>
 #include <otsys/veelite.h>
 
 #if defined(__C2000__)
@@ -45,6 +46,11 @@
 #   define JOIN_2B(B0, B1)  (ot_u16)((((ot_u16)(B1))<<8)|((ot_u16)(B0)))
 #endif
 
+///@todo quick hack to support this function
+#if 1
+#	include <time.h>
+#	define time_get_utc()	(ot_u32)time(NULL)
+#endif
 
 
 
@@ -305,7 +311,7 @@ OT_WEAK ot_int vl_add_action(vlBLOCK block_id, ot_u8 data_id, ot_u8 condition, o
     ot_int select = -1;
     vaddr header = NULL_vaddr;
     
-    if (0 == vl_getheader_vaddr(&header, block_id, data_id, VL_ACCESS_SU, NULL) {
+    if (0 == vl_getheader_vaddr(&header, block_id, data_id, VL_ACCESS_SU, NULL)) {
         for (ot_int i=0, select=-1; i<OT_PARAM(VLACTIONS); i++) {
             if (vlaction[i] == NULL) {
                 if (select < 0) {
@@ -347,12 +353,12 @@ OT_WEAK void vl_remove_action(vlBLOCK block_id, ot_u8 data_id) {
 #   if (OT_FEATURE(VLACTIONS))
     vaddr header = NULL_vaddr;
     
-    if (0 == vl_getheader_vaddr(&header, block_id, data_id, VL_ACCESS_SU, NULL) {
+    if (0 == vl_getheader_vaddr(&header, block_id, data_id, VL_ACCESS_SU, NULL)) {
         ot_u16 select;
         select = vworm_read(header+10) >> 8;        ///@todo this is little endian only
         vworm_write(header+10, 0);
         
-        if (select < OT_PARAMS(VLACTIONS)) {
+        if (select < OT_PARAM(VLACTIONS)) {
             if (vlaction_users[select] != 0) {
                 vlaction_users[select]--;
                 if (vlaction_users[select] == 0) {
@@ -370,7 +376,7 @@ void sub_action(vlFILE* fp) {
     ot_u16 select;
     select = vworm_read(fp->header+10) >> 8;        ///@todo this is little endian only
     
-    if (select < OT_PARAMS(VLACTIONS)) {
+    if (select < OT_PARAM(VLACTIONS)) {
         vlaction[select](fp);
     }
 }
@@ -604,7 +610,7 @@ OT_WEAK vlFILE* vl_open_file(vaddr header) {
         fp->alloc   = vworm_read(header + 2);               //alloc
         fp->idmod   = vworm_read(header + 4);
         fp->start   = vworm_read(header + 8);               //mirror base addr
-        fp->flags   = VLFILE_OPENED;
+        fp->flags   = VL_FLAG_OPENED;
 
         if (fp->start != NULL_vaddr) {
             ot_u16 mlen = fp->start;
@@ -818,7 +824,7 @@ OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
 #       if (OT_FEATURE(VLMODTIME) == ENABLED)
         if (fp->flags & VL_FLAG_MODDED) {
             ot_u32 epoch_s = time_get_utc();
-            sub_write_header( (fp->header+12), &epoch_s, 4);    ///@todo make offset constant instead of 12
+            sub_write_header( (fp->header+12), (ot_u16*)&epoch_s, 4);    ///@todo make offset constant instead of 12
         }
 #       endif
 

@@ -63,11 +63,11 @@ void ot_memcpy(ot_u8* dst, ot_u8* src, ot_uint length) {
     memcpy(dst, src, (size_t)length);
 }
 
-void ot_memcpy2(ot_u16* dst, ot_u16* src, ot_uint length) {
+void ot_memcpy_2(ot_u16* dst, ot_u16* src, ot_uint length) {
     memcpy(dst, src, (size_t)length);
 }
 
-void ot_memcpy4(ot_u32* dst, ot_u32* src, ot_uint length) {
+void ot_memcpy_4(ot_u32* dst, ot_u32* src, ot_uint length) {
     memcpy(dst, src, (size_t)length<<1);
 }
 

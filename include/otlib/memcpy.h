@@ -38,16 +38,16 @@
 
 #if (OS_FEATURE(MEMCPY) == ENABLED)
 #   include <string.h>
-#   define memcpy2(DST, SRC, LEN)   memcpy(DST, SRC, LEN<<1)
-#   define memcpy4(DST, SRC, LEN)   memcpy(DST, SRC, LEN<<2)
+#   define memcpy_2(DST, SRC, LEN)   memcpy(DST, SRC, LEN<<1)
+#   define memcpy_4(DST, SRC, LEN)   memcpy(DST, SRC, LEN<<2)
 #else
 #   include <platform/memcpy.h>
 #   define memcpy       ot_memcpy
-#   define memcpy2      ot_memcpy2
-#   define memcpy4      ot_memcpy4
+#   define memcpy_2     ot_memcpy_2
+#   define memcpy_4     ot_memcpy_4
 #   define memset       ot_memset
-#   define memset2      ot_memset_2
-#   define memset4      ot_memset_4
+#   define memset_2     ot_memset_2
+#   define memset_4     ot_memset_4
 #endif
 
 
@@ -68,8 +68,8 @@
   * variants of ot_memcpy()
   */
 void ot_memcpy(void* dst, void* src, ot_uint length);
-void ot_memcpy2(void* dst, void* src, ot_uint length);
-void ot_memcpy4(void* dst, void* src, ot_uint length);
+void ot_memcpy_2(void* dst, void* src, ot_uint length);
+void ot_memcpy_4(void* dst, void* src, ot_uint length);
 
 
 
@@ -82,8 +82,8 @@ void ot_memcpy4(void* dst, void* src, ot_uint length);
   * @sa memcpy()
   */
 void ot_memset(void* dst, ot_u8 value, ot_uint length);
-void ot_memset2(void* dst, ot_u16 value, ot_uint length);
-void ot_memset4(void* dst, ot_u32 value, ot_uint length);
+void ot_memset_2(void* dst, ot_u16 value, ot_uint length);
+void ot_memset_4(void* dst, ot_u32 value, ot_uint length);
 
 
 

@@ -17,6 +17,7 @@
 
 #define IS_32BIT    (defined(__i386__) || defined(__i386) || defined(i386)) || \
                     (defined(__i486__) || defined(__i586__) || defined(__i686__)) || \
+                    (defined(__arm__)) || \
                     (defined(__m68k__)) || \
                     (defined(__mips__) || defined(mips)) || \
                     (defined(__ppc__) || defined(ppc))
