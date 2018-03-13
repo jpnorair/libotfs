@@ -60,7 +60,7 @@ remake: cleaner all
 
 install: 
 	@mkdir -p $(PACKAGEDIR)
-	@cp ./pkg/.a ./$(PACKAGEDIR)
+	@cp ./pkg/libotfs.a ./$(PACKAGEDIR)
 	@cp -R ./include/* ./$(PACKAGEDIR)
 	@cp ./main/otfs.h ./$(PACKAGEDIR)
 	@cp /usr/local/include/Judy.h ./$(PACKAGEDIR)
