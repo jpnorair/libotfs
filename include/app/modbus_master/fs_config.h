@@ -261,34 +261,6 @@
 #define ISF_MOD_application_extension           b00100100
 
 
-/// ISF file default length:
-/// (that is, the initial length of the ISF)
-#define ISF_LEN(VAL)                            ISF_LEN_##VAL
-#define ISF_LEN_network_settings                10
-#define ISF_LEN_device_features                 48
-#define ISF_LEN_channel_configuration           0
-#define ISF_LEN_real_time_scheduler             0
-#define ISF_LEN_hold_scan_sequence              0
-#define ISF_LEN_sleep_scan_sequence             0
-#define ISF_LEN_beacon_transmit_sequence        0
-#define ISF_LEN_isf_list                        1
-#define ISF_LEN_iss_list                        0
-#define ISF_LEN_gfb_file_list                   GFB_NUM_FILES
-#define ISF_LEN_location_data_list              0
-#define ISF_LEN_ipv6_addresses                  0
-#define ISF_LEN_sensor_list                     0
-#define ISF_LEN_sensor_alarms                   0
-#define ISF_LEN_root_authentication_key         0
-#define ISF_LEN_user_authentication_key         0
-#define ISF_LEN_fault_message                    0
-#define ISF_LEN_monitoring_data                         0
-#define ISF_LEN_nameplate_ratings           0
-#define ISF_LEN_adjusted_settings                     0
-#define ISF_LEN_alarms                0
-#define ISF_LEN_opcurve_voltvar             0
-#define ISF_LEN_opcurve_freqwatt           0
-#define ISF_LEN_application_extension           0
-
 /// Stock ISF file max data lengths (not aligned, just max)
 #define ISF_MAX(VAL)                            ISF_MAX_##VAL
 #define ISF_MAX_USER_FILE                       255
@@ -303,22 +275,48 @@
 #define ISF_MAX_iss_list                        0
 #define ISF_MAX_gfb_file_list                   8   //8 gfb files
 #define ISF_MAX_location_data_list              0
-#define ISF_MAX_ipv6_addresses                  0
+#define ISF_MAX_ipv6_addresses                  48
 #define ISF_MAX_sensor_list                     0
 #define ISF_MAX_sensor_alarms                   0
 #define ISF_MAX_root_authentication_key         18
 #define ISF_MAX_user_authentication_key         18
-#define ISF_MAX_fault_message                    0
-#define ISF_MAX_monitoring_data                         60
-#define ISF_MAX_nameplate_ratings           0
-#define ISF_MAX_adjusted_settings                     0
-#define ISF_MAX_alarms                0
-#define ISF_MAX_opcurve_voltvar             0
-#define ISF_MAX_opcurve_freqwatt           0
+#define ISF_MAX_fault_message                   64
+#define ISF_MAX_monitoring_data                 64
+#define ISF_MAX_nameplate_ratings               64  ///@todo confirm
+#define ISF_MAX_adjusted_settings               64  ///@todo confirm
+#define ISF_MAX_alarms                          4
+#define ISF_MAX_opcurve_voltvar                 208 ///@todo confirm
+#define ISF_MAX_opcurve_freqwatt                208 ///@todo confirm
 #define ISF_MAX_application_extension           64
 
 
-
+/// ISF file default length:
+/// Some of these elements must get written-to at startup
+#define ISF_LEN(VAL)                            ISF_LEN_##VAL
+#define ISF_LEN_network_settings                10
+#define ISF_LEN_device_features                 48
+#define ISF_LEN_channel_configuration           0
+#define ISF_LEN_real_time_scheduler             0
+#define ISF_LEN_hold_scan_sequence              0
+#define ISF_LEN_sleep_scan_sequence             0
+#define ISF_LEN_beacon_transmit_sequence        0
+#define ISF_LEN_isf_list                        (ISF_NUM_STOCK_FILES-16 + ISF_NUM_EXT_FILES + ISF_NUM_USER_FILES)
+#define ISF_LEN_iss_list                        0
+#define ISF_LEN_gfb_file_list                   GFB_NUM_FILES
+#define ISF_LEN_location_data_list              0
+#define ISF_LEN_ipv6_addresses                  0
+#define ISF_LEN_sensor_list                     0
+#define ISF_LEN_sensor_alarms                   0
+#define ISF_LEN_root_authentication_key         0
+#define ISF_LEN_user_authentication_key         0
+#define ISF_LEN_fault_message                   0
+#define ISF_LEN_monitoring_data                 0
+#define ISF_LEN_nameplate_ratings               0
+#define ISF_LEN_adjusted_settings               0
+#define ISF_LEN_alarms                          0
+#define ISF_LEN_opcurve_voltvar                 0
+#define ISF_LEN_opcurve_freqwatt                0
+#define ISF_LEN_application_extension           0
 
 
 
@@ -341,7 +339,7 @@
 #   define ISF_BASE_sleep_scan_sequence         (ISF_BASE_hold_scan_sequence+ISF_ALLOC(hold_scan_sequence))
 #   define ISF_BASE_beacon_transmit_sequence    (ISF_BASE_sleep_scan_sequence+ISF_ALLOC(sleep_scan_sequence))
 #   define ISF_BASE_isf_list                    (ISF_BASE_beacon_transmit_sequence+ISF_ALLOC(beacon_transmit_sequence))
-#   define ISF_BASE_iss_list                   (ISF_BASE_isf_list+ISF_ALLOC(isf_list))
+#   define ISF_BASE_iss_list                    (ISF_BASE_isf_list+ISF_ALLOC(isf_list))
 #   define ISF_BASE_gfb_file_list               (ISF_BASE_iss_list+ISF_ALLOC(iss_list))
 #   define ISF_BASE_location_data_list          (ISF_BASE_gfb_file_list+ISF_ALLOC(gfb_file_list))
 #   define ISF_BASE_ipv6_addresses              (ISF_BASE_location_data_list+ISF_ALLOC(location_data_list))
@@ -349,13 +347,13 @@
 #   define ISF_BASE_sensor_alarms               (ISF_BASE_sensor_list+ISF_ALLOC(sensor_list))
 #   define ISF_BASE_root_authentication_key     (ISF_BASE_sensor_alarms+ISF_ALLOC(sensor_alarms))
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
-#   define ISF_BASE_fault_message                (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
-#   define ISF_BASE_monitoring_data                     (ISF_BASE_fault_message+ISF_ALLOC(fault_message))
-#   define ISF_BASE_nameplate_ratings       (ISF_BASE_monitoring_data+ISF_ALLOC(monitoring_data))
-#   define ISF_BASE_adjusted_settings                 (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))
-#   define ISF_BASE_alarms            (ISF_BASE_adjusted_settings+ISF_ALLOC(adjusted_settings))
-#   define ISF_BASE_opcurve_voltvar         (ISF_BASE_alarms+ISF_ALLOC(alarms))
-#   define ISF_BASE_opcurve_freqwatt       (ISF_BASE_opcurve_voltvar+ISF_ALLOC(opcurve_voltvar))
+#   define ISF_BASE_fault_message               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
+#   define ISF_BASE_monitoring_data             (ISF_BASE_fault_message+ISF_ALLOC(fault_message))
+#   define ISF_BASE_nameplate_ratings           (ISF_BASE_monitoring_data+ISF_ALLOC(monitoring_data))
+#   define ISF_BASE_adjusted_settings           (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))
+#   define ISF_BASE_alarms                      (ISF_BASE_adjusted_settings+ISF_ALLOC(adjusted_settings))
+#   define ISF_BASE_opcurve_voltvar             (ISF_BASE_alarms+ISF_ALLOC(alarms))
+#   define ISF_BASE_opcurve_freqwatt            (ISF_BASE_opcurve_voltvar+ISF_ALLOC(opcurve_voltvar))
 #   define ISF_BASE_application_extension       (ISF_BASE_opcurve_freqwatt+ISF_ALLOC(opcurve_freqwatt))
 #   define ISF_BASE_NEXT                        (ISF_BASE_application_extension+ISF_ALLOC(application_extension ))
 
@@ -368,7 +366,7 @@
 #   define ISF_BASE_sleep_scan_sequence         (ISF_BASE_hold_scan_sequence+ISF_ALLOC(hold_scan_sequence))
 #   define ISF_BASE_beacon_transmit_sequence    (ISF_BASE_sleep_scan_sequence+ISF_ALLOC(sleep_scan_sequence))
 #   define ISF_BASE_isf_list                    (ISF_BASE_beacon_transmit_sequence+ISF_ALLOC(beacon_transmit_sequence))
-#   define ISF_BASE_iss_list                   (ISF_BASE_isf_list+ISF_ALLOC(isf_list))
+#   define ISF_BASE_iss_list                    (ISF_BASE_isf_list+ISF_ALLOC(isf_list))
 #   define ISF_BASE_gfb_file_list               (ISF_BASE_iss_list+ISF_ALLOC(iss_list))
 #   define ISF_BASE_location_data_list          (ISF_BASE_gfb_file_list+ISF_ALLOC(gfb_file_list))
 #   define ISF_BASE_ipv6_addresses              (ISF_BASE_location_data_list+ISF_ALLOC(location_data_list))
@@ -376,13 +374,13 @@
 #   define ISF_BASE_sensor_alarms               (ISF_BASE_sensor_list+ISF_ALLOC(sensor_list))
 #   define ISF_BASE_root_authentication_key     (ISF_BASE_sensor_alarms+ISF_ALLOC(sensor_alarms))
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
-#   define ISF_BASE_fault_message                (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
-#   define ISF_BASE_monitoring_data                     (ISF_BASE_fault_message+ISF_ALLOC(fault_message))
-#   define ISF_BASE_nameplate_ratings       (ISF_BASE_monitoring_data+ISF_ALLOC(monitoring_data))
-#   define ISF_BASE_adjusted_settings                 (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))
-#   define ISF_BASE_alarms            (ISF_BASE_adjusted_settings+ISF_ALLOC(adjusted_settings))
-#   define ISF_BASE_opcurve_voltvar         (ISF_BASE_alarms+ISF_ALLOC(alarms))
-#   define ISF_BASE_opcurve_freqwatt       (ISF_BASE_opcurve_voltvar+ISF_ALLOC(opcurve_voltvar))
+#   define ISF_BASE_fault_message               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
+#   define ISF_BASE_monitoring_data             (ISF_BASE_fault_message+ISF_ALLOC(fault_message))
+#   define ISF_BASE_nameplate_ratings           (ISF_BASE_monitoring_data+ISF_ALLOC(monitoring_data))
+#   define ISF_BASE_adjusted_settings           (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))
+#   define ISF_BASE_alarms                      (ISF_BASE_adjusted_settings+ISF_ALLOC(adjusted_settings))
+#   define ISF_BASE_opcurve_voltvar             (ISF_BASE_alarms+ISF_ALLOC(alarms))
+#   define ISF_BASE_opcurve_freqwatt            (ISF_BASE_opcurve_voltvar+ISF_ALLOC(opcurve_voltvar))
 #   define ISF_BASE_application_extension       (ISF_BASE_opcurve_freqwatt+ISF_ALLOC(opcurve_freqwatt))
 #   define ISF_BASE_NEXT                        (ISF_BASE_application_extension+ISF_ALLOC(application_extension))
 #endif
@@ -398,7 +396,7 @@
 #define ISF_MIRROR_sleep_scan_sequence          (ISF_MIRROR_hold_scan_sequence+ISF_MIRALLOC(hold_scan_sequence))
 #define ISF_MIRROR_beacon_transmit_sequence     (ISF_MIRROR_sleep_scan_sequence+ISF_MIRALLOC(sleep_scan_sequence))
 #define ISF_MIRROR_isf_list                     (ISF_MIRROR_beacon_transmit_sequence+ISF_MIRALLOC(beacon_transmit_sequence))
-#define ISF_MIRROR_iss_list                    (ISF_MIRROR_isf_list+ISF_MIRALLOC(isf_list))
+#define ISF_MIRROR_iss_list                     (ISF_MIRROR_isf_list+ISF_MIRALLOC(isf_list))
 #define ISF_MIRROR_gfb_file_list                (ISF_MIRROR_iss_list+ISF_MIRALLOC(iss_list))
 #define ISF_MIRROR_location_data_list           (ISF_MIRROR_gfb_file_list+ISF_MIRALLOC(gfb_file_list))
 #define ISF_MIRROR_ipv6_addresses               (ISF_MIRROR_location_data_list+ISF_MIRALLOC(location_data_list))
@@ -406,13 +404,13 @@
 #define ISF_MIRROR_sensor_alarms                (ISF_MIRROR_sensor_list+ISF_MIRALLOC(sensor_list))
 #define ISF_MIRROR_root_authentication_key      (ISF_MIRROR_sensor_alarms+ISF_MIRALLOC(sensor_alarms))
 #define ISF_MIRROR_user_authentication_key      (ISF_MIRROR_root_authentication_key+ISF_MIRALLOC(root_authentication_key))
-#define ISF_MIRROR_fault_message                 (ISF_MIRROR_user_authentication_key+ISF_MIRALLOC(user_authentication_key))
-#define ISF_MIRROR_monitoring_data                      (ISF_MIRROR_fault_message+ISF_MIRALLOC(fault_message))
-#define ISF_MIRROR_nameplate_ratings        (ISF_MIRROR_monitoring_data+ISF_MIRALLOC(monitoring_data))
-#define ISF_MIRROR_adjusted_settings                  (ISF_MIRROR_nameplate_ratings+ISF_MIRALLOC(nameplate_ratings))
-#define ISF_MIRROR_alarms             (ISF_MIRROR_adjusted_settings+ISF_MIRALLOC(adjusted_settings))
-#define ISF_MIRROR_opcurve_voltvar          (ISF_MIRROR_alarms+ISF_MIRALLOC(alarms))
-#define ISF_MIRROR_opcurve_freqwatt        (ISF_MIRROR_opcurve_voltvar+ISF_MIRALLOC(opcurve_voltvar))
+#define ISF_MIRROR_fault_message                (ISF_MIRROR_user_authentication_key+ISF_MIRALLOC(user_authentication_key))
+#define ISF_MIRROR_monitoring_data              (ISF_MIRROR_fault_message+ISF_MIRALLOC(fault_message))
+#define ISF_MIRROR_nameplate_ratings            (ISF_MIRROR_monitoring_data+ISF_MIRALLOC(monitoring_data))
+#define ISF_MIRROR_adjusted_settings            (ISF_MIRROR_nameplate_ratings+ISF_MIRALLOC(nameplate_ratings))
+#define ISF_MIRROR_alarms                       (ISF_MIRROR_adjusted_settings+ISF_MIRALLOC(adjusted_settings))
+#define ISF_MIRROR_opcurve_voltvar              (ISF_MIRROR_alarms+ISF_MIRALLOC(alarms))
+#define ISF_MIRROR_opcurve_freqwatt             (ISF_MIRROR_opcurve_voltvar+ISF_MIRALLOC(opcurve_voltvar))
 #define ISF_MIRROR_application_extension        (ISF_MIRROR_opcurve_freqwatt+ISF_MIRALLOC(opcurve_freqwatt))
 #define ISF_MIRROR_NEXT                         (ISF_MIRROR_application_extension+ISF_MIRALLOC(application_extension))
 
