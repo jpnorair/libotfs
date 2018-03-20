@@ -14,7 +14,7 @@
   *
   */
 /**
-  * @file       /app/modbus_master/fs_defaults.h
+  * @file       /app/csip_master/fs_defaults.h
   * @author     JP Norair
   * @version    R102
   * @date       9 May 2017

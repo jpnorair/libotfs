@@ -14,7 +14,7 @@
   *
   */
 /**
-  * @file       /app/modbus_slave_c2000/fs_config.h
+  * @file       /app/csip_c2000/fs_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       30 Apr 2017

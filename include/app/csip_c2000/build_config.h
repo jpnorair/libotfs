@@ -14,7 +14,7 @@
   *
   */
 /**
-  * @file       /app/modbus_master/build_config.h
+  * @file       /app/csip_c2000/build_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    V1.0
   * @date       31 July 2012
@@ -29,7 +29,8 @@
 #include <otsys/support.h>
 
 
-//#define __VLSRAM__
+///@note Current system uses VLSRAM model, no read from FLASH
+#define __VLSRAM__
 
 
 
@@ -73,9 +74,6 @@
 #define OS_FEATURE(VAL)                 OS_FEATURE_##VAL
 #define OS_FEATURE_MEMCPY               ENABLED
 #define OS_FEATURE_MALLOC               ENABLED
-
-
-
 
 
 

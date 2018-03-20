@@ -14,7 +14,7 @@
   *
   */
 /**
-  * @file       /app/modbus_slave_c2000/board_config.h
+  * @file       /app/csip_c2000/board_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    V1.0
   * @date       31 July 2017

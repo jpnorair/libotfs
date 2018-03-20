@@ -1,4 +1,4 @@
-/* Copyright 2010-2014 JP Norair
+/* Copyright 2017 JP Norair
   *
   * Licensed under the OpenTag License, Version 1.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -14,24 +14,36 @@
   *
   */
 /**
-  * @file       /app/modbus_slave_c2000/features_config.h
+  * @file       /app/csip_c2000/app_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
-  * @date       31 Aug 2014
-  * @brief      Feature configuration
-  *
+  * @date       31 Oct 2017
+  * @brief      Application Configuration File for Null Posix Build
   *
   ******************************************************************************
   */
 
-#ifndef __FEATURES_CONFIG_H
-#define __FEATURES_CONFIG_H
+#ifndef __APP_CONFIG_H
+#define __APP_CONFIG_H
 
-///@note You can override some Default Features & Parameters here
-#define OT_FEATURE_VLACTIONS            ENABLED          // File Actions in Veelite
-#define OT_FEATURE_VLMODTIME            DISABLED         // File Modification Timestamp
 
-#include <app/features_defaults.h>
+#include "build_config.h"
+
+
+
+/** Filesystem constants, setup, and boundaries <BR>
+  * ========================================================================<BR>
+  * Before the #include statement below, you can set-up some overriding feature
+  * and parameter settings.  Take a look at features_default_config.h to see
+  * what the features are.
+  */
+#include "features_config.h"
+
+
+/** Filesystem constants, setup, and boundaries <BR>
+  * ========================================================================<BR>
+  */
+#include "fs_config.h"
 
 
 #endif 
