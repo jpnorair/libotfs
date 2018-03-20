@@ -270,66 +270,66 @@ const ot_u8 overhead_files[] = {
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(routing_code), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(routing_code)),
-    ISF_ID(routing_code),
-    ISF_MOD(routing_code),
-    SPLIT_SHORT_LE(ISF_BASE(routing_code)),
-    SPLIT_SHORT_LE(ISF_MIRROR(routing_code)),
+    ISF_LEN(fault_message), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(fault_message)),
+    ISF_ID(fault_message),
+    ISF_MOD(fault_message),
+    SPLIT_SHORT_LE(ISF_BASE(fault_message)),
+    SPLIT_SHORT_LE(ISF_MIRROR(fault_message)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(user_id), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(user_id)),
-    ISF_ID(user_id),
-    ISF_MOD(user_id),
-    SPLIT_SHORT_LE(ISF_BASE(user_id)),
-    SPLIT_SHORT_LE(ISF_MIRROR(user_id)),
+    ISF_LEN(monitoring_data ), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(monitoring_data )),
+    ISF_ID(monitoring_data ),
+    ISF_MOD(monitoring_data ),
+    SPLIT_SHORT_LE(ISF_BASE(monitoring_data )),
+    SPLIT_SHORT_LE(ISF_MIRROR(monitoring_data )),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(optional_command_list), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(optional_command_list)),
-    ISF_ID(optional_command_list),
-    ISF_MOD(optional_command_list),
-    SPLIT_SHORT_LE(ISF_BASE(optional_command_list)),
-    SPLIT_SHORT_LE(ISF_MIRROR(optional_command_list)),
+    ISF_LEN(nameplate_ratings), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(nameplate_ratings)),
+    ISF_ID(nameplate_ratings),
+    ISF_MOD(nameplate_ratings),
+    SPLIT_SHORT_LE(ISF_BASE(nameplate_ratings)),
+    SPLIT_SHORT_LE(ISF_MIRROR(nameplate_ratings)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(memory_size), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(memory_size)),
-    ISF_ID(memory_size),
-    ISF_MOD(memory_size),
-    SPLIT_SHORT_LE(ISF_BASE(memory_size)),
-    SPLIT_SHORT_LE(ISF_MIRROR(memory_size)),
+    ISF_LEN(adjusted_settings), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(adjusted_settings)),
+    ISF_ID(adjusted_settings),
+    ISF_MOD(adjusted_settings),
+    SPLIT_SHORT_LE(ISF_BASE(adjusted_settings)),
+    SPLIT_SHORT_LE(ISF_MIRROR(adjusted_settings)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(table_query_size), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(table_query_size)),
-    ISF_ID(table_query_size),
-    ISF_MOD(table_query_size),
-    SPLIT_SHORT_LE(ISF_BASE(table_query_size)),
-    SPLIT_SHORT_LE(ISF_MIRROR(table_query_size)),
+    ISF_LEN(alarms), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(alarms)),
+    ISF_ID(alarms),
+    ISF_MOD(alarms),
+    SPLIT_SHORT_LE(ISF_BASE(alarms)),
+    SPLIT_SHORT_LE(ISF_MIRROR(alarms)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(table_query_results), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(table_query_results)),
-    ISF_ID(table_query_results),
-    ISF_MOD(table_query_results),
-    SPLIT_SHORT_LE(ISF_BASE(table_query_results)),
-    SPLIT_SHORT_LE(ISF_MIRROR(table_query_results)),
+    ISF_LEN(opcurve_voltvar), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(opcurve_voltvar)),
+    ISF_ID(opcurve_voltvar),
+    ISF_MOD(opcurve_voltvar),
+    SPLIT_SHORT_LE(ISF_BASE(opcurve_voltvar)),
+    SPLIT_SHORT_LE(ISF_MIRROR(opcurve_voltvar)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(hardware_fault_status), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(hardware_fault_status)),
-    ISF_ID(hardware_fault_status),
-    ISF_MOD(hardware_fault_status),
-    SPLIT_SHORT_LE(ISF_BASE(hardware_fault_status)),
-    SPLIT_SHORT_LE(ISF_MIRROR(hardware_fault_status)),
+    ISF_LEN(opcurve_freqwatt), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(opcurve_freqwatt)),
+    ISF_ID(opcurve_freqwatt),
+    ISF_MOD(opcurve_freqwatt),
+    SPLIT_SHORT_LE(ISF_BASE(opcurve_freqwatt)),
+    SPLIT_SHORT_LE(ISF_MIRROR(opcurve_freqwatt)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
@@ -446,15 +446,15 @@ const ot_u8 isf_stock_files[] = {
     /* beacon transmit periods: id=0x06, len=0, alloc=0 */
     /* Period data format in Section X.9.4.7 of Mode 2 spec */ //0x0240
 
-    /* User ISF List: id=0x07, len=1, alloc=24 */
-    0xFF, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,     /* List of Protocols supported (Tentative)*/
+    /* User ISF List: id=0x07, len=8, alloc=24 */
+    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0xFF,     /* List of Protocols supported (Tentative)*/
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
 
     /* ISFS list: id=0x08, len=0, alloc=0 */
 
-    /* GFB File List: id=0x09, len=1, alloc=8 */
-    0x01, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    /* GFB File List: id=0x09, len=2, alloc=8 */
+    0x00, 0x01, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
 
     /* Location Data List: id=0x0A, len=0, alloc=0 */
 
@@ -470,17 +470,27 @@ const ot_u8 isf_stock_files[] = {
 
     /* Sensor Alarms: id=0x0D, len=0, alloc=0 */
 
-    /* root auth key:       id=0x0E, len=0, alloc=16 */
+    /* root auth key:       id=0x0E, len=0, alloc=18 */
+    _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     
-    /* Admin auth key:      id=0x0F, len=0, alloc=16 */
+    /* Admin auth key:      id=0x0F, len=0, alloc=18 */
+    _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
 
-    /* Routing Code: id=0x10, len=0, alloc=0 */
+    /* Fault Message: id=0x10, len=0, alloc=64 */
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
 
-    /* User ID: id=0x11, len=0, alloc=60 */
+    /* Monitoring Data: id=0x12, len=0, alloc=64 */
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
@@ -488,17 +498,86 @@ const ot_u8 isf_stock_files[] = {
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+
+    /* Nameplate Ratings: id=0x12, len=0, alloc=64 */
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+
+    /* Adjusted Settings: id=0x13, len=0, alloc=64 */
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+
+    /* Alarm Mask: id=0x14, len=0, alloc=4 */
     _ERS, _ERS, _ERS, _ERS,
 
-    /* Mode 1 Optional Command list: id=0x12, len=0, alloc=0 */
+    /* Operational Curve for Volt/VAR: id=0x15, len=0, alloc=208 */
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
 
-    /* Mode 1 Memory Size: id=0x13, len=0, alloc=0 */
-
-    /* Mode 1 Table Query Size: id=0x14, len=0, alloc=0 */
-
-    /* Mode 1 Table Query Results: id=0x15, len=0, alloc=0 */
-
-    /* HW Fault Status: id=0x16, len=0, alloc=0 */
+    /* Operational Curve for Freq/Watt: id=0x16, len=0, alloc=208 */
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
 
     /* Application Extension: id=0xFF, len=0, alloc=64 */
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,

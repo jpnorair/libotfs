@@ -32,6 +32,7 @@
 #define __FS_CONFIG_H
 
 #include "build_config.h"
+#include "features_config.h"
 
 
 #if defined(__VLSRAM__)
@@ -56,99 +57,20 @@
 
 
 
-
-/** Filesystem Overhead Data   <BR>
-  * ========================================================================<BR>
-  * The front of the filesystem stores file headers.  The amount below must
-  * be coordinated with your linker file.
+ 
+/** 1. File Definition Section <BR>
+  * ======================================================================== <BR>
   */
-#define OVERHEAD_START_VADDR                0x0000
-#define OVERHEAD_TOTAL_BYTES                0x0200
 
-
-
-
-
-/** GFB (Generic File Block)
- * ========================================================================<BR>
- * GFB is an unstructured data store.  The typical implementation is to use
- * the GFB data sections to store file metadata, and have the actual file
- * data stored somewhere else (like on flash).
- */
-#define GFB_BLOCK_BYTES         256
-#define GFB_BLOCKS_PER_FILE     1
-#define GFB_NUM_STOCK_FILES     1
-#define GFB_NUM_USER_FILES      0
-#define GFB_MOD_standard        b00110000
-
-#define GFB_FILE_BYTES          (GFB_BLOCK_BYTES * GFB_BLOCKS_PER_FILE)
-#define GFB_START_VADDR         (OVERHEAD_START_VADDR + OVERHEAD_TOTAL_BYTES)
-#define GFB_NUM_FILES           (GFB_NUM_STOCK_FILES + GFB_NUM_USER_FILES)
-#define GFB_HEAP_BYTES          (GFB_FILE_BYTES*GFB_NUM_STOCK_FILES)
-
-#define GFB_STOCK_BYTES         (GFB_FILE_BYTES * (GFB_NUM_STOCK_FILES))
-#define GFB_TOTAL_BYTES         (GFB_FILE_BYTES * (GFB_NUM_STOCK_FILES + GFB_NUM_USER_FILES))
-
-
-
-/** ISSB Files (Indexed Short Series Block)   <BR>
-  * ========================================================================<BR>
-  * ISSB Files are strings of ISF IDs that bundle/batch related ISF's.  ISSs
-  * are not all the same length (max length = 16).  Also, make sure that the 
-  * TOTAL_BYTES you allocate to the ISSB bank corresponds to the amount set in
-  * the linker file.
-  *
-  * In this configuration, ISS is empty
-  */
-#define ISS_TOTAL_BYTES         0x0000
-#define ISS_NUM_M1_FILES        0
-#define ISS_NUM_M2_FILES        0
-#define ISS_NUM_EXT_FILES       0
-
-#define ISS_START_VADDR         (GFB_START_VADDR + GFB_TOTAL_BYTES)
-#define ISS_NUM_USER_FILES      ISS_NUM_EXT_FILES
-#define ISS_NUM_STOCK_FILES     (ISS_NUM_M1_FILES + ISS_NUM_M2_FILES)
-#define ISS_NUM_FILES           (ISS_NUM_STOCK_FILES + ISS_NUM_USER_FILES)
-
-/// These parameters are derived from the stock configuration, which would 
-/// normally be described above, but there is no ISS in this system.
-#define ISS_STOCK_BYTES         0
-
-
-
-/** ISFB (Indexed Short File Block)  <BR>
- * ========================================================================<BR>
- * The ISFB contains up to 256 files (IDs 0x00 to 0xFF), length <= 255 bytes.
- * As always, make sure that the TOTAL_BYTES allocated to the ISFB matches the
- * value from your linker file.
+/** ISFB Structure
  *
- * If just using the base registry, the amount of bytes the ISFB requires is
- * typically between 512-1024, depending on how many features you are using.
- * plus at least two additional user ISFs.
- */
-#define ISF_TOTAL_BYTES                         512
-#define ISF_NUM_M1_FILES                        7
-#define ISF_NUM_M2_FILES                        16
-#define ISF_NUM_EXT_FILES                       1   // Usually at least 1 (app ext)
-#define ISF_NUM_USER_FILES                      0  //max allowed user files
-
-///@todo define this after mirror is alloc'ed
-#define ISF_MIRROR_VADDR                        0xC000
-
-#define ISF_START_VADDR                         (GFB_START_VADDR + GFB_TOTAL_BYTES)
-#define ISF_NUM_STOCK_FILES                     (ISF_NUM_M1_FILES + ISF_NUM_M2_FILES)
-#define ISF_NUM_FILES                           (ISF_NUM_STOCK_FILES + ISF_NUM_USER_FILES + ISF_NUM_EXT_FILES)
-
-
-/** ISFB Structure    <BR>
- * ========================================================================<BR>
- * Here is the breakdown:
- * <LI> 0x00 to 0x0F: Mode 2 Configuration and Application Data Elements </LI>
- * <LI> 0x10 to 0x1F: Mode 1 & 2 Application Data </LI>
+ * Here is the breakdown of this FS layout:
+ * <LI> 0x00 to 0x0F: Standard files for all OTFS/Veelite </LI>
+ * <LI> 0x10 to 0x1F: Files to support Common Smart Inverter Profile </LI>
  * <LI> 0x20 to 0x7F: Reserved for future use </LI>
- * <LI> 0x80 to 0x9F: Mode 1 & 2 extended services data (not really used) </LI>
+ * <LI> 0x80 to 0x9F: Extended Services Data (not used in this implementation) </LI>
  * <LI> 0xA0 to 0xFE: Proprietary </LI>
- * <LI> 0xFF: Proprietary Data Extension </LI>
+ * <LI> 0xFF: OTFS/Veelite Standard "Application Extension" file </LI>
  *
  * Some files have allocations less than 255 bytes.  Many of the files from IDs
  * 0x00 to 0x1F have limited allocations because they are config registers.
@@ -165,34 +87,39 @@
  * <LI> @c ISF_ALLOC(file_name) @c :  Allocated Bytes for file (0-256) </LI>
  */
 
-/// Stock Mode 2 ISF File IDs               <BR>
-/// ID's 0x00 to 0x0F:  Mode 2 only         <BR>
-/// ID's 0x10 to 0xFF:  Mode 1 and Mode 2
+#define ISF_OTFS_FILES      16
+#define ISF_CSIP_FILES      7
+#define ISF_APPEXT_FILES    1
+
 #define ISF_ID(VAL)                             ISF_ID_##VAL
+// OTFS STANDARD FILES -----------------------------------------------------
 #define ISF_ID_network_settings                 0x00
 #define ISF_ID_device_features                  0x01
-#define ISF_ID_channel_configuration            0x02
-#define ISF_ID_real_time_scheduler              0x03
-#define ISF_ID_hold_scan_sequence               0x04
-#define ISF_ID_sleep_scan_sequence              0x05
-#define ISF_ID_beacon_transmit_sequence         0x06
+#define ISF_ID_channel_configuration            0x02    // Std File, but not used
+#define ISF_ID_real_time_scheduler              0x03    // Std File, but not used
+#define ISF_ID_hold_scan_sequence               0x04    // Std File, but not used
+#define ISF_ID_sleep_scan_sequence              0x05    // Std File, but not used
+#define ISF_ID_beacon_transmit_sequence         0x06    // Std File, but not used
 #define ISF_ID_isf_list                         0x07
-#define ISF_ID_isfs_list                        0x08
+#define ISF_ID_iss_list                         0x08    // Std File, but not used
 #define ISF_ID_gfb_file_list                    0x09
-#define ISF_ID_location_data_list               0x0A
+#define ISF_ID_location_data_list               0x0A    // Std File, but not used
 #define ISF_ID_ipv6_addresses                   0x0B
-#define ISF_ID_sensor_list                      0x0C
-#define ISF_ID_sensor_alarms                    0x0D
+#define ISF_ID_sensor_list                      0x0C    // Std File, but not used
+#define ISF_ID_sensor_alarms                    0x0D    // Std File, but not used
 #define ISF_ID_root_authentication_key          0x0E
 #define ISF_ID_user_authentication_key          0x0F
-#define ISF_ID_routing_code                     0x10
-#define ISF_ID_user_id                          0x11
-#define ISF_ID_optional_command_list            0x12
-#define ISF_ID_memory_size                      0x13
-#define ISF_ID_table_query_size                 0x14
-#define ISF_ID_table_query_results              0x15
-#define ISF_ID_hardware_fault_status            0x16
+// COMMON SMART INVERTER PROFILE FILES --------------------------------------
+#define ISF_ID_fault_message                    0x10
+#define ISF_ID_monitoring_data                  0x11
+#define ISF_ID_nameplate_ratings                0x12
+#define ISF_ID_adjusted_settings                0x13
+#define ISF_ID_alarms                           0x14
+#define ISF_ID_opcurve_voltvar                  0x15
+#define ISF_ID_opcurve_freqwatt                 0x16
+// OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_ID_application_extension            0xFF
+
 
 /// ISF Mirror Enabling: <BR>
 /// ISFB files can be mirrored in RAM.  Set to 0/1 to Disable/Enable each file
@@ -207,7 +134,7 @@
 #define ISF_ENMIRROR_sleep_scan_sequence        __SET_MIRROR(0)
 #define ISF_ENMIRROR_beacon_transmit_sequence   __SET_MIRROR(0)
 #define ISF_ENMIRROR_isf_list                   __SET_MIRROR(1)
-#define ISF_ENMIRROR_isfs_list                  __SET_MIRROR(0)
+#define ISF_ENMIRROR_iss_list                   __SET_MIRROR(0)
 #define ISF_ENMIRROR_gfb_file_list              __SET_MIRROR(1)
 #define ISF_ENMIRROR_location_data_list         __SET_MIRROR(0)
 #define ISF_ENMIRROR_ipv6_addresses             __SET_MIRROR(1)
@@ -215,13 +142,13 @@
 #define ISF_ENMIRROR_sensor_alarms              __SET_MIRROR(0)
 #define ISF_ENMIRROR_root_authentication_key    __SET_MIRROR(1)
 #define ISF_ENMIRROR_user_authentication_key    __SET_MIRROR(1)
-#define ISF_ENMIRROR_routing_code               __SET_MIRROR(0)
-#define ISF_ENMIRROR_user_id                    __SET_MIRROR(1)
-#define ISF_ENMIRROR_optional_command_list      __SET_MIRROR(0)
-#define ISF_ENMIRROR_memory_size                __SET_MIRROR(0)
-#define ISF_ENMIRROR_table_query_size           __SET_MIRROR(0)
-#define ISF_ENMIRROR_table_query_results        __SET_MIRROR(0)
-#define ISF_ENMIRROR_hardware_fault_status      __SET_MIRROR(0)
+#define ISF_ENMIRROR_fault_message              __SET_MIRROR(1)
+#define ISF_ENMIRROR_monitoring_data            __SET_MIRROR(1)
+#define ISF_ENMIRROR_nameplate_ratings          __SET_MIRROR(1)
+#define ISF_ENMIRROR_adjusted_settings          __SET_MIRROR(1)
+#define ISF_ENMIRROR_alarms                     __SET_MIRROR(1)
+#define ISF_ENMIRROR_opcurve_voltvar            __SET_MIRROR(1)
+#define ISF_ENMIRROR_opcurve_freqwatt           __SET_MIRROR(1)
 #define ISF_ENMIRROR_application_extension      __SET_MIRROR(1)
 
 
@@ -233,8 +160,8 @@
 /// 1st rwx:    read/write/exec for user                            <BR>
 /// 2nd rwx:    read/write/exec for guest
 #define ISF_MOD(VAL)                            ISF_MOD_##VAL
-#define ISF_MOD_file_standard                   b00110100
-#define ISF_MOD_network_settings                ISF_MOD_file_standard
+#define ISF_MOD_file_standard                   b00000000
+#define ISF_MOD_network_settings                b00110100
 #define ISF_MOD_device_features                 b00100100
 #define ISF_MOD_channel_configuration           ISF_MOD_file_standard
 #define ISF_MOD_real_time_scheduler             ISF_MOD_file_standard
@@ -242,50 +169,23 @@
 #define ISF_MOD_sleep_scan_sequence             ISF_MOD_file_standard
 #define ISF_MOD_beacon_transmit_sequence        ISF_MOD_file_standard
 #define ISF_MOD_isf_list                        b00100100
-#define ISF_MOD_isfs_list                       b00100100
-#define ISF_MOD_gfb_file_list                   ISF_MOD_file_standard
-#define ISF_MOD_location_data_list              b00100100
-#define ISF_MOD_ipv6_addresses                  ISF_MOD_file_standard
-#define ISF_MOD_sensor_list                     b00100100
-#define ISF_MOD_sensor_alarms                   b00100100
+#define ISF_MOD_iss_list                        ISF_MOD_file_standard
+#define ISF_MOD_gfb_file_list                   b00100100
+#define ISF_MOD_location_data_list              ISF_MOD_file_standard
+#define ISF_MOD_ipv6_addresses                  b00100100
+#define ISF_MOD_sensor_list                     ISF_MOD_file_standard
+#define ISF_MOD_sensor_alarms                   ISF_MOD_file_standard
 #define ISF_MOD_root_authentication_key         b00000000
-#define ISF_MOD_user_authentication_key         b00100000
-#define ISF_MOD_routing_code                    ISF_MOD_file_standard
-#define ISF_MOD_user_id                         ISF_MOD_file_standard
-#define ISF_MOD_optional_command_list           b00100100
-#define ISF_MOD_memory_size                     b00100100
-#define ISF_MOD_table_query_size                b00100100
-#define ISF_MOD_table_query_results             b00100100
-#define ISF_MOD_hardware_fault_status           b00100100
+#define ISF_MOD_user_authentication_key         b00110000
+#define ISF_MOD_fault_message                   b00100100
+#define ISF_MOD_monitoring_data                 b00100100
+#define ISF_MOD_nameplate_ratings               b00100100
+#define ISF_MOD_adjusted_settings               b00100100
+#define ISF_MOD_alarms                          b00100100
+#define ISF_MOD_opcurve_voltvar                 b00110100
+#define ISF_MOD_opcurve_freqwatt                b00110100
 #define ISF_MOD_application_extension           b00100100
 
-/// ISF file default length:
-/// (that is, the initial length of the ISF)
-#define ISF_LEN(VAL)                            ISF_LEN_##VAL
-#define ISF_LEN_network_settings                10
-#define ISF_LEN_device_features                 48
-#define ISF_LEN_channel_configuration           0
-#define ISF_LEN_real_time_scheduler             0
-#define ISF_LEN_hold_scan_sequence              0
-#define ISF_LEN_sleep_scan_sequence             0
-#define ISF_LEN_beacon_transmit_sequence        0
-#define ISF_LEN_isf_list                        1
-#define ISF_LEN_isfs_list                       0
-#define ISF_LEN_gfb_file_list                   GFB_NUM_FILES
-#define ISF_LEN_location_data_list              0
-#define ISF_LEN_ipv6_addresses                  0
-#define ISF_LEN_sensor_list                     0
-#define ISF_LEN_sensor_alarms                   0
-#define ISF_LEN_root_authentication_key         0
-#define ISF_LEN_user_authentication_key         0
-#define ISF_LEN_routing_code                    0
-#define ISF_LEN_user_id                         0
-#define ISF_LEN_optional_command_list           0
-#define ISF_LEN_memory_size                     0
-#define ISF_LEN_table_query_size                0
-#define ISF_LEN_table_query_results             0
-#define ISF_LEN_hardware_fault_status           0
-#define ISF_LEN_application_extension           0
 
 /// Stock ISF file max data lengths (not aligned, just max)
 #define ISF_MAX(VAL)                            ISF_MAX_##VAL
@@ -298,28 +198,196 @@
 #define ISF_MAX_sleep_scan_sequence             0
 #define ISF_MAX_beacon_transmit_sequence        0
 #define ISF_MAX_isf_list                        24  //24 isf
-#define ISF_MAX_isfs_list                       0
+#define ISF_MAX_iss_list                        0
 #define ISF_MAX_gfb_file_list                   8   //8 gfb files
 #define ISF_MAX_location_data_list              0
 #define ISF_MAX_ipv6_addresses                  48
 #define ISF_MAX_sensor_list                     0
 #define ISF_MAX_sensor_alarms                   0
-#define ISF_MAX_root_authentication_key         16
-#define ISF_MAX_user_authentication_key         16
-#define ISF_MAX_routing_code                    0
-#define ISF_MAX_user_id                         60
-#define ISF_MAX_optional_command_list           0
-#define ISF_MAX_memory_size                     0
-#define ISF_MAX_table_query_size                0
-#define ISF_MAX_table_query_results             0
-#define ISF_MAX_hardware_fault_status           0
+#define ISF_MAX_root_authentication_key         18
+#define ISF_MAX_user_authentication_key         18
+#define ISF_MAX_fault_message                   64
+#define ISF_MAX_monitoring_data                 64
+#define ISF_MAX_nameplate_ratings               64  ///@todo confirm
+#define ISF_MAX_adjusted_settings               64  ///@todo confirm
+#define ISF_MAX_alarms                          4
+#define ISF_MAX_opcurve_voltvar                 208 ///@todo confirm
+#define ISF_MAX_opcurve_freqwatt                208 ///@todo confirm
 #define ISF_MAX_application_extension           64
 
 
-/// BEGINNING OF AUTOMATIC ISF STUFF (You can probably leave it alone)
+/// ISF file default length:
+/// Some of these elements must get written-to at startup
+#define ISF_LEN(VAL)                            ISF_LEN_##VAL
+#define ISF_LEN_network_settings                10
+#define ISF_LEN_device_features                 48
+#define ISF_LEN_channel_configuration           0
+#define ISF_LEN_real_time_scheduler             0
+#define ISF_LEN_hold_scan_sequence              0
+#define ISF_LEN_sleep_scan_sequence             0
+#define ISF_LEN_beacon_transmit_sequence        0
+#define ISF_LEN_isf_list                        (ISF_CSIP_FILES + ISF_APPEXT_FILES)
+#define ISF_LEN_iss_list                        0
+#define ISF_LEN_gfb_file_list                   GFB_NUM_FILES
+#define ISF_LEN_location_data_list              0
+#define ISF_LEN_ipv6_addresses                  0
+#define ISF_LEN_sensor_list                     0
+#define ISF_LEN_sensor_alarms                   0
+#define ISF_LEN_root_authentication_key         0
+#define ISF_LEN_user_authentication_key         0
+#define ISF_LEN_fault_message                   0
+#define ISF_LEN_monitoring_data                 0
+#define ISF_LEN_nameplate_ratings               0
+#define ISF_LEN_adjusted_settings               0
+#define ISF_LEN_alarms                          0
+#define ISF_LEN_opcurve_voltvar                 0
+#define ISF_LEN_opcurve_freqwatt                0
+#define ISF_LEN_application_extension           0
+
+/** ========================================================================<BR>
+  * End of File Definition Section   <BR>
+  */
+  
+  
+
+
+/** 3. Automated Data Allocation Calculations <BR> 
+  * ========================================================================<BR>
+  */
+
+/// Stock Byte calculation is automatic, but you must put in all the files
+#define ISF_ALLOC(VAL)          (((ISF_MAX_##VAL + _ALLOC_OFFSET) >> _ALLOC_SHIFT) << _ALLOC_SHIFT)
+
+#define ISF_STOCK_BYTES   ( \
+    ISF_ALLOC(network_settings) + \
+    ISF_ALLOC(device_features) + \
+    ISF_ALLOC(channel_configuration) + \
+    ISF_ALLOC(real_time_scheduler) + \
+    ISF_ALLOC(hold_scan_sequence) + \
+    ISF_ALLOC(sleep_scan_sequence) + \
+    ISF_ALLOC(beacon_transmit_sequence) + \
+    ISF_ALLOC(isf_list) + \
+    ISF_ALLOC(iss_list) + \
+    ISF_ALLOC(gfb_file_list) + \
+    ISF_ALLOC(location_data_list) + \
+    ISF_ALLOC(ipv6_addresses) + \
+    ISF_ALLOC(sensor_list) + \
+    ISF_ALLOC(sensor_alarms) + \
+    ISF_ALLOC(root_authentication_key) + \
+    ISF_ALLOC(user_authentication_key) + \
+    ISF_ALLOC(fault_message) + \
+    ISF_ALLOC(monitoring_data) + \
+    ISF_ALLOC(nameplate_ratings) + \
+    ISF_ALLOC(adjusted_settings) + \
+    ISF_ALLOC(alarms) + \
+    ISF_ALLOC(opcurve_voltvar) + \
+    ISF_ALLOC(opcurve_freqwatt) + \
+    ISF_ALLOC(application_extension) + \
+    0 \
+)
+
+/** ========================================================================<BR>
+  * End of Automated Data Allocation Calculations <BR> 
+  * 
+  */
+
+
+
+
+/** 4. File Block Parameters Section <BR> 
+  * ========================================================================<BR>
+  */
+
+/** Filesystem Overhead Data
+  * The front of the filesystem stores file headers.  The amount below must
+  * be coordinated with your linker file.
+  */
+#define OVERHEAD_START_VADDR                0x0000
+#define OVERHEAD_TOTAL_BYTES                0x0200
+#define ISF_MIRROR_VADDR                    0xC000
+
+
+
+/** GFB (Generic File Block)
+ * GFB is an unstructured data store.  The typical implementation is to use
+ * the GFB data sections to store file metadata, and have the actual file
+ * data stored somewhere else (like on flash).
+ */
+#define GFB_BLOCK_BYTES         128
+#define GFB_BLOCKS_PER_FILE     1
+#define GFB_NUM_STOCK_FILES     2
+#define GFB_NUM_USER_FILES      0
+#define GFB_MOD_standard        b00111100
+
+#define GFB_FILE_BYTES          (GFB_BLOCK_BYTES * GFB_BLOCKS_PER_FILE)
+#define GFB_START_VADDR         (OVERHEAD_START_VADDR + OVERHEAD_TOTAL_BYTES)
+#define GFB_NUM_FILES           (GFB_NUM_STOCK_FILES + GFB_NUM_USER_FILES)
+#define GFB_HEAP_BYTES          (GFB_FILE_BYTES*GFB_NUM_STOCK_FILES)
+
+#define GFB_STOCK_BYTES         (GFB_FILE_BYTES * (GFB_NUM_STOCK_FILES))
+#define GFB_TOTAL_BYTES         (GFB_FILE_BYTES * (GFB_NUM_STOCK_FILES + GFB_NUM_USER_FILES))
+
+
+/** ISSB Files (Indexed Short Series Block)
+  * ISSB Files are strings of ISF IDs that bundle/batch related ISF's.  ISSs
+  * are not all the same length (max length = 16).  Also, make sure that the 
+  * TOTAL_BYTES you allocate to the ISSB bank corresponds to the amount set in
+  * the linker file.
+  *
+  * In this configuration, ISS is empty
+  */
+#define ISS_TOTAL_BYTES         0x0000
+#define ISS_NUM_STOCK_FILES     0
+#define ISS_NUM_EXT_FILES       0
+
+#define ISS_START_VADDR         (GFB_START_VADDR + GFB_TOTAL_BYTES)
+#define ISS_NUM_USER_FILES      ISS_NUM_EXT_FILES
+#define ISS_NUM_FILES           (ISS_NUM_STOCK_FILES + ISS_NUM_USER_FILES)
+
+/// These parameters are derived from the stock configuration, which would 
+/// normally be described above, but there is no ISS in this system.
+#define ISS_STOCK_BYTES         0
+
+
+/** ISFB (Indexed Short File Block) 
+ * The ISFB contains up to 256 files (IDs 0x00 to 0xFF), length <= 255 bytes.
+ * As always, make sure that the TOTAL_BYTES allocated to the ISFB matches the
+ * value from your linker file.
+ *
+ * You can set the ISF_TOTAL_BYTES parameter to a certain number of Bytes, but 
+ * it must be greater than or equal to ISF_STOCK_BYTES.  If you don't have 
+ * file creation enabled, you should set to ISF_STOCK_BYTES.
+ */
+#define ISF_TOTAL_BYTES         ISF_STOCK_BYTES
+#define ISF_NUM_STOCK_FILES     (ISF_OTFS_FILES + ISF_CSIP_FILES)
+#define ISF_NUM_EXT_FILES       (ISF_APPEXT_FILES)
+#define ISF_NUM_USER_FILES      0  //max allowed user files
+#define ISF_START_VADDR         (ISS_START_VADDR + ISS_TOTAL_BYTES)
+#define ISF_NUM_FILES           (ISF_NUM_STOCK_FILES + ISF_NUM_USER_FILES + ISF_NUM_EXT_FILES)
+
+
+#define VL_HEADER_SIZE      (10 + 2*OT_FEATURE(VLACTIONS) + 4*OT_FEATURE(VLMODTIME))
+#define OVERHEAD_MIN_BYTES  (VL_HEADER_SIZE * (2 + GFB_NUM_FILES + ISS_NUM_FILES + ISF_NUM_FILES))
+
+#if (OVERHEAD_TOTAL_BYTES < 0)
+#   undef OVERHEAD_TOTAL_BYTES
+#   define OVERHEAD_TOTAL_BYTES     OVERHEAD_MIN_BYTES
+#elif (OVERHEAD_TOTAL_BYTES < OVERHEAD_MIN_BYTES)
+#   error "OVERHEAD_TOTAL_BYTES is defined as less than OVERHEAD_MIN_BYTES"
+#endif
+
+/** ========================================================================<BR>
+  * End of File Block Parameters Section <BR> 
+  */
+
+
+
+
+/** 5. Automated Virtual Address Boundary & Mirror Calculations <BR> 
+  * ========================================================================<BR>
+  */
 
 /// Stock ISF file memory & mirror allocations (aligned, typically 16bit)
-#define ISF_ALLOC(VAL)          (((ISF_MAX_##VAL + _ALLOC_OFFSET) >> _ALLOC_SHIFT) << _ALLOC_SHIFT)
 #define ISF_MIRALLOC(VAL)       (ISF_ENMIRROR(VAL) * (((ISF_MAX_##VAL + 2 + _MIRALLOC_OFFSET) >> _MIRALLOC_SHIFT) << _MIRALLOC_SHIFT))
 
 /// ISF file base address computation
@@ -335,22 +403,22 @@
 #   define ISF_BASE_sleep_scan_sequence         (ISF_BASE_hold_scan_sequence+ISF_ALLOC(hold_scan_sequence))
 #   define ISF_BASE_beacon_transmit_sequence    (ISF_BASE_sleep_scan_sequence+ISF_ALLOC(sleep_scan_sequence))
 #   define ISF_BASE_isf_list                    (ISF_BASE_beacon_transmit_sequence+ISF_ALLOC(beacon_transmit_sequence))
-#   define ISF_BASE_isfs_list                   (ISF_BASE_isf_list+ISF_ALLOC(isf_list))
-#   define ISF_BASE_gfb_file_list               (ISF_BASE_isfs_list+ISF_ALLOC(isfs_list))
+#   define ISF_BASE_iss_list                    (ISF_BASE_isf_list+ISF_ALLOC(isf_list))
+#   define ISF_BASE_gfb_file_list               (ISF_BASE_iss_list+ISF_ALLOC(iss_list))
 #   define ISF_BASE_location_data_list          (ISF_BASE_gfb_file_list+ISF_ALLOC(gfb_file_list))
 #   define ISF_BASE_ipv6_addresses              (ISF_BASE_location_data_list+ISF_ALLOC(location_data_list))
 #   define ISF_BASE_sensor_list                 (ISF_BASE_ipv6_addresses+ISF_ALLOC(ipv6_addresses))
 #   define ISF_BASE_sensor_alarms               (ISF_BASE_sensor_list+ISF_ALLOC(sensor_list))
 #   define ISF_BASE_root_authentication_key     (ISF_BASE_sensor_alarms+ISF_ALLOC(sensor_alarms))
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
-#   define ISF_BASE_routing_code                (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
-#   define ISF_BASE_user_id                     (ISF_BASE_routing_code+ISF_ALLOC(routing_code))
-#   define ISF_BASE_optional_command_list       (ISF_BASE_user_id+ISF_ALLOC(user_id))
-#   define ISF_BASE_memory_size                 (ISF_BASE_optional_command_list+ISF_ALLOC(optional_command_list))
-#   define ISF_BASE_table_query_size            (ISF_BASE_memory_size+ISF_ALLOC(memory_size))
-#   define ISF_BASE_table_query_results         (ISF_BASE_table_query_size+ISF_ALLOC(table_query_size))
-#   define ISF_BASE_hardware_fault_status       (ISF_BASE_table_query_results+ISF_ALLOC(table_query_results))
-#   define ISF_BASE_application_extension       (ISF_BASE_hardware_fault_status+ISF_ALLOC(hardware_fault_status))
+#   define ISF_BASE_fault_message               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
+#   define ISF_BASE_monitoring_data             (ISF_BASE_fault_message+ISF_ALLOC(fault_message))
+#   define ISF_BASE_nameplate_ratings           (ISF_BASE_monitoring_data+ISF_ALLOC(monitoring_data))
+#   define ISF_BASE_adjusted_settings           (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))
+#   define ISF_BASE_alarms                      (ISF_BASE_adjusted_settings+ISF_ALLOC(adjusted_settings))
+#   define ISF_BASE_opcurve_voltvar             (ISF_BASE_alarms+ISF_ALLOC(alarms))
+#   define ISF_BASE_opcurve_freqwatt            (ISF_BASE_opcurve_voltvar+ISF_ALLOC(opcurve_voltvar))
+#   define ISF_BASE_application_extension       (ISF_BASE_opcurve_freqwatt+ISF_ALLOC(opcurve_freqwatt))
 #   define ISF_BASE_NEXT                        (ISF_BASE_application_extension+ISF_ALLOC(application_extension ))
 
 #else
@@ -362,25 +430,24 @@
 #   define ISF_BASE_sleep_scan_sequence         (ISF_BASE_hold_scan_sequence+ISF_ALLOC(hold_scan_sequence))
 #   define ISF_BASE_beacon_transmit_sequence    (ISF_BASE_sleep_scan_sequence+ISF_ALLOC(sleep_scan_sequence))
 #   define ISF_BASE_isf_list                    (ISF_BASE_beacon_transmit_sequence+ISF_ALLOC(beacon_transmit_sequence))
-#   define ISF_BASE_isfs_list                   (ISF_BASE_isf_list+ISF_ALLOC(isf_list))
-#   define ISF_BASE_gfb_file_list               (ISF_BASE_isfs_list+ISF_ALLOC(isfs_list))
+#   define ISF_BASE_iss_list                    (ISF_BASE_isf_list+ISF_ALLOC(isf_list))
+#   define ISF_BASE_gfb_file_list               (ISF_BASE_iss_list+ISF_ALLOC(iss_list))
 #   define ISF_BASE_location_data_list          (ISF_BASE_gfb_file_list+ISF_ALLOC(gfb_file_list))
 #   define ISF_BASE_ipv6_addresses              (ISF_BASE_location_data_list+ISF_ALLOC(location_data_list))
 #   define ISF_BASE_sensor_list                 (ISF_BASE_ipv6_addresses+ISF_ALLOC(ipv6_addresses))
 #   define ISF_BASE_sensor_alarms               (ISF_BASE_sensor_list+ISF_ALLOC(sensor_list))
 #   define ISF_BASE_root_authentication_key     (ISF_BASE_sensor_alarms+ISF_ALLOC(sensor_alarms))
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
-#   define ISF_BASE_routing_code                (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
-#   define ISF_BASE_user_id                     (ISF_BASE_routing_code+ISF_ALLOC(routing_code))
-#   define ISF_BASE_optional_command_list       (ISF_BASE_user_id+ISF_ALLOC(user_id))
-#   define ISF_BASE_memory_size                 (ISF_BASE_optional_command_list+ISF_ALLOC(optional_command_list))
-#   define ISF_BASE_table_query_size            (ISF_BASE_memory_size+ISF_ALLOC(memory_size))
-#   define ISF_BASE_table_query_results         (ISF_BASE_table_query_size+ISF_ALLOC(table_query_size))
-#   define ISF_BASE_hardware_fault_status       (ISF_BASE_table_query_results+ISF_ALLOC(table_query_results))
-#   define ISF_BASE_application_extension       (ISF_BASE_hardware_fault_status+ISF_ALLOC(hardware_fault_status))
+#   define ISF_BASE_fault_message               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
+#   define ISF_BASE_monitoring_data             (ISF_BASE_fault_message+ISF_ALLOC(fault_message))
+#   define ISF_BASE_nameplate_ratings           (ISF_BASE_monitoring_data+ISF_ALLOC(monitoring_data))
+#   define ISF_BASE_adjusted_settings           (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))
+#   define ISF_BASE_alarms                      (ISF_BASE_adjusted_settings+ISF_ALLOC(adjusted_settings))
+#   define ISF_BASE_opcurve_voltvar             (ISF_BASE_alarms+ISF_ALLOC(alarms))
+#   define ISF_BASE_opcurve_freqwatt            (ISF_BASE_opcurve_voltvar+ISF_ALLOC(opcurve_voltvar))
+#   define ISF_BASE_application_extension       (ISF_BASE_opcurve_freqwatt+ISF_ALLOC(opcurve_freqwatt))
 #   define ISF_BASE_NEXT                        (ISF_BASE_application_extension+ISF_ALLOC(application_extension))
 #endif
-
 
 
 #define ISF_MIRROR(VAL)                         (unsigned short)(((ISF_ENMIRROR_##VAL != 0) - 1) | (ISF_MIRROR_##VAL) )
@@ -392,52 +459,24 @@
 #define ISF_MIRROR_sleep_scan_sequence          (ISF_MIRROR_hold_scan_sequence+ISF_MIRALLOC(hold_scan_sequence))
 #define ISF_MIRROR_beacon_transmit_sequence     (ISF_MIRROR_sleep_scan_sequence+ISF_MIRALLOC(sleep_scan_sequence))
 #define ISF_MIRROR_isf_list                     (ISF_MIRROR_beacon_transmit_sequence+ISF_MIRALLOC(beacon_transmit_sequence))
-#define ISF_MIRROR_isfs_list                    (ISF_MIRROR_isf_list+ISF_MIRALLOC(isf_list))
-#define ISF_MIRROR_gfb_file_list                (ISF_MIRROR_isfs_list+ISF_MIRALLOC(isfs_list))
+#define ISF_MIRROR_iss_list                     (ISF_MIRROR_isf_list+ISF_MIRALLOC(isf_list))
+#define ISF_MIRROR_gfb_file_list                (ISF_MIRROR_iss_list+ISF_MIRALLOC(iss_list))
 #define ISF_MIRROR_location_data_list           (ISF_MIRROR_gfb_file_list+ISF_MIRALLOC(gfb_file_list))
 #define ISF_MIRROR_ipv6_addresses               (ISF_MIRROR_location_data_list+ISF_MIRALLOC(location_data_list))
 #define ISF_MIRROR_sensor_list                  (ISF_MIRROR_ipv6_addresses+ISF_MIRALLOC(ipv6_addresses))
 #define ISF_MIRROR_sensor_alarms                (ISF_MIRROR_sensor_list+ISF_MIRALLOC(sensor_list))
 #define ISF_MIRROR_root_authentication_key      (ISF_MIRROR_sensor_alarms+ISF_MIRALLOC(sensor_alarms))
 #define ISF_MIRROR_user_authentication_key      (ISF_MIRROR_root_authentication_key+ISF_MIRALLOC(root_authentication_key))
-#define ISF_MIRROR_routing_code                 (ISF_MIRROR_user_authentication_key+ISF_MIRALLOC(user_authentication_key))
-#define ISF_MIRROR_user_id                      (ISF_MIRROR_routing_code+ISF_MIRALLOC(routing_code))
-#define ISF_MIRROR_optional_command_list        (ISF_MIRROR_user_id+ISF_MIRALLOC(user_id))
-#define ISF_MIRROR_memory_size                  (ISF_MIRROR_optional_command_list+ISF_MIRALLOC(optional_command_list))
-#define ISF_MIRROR_table_query_size             (ISF_MIRROR_memory_size+ISF_MIRALLOC(memory_size))
-#define ISF_MIRROR_table_query_results          (ISF_MIRROR_table_query_size+ISF_MIRALLOC(table_query_size))
-#define ISF_MIRROR_hardware_fault_status        (ISF_MIRROR_table_query_results+ISF_MIRALLOC(table_query_results))
-#define ISF_MIRROR_application_extension        (ISF_MIRROR_hardware_fault_status+ISF_MIRALLOC(hardware_fault_status))
+#define ISF_MIRROR_fault_message                (ISF_MIRROR_user_authentication_key+ISF_MIRALLOC(user_authentication_key))
+#define ISF_MIRROR_monitoring_data              (ISF_MIRROR_fault_message+ISF_MIRALLOC(fault_message))
+#define ISF_MIRROR_nameplate_ratings            (ISF_MIRROR_monitoring_data+ISF_MIRALLOC(monitoring_data))
+#define ISF_MIRROR_adjusted_settings            (ISF_MIRROR_nameplate_ratings+ISF_MIRALLOC(nameplate_ratings))
+#define ISF_MIRROR_alarms                       (ISF_MIRROR_adjusted_settings+ISF_MIRALLOC(adjusted_settings))
+#define ISF_MIRROR_opcurve_voltvar              (ISF_MIRROR_alarms+ISF_MIRALLOC(alarms))
+#define ISF_MIRROR_opcurve_freqwatt             (ISF_MIRROR_opcurve_voltvar+ISF_MIRALLOC(opcurve_voltvar))
+#define ISF_MIRROR_application_extension        (ISF_MIRROR_opcurve_freqwatt+ISF_MIRALLOC(opcurve_freqwatt))
 #define ISF_MIRROR_NEXT                         (ISF_MIRROR_application_extension+ISF_MIRALLOC(application_extension))
 
-
-/// Total amount of stock ISF data
-#define ISF_STOCK_BYTES   ( \
-    ISF_ALLOC(network_settings) + \
-    ISF_ALLOC(device_features) + \
-    ISF_ALLOC(channel_configuration) + \
-    ISF_ALLOC(real_time_scheduler) + \
-    ISF_ALLOC(hold_scan_sequence) + \
-    ISF_ALLOC(sleep_scan_sequence) + \
-    ISF_ALLOC(beacon_transmit_sequence) + \
-    ISF_ALLOC(isf_list) + \
-    ISF_ALLOC(isfs_list) + \
-    ISF_ALLOC(gfb_file_list) + \
-    ISF_ALLOC(location_data_list) + \
-    ISF_ALLOC(ipv6_addresses) + \
-    ISF_ALLOC(sensor_list) + \
-    ISF_ALLOC(sensor_alarms) + \
-    ISF_ALLOC(root_authentication_key) + \
-    ISF_ALLOC(user_authentication_key) + \
-    ISF_ALLOC(routing_code) + \
-    ISF_ALLOC(user_id) + \
-    ISF_ALLOC(optional_command_list) + \
-    ISF_ALLOC(memory_size) + \
-    ISF_ALLOC(table_query_size) + \
-    ISF_ALLOC(table_query_results) + \
-    ISF_ALLOC(hardware_fault_status) + \
-    ISF_ALLOC(application_extension) \
-)
 
 /// Total amount of stock ISF data stored exclusively in mirror
 #define ISF_MIRROR_STOCK_BYTES   0
@@ -456,10 +495,10 @@
 /// Total amount of allocation to the Mirror
 #define ISF_MIRROR_HEAP_BYTES   ((ISF_MIRROR_NEXT) - (ISF_MIRROR_VADDR))
 
-/// END OF AUTOMATIC ISF STUFF
 
-
-
+/** ========================================================================<BR>
+  * End of Automated Virtual Address Boundary & Mirror Calculations <BR> 
+  */
 
 
 
