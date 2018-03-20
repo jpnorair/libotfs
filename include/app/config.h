@@ -46,25 +46,25 @@
 #define NOT_AVAILABLE   DISABLED
 
 
-#if defined(APP_modbus_master)
-#   include <app/modbus_master/app_config.h>
-#   include <app/modbus_master/board_config.h>
-#   include <app/modbus_master/build_config.h>
-#   include <app/modbus_master/extf_config.h>
-//#   include <app/modbus_master/features_config.h>
-//#   include <app/modbus_master/fs_config.h>
+#if defined(APP_csip_master)
+#   include <app/csip_master/app_config.h>
+#   include <app/csip_master/board_config.h>
+#   include <app/csip_master/build_config.h>
+#   include <app/csip_master/extf_config.h>
+//#   include <app/csip_master/features_config.h>
+//#   include <app/csip_master/fs_config.h>
 
-#elif defined(APP_modbus_slave)
-#   include <app/modbus_slave/app_config.h>
-#   include <app/modbus_slave/board_config.h>
-#   include <app/modbus_slave/build_config.h>
-#   include <app/modbus_slave/extf_config.h>
+#elif defined(APP_csip_slave)
+#   include <app/csip_slave/app_config.h>
+#   include <app/csip_slave/board_config.h>
+#   include <app/csip_slave/build_config.h>
+#   include <app/csip_slave/extf_config.h>
 
-#elif defined(APP_modbus_slave_c2000)
-#   include <app/modbus_slave_c2000/app_config.h>
-#   include <app/modbus_slave_c2000/board_config.h>
-#   include <app/modbus_slave_c2000/build_config.h>
-#   include <app/modbus_slave_c2000/extf_config.h>
+#elif defined(APP_csip_c2000)
+#   include <app/csip_c2000/app_config.h>
+#   include <app/csip_c2000/board_config.h>
+#   include <app/csip_c2000/build_config.h>
+#   include <app/csip_c2000/extf_config.h>
 
 // Default app is "Null", which is a POSIX Std C target on a 32 or 64 bit x86 or ARM
 // machine.
