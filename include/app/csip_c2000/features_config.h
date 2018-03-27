@@ -14,11 +14,12 @@
   *
   */
 /**
-  * @file       /app/modbus_master/features_config.h
+  * @file       /app/csip_c2000/features_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       31 Aug 2014
-  * @brief      Feature configuration for a typical app & platform
+  * @brief      Feature configuration
+  *
   *
   ******************************************************************************
   */
@@ -27,7 +28,8 @@
 #define __FEATURES_CONFIG_H
 
 ///@note You can override some Default Features & Parameters here
-
+#define OT_FEATURE_VLACTIONS            ENABLED          // File Actions in Veelite
+#define OT_FEATURE_VLMODTIME            DISABLED         // File Modification Timestamp
 
 #include <app/features_defaults.h>
 

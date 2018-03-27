@@ -1,6 +1,6 @@
 /* Replace License */
 /**
-  * @file       /app/modbus_slave_c2000/extf_config.h
+  * @file       /app/csip_master/extf_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    V1.0
   * @date       31 July 2012
@@ -11,16 +11,6 @@
 
 #ifndef __EXTF_CONFIG_H
 #define __EXTF_CONFIG_H
-
-
-#define EXTF_q_writeshort
-#define EXTF_q_writeshort_be
-#define EXTF_q_writelong
-#define EXTF_q_readbyte
-#define EXTF_q_readshort
-#define EXTF_q_readshort_be
-#define EXTF_q_readlong
-
 
 
 /// ALP Module EXTFs

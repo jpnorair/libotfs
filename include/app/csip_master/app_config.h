@@ -14,7 +14,7 @@
   *
   */
 /**
-  * @file       /app/modbus_master/app_config.h
+  * @file       /app/csip_master/app_config.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       31 Oct 2017
