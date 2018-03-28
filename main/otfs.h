@@ -30,18 +30,24 @@
 #ifndef __OTFS_H
 #define __OTFS_H
 
+/// Std C Headers.  No special rules here
+#include <stdint.h>
+#include <stddef.h>
+
+/// OpenTag subsystem Headers.  In order for installation of libotfs to work properly,
+/// these must use < > brackets and have only single space between #include and <.
+/// The installation uses sed to modify these line on the installed copy of this header.
+
 // All headers, for testing.
 #include <otplatform.h>
 #include <otstd.h>
 #include <otlib.h>
-
 // Main headers we want to expose
 #include <otlib/alp.h>
 #include <otlib/auth.h>
 #include <otsys/veelite.h>
 
-#include <stdint.h>
-#include <stddef.h>
+
 
 
 typedef struct OT_PACKED {

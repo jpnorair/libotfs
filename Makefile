@@ -3,6 +3,7 @@ TARGET      ?= $(shell uname -srm | sed -e 's/ /-/g')
 EXT_DEF     ?= -DOT_FEATURE_DLL_SECURITY=0
 EXT_INC     ?= 
 EXT_LIBS    ?= 
+VERSION     ?= "0.1.0"
 
 DEFAULT_INC := ./include
 LIBMODULES  := 
@@ -16,7 +17,7 @@ THISSYSTEM	:= $(shell uname -s)
 # Conditional Settings per Target
 ifeq ($(TARGET),$(THISMACHINE))
 	PRODUCT     := libotfs.$(THISSYSTEM)
-	PACKAGEDIR  ?= ./../_hbpkg/$(TARGET)/libotfs
+	PACKAGEDIR  ?= ./../_hbpkg/$(TARGET)/libotfs.$(VERSION)
 	OTFS_CC	    := gcc
 	OTFS_LIBTOOL:= libtool
 	OTFS_CFLAGS := -std=gnu99 -O3 -pthread
@@ -27,7 +28,7 @@ ifeq ($(TARGET),$(THISMACHINE))
 
 else ifeq ($(TARGET),c2000)
 	PRODUCT     := libotfs.c2000
-	PACKAGEDIR  ?= ./../_hbpkg/$(TARGET)/libotfs
+	PACKAGEDIR  ?= ./../_hbpkg/$(TARGET)/libotfs.$(VERSION)
 	C2000_WARE  ?= /Applications/ti/c2000/C2000Ware_1_00_02_00
 	TICC_DIR    ?= /Applications/ti/ccsv7/tools/compiler/ti-cgt-c2000_17.9.0.STS
 	OTFS_CC	    := cl2000
@@ -64,7 +65,9 @@ install:
 	@cp -R ./include/* ./$(PACKAGEDIR)
 	@cp ./main/otfs.h ./$(PACKAGEDIR)
 	@cp /usr/local/include/Judy.h ./$(PACKAGEDIR)
-
+	@rm -f $(PACKAGEDIR)/../libotfs
+	@ln -s libotfs.$(VERSION) ./$(PACKAGEDIR)/../libotfs
+	
 directories:
 	@mkdir -p $(PACKAGEDIR)
 	@mkdir -p $(BUILDDIR)
