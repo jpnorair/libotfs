@@ -55,8 +55,8 @@ SUBMODULES  := main otlib $(PLATFORM)
 INCDEP      := -I$(DEFAULT_INC)
 
 # Global vars that get exported to sub-makefiles
-all: $(PRODUCT)
-lib: $(PRODUCT).a
+all: $(PRODUCT) test
+lib: $(PRODUCT)
 remake: cleaner all
 
 install: 
@@ -79,6 +79,11 @@ clean:
 #Full Clean, Objects and Binaries
 cleaner: clean
 	@$(RM) -rf $(PACKAGEDIR)
+
+# Test
+test: $(PRODUCT)
+	$(eval MKFILE := $(notdir $@))
+	cd ./$@ && $(MAKE) -f $(MKFILE).mk obj
 
 #Packaging stage: copy/move files to pkg output directory
 $(PRODUCT): $(PRODUCT).a

@@ -13,16 +13,16 @@
   * limitations under the License.
   */
 /**
-  * @file       /apps/null_posix/app/main.c
+  * @file       /test/main.c
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       31 Oct 2017
-  * @brief      Unit Tests for Null_Posix Library
+  * @brief      Unit Tests for low level veelite functions, assuming POSIX build
   *
   ******************************************************************************
   */
 
-#if 0
+#if 1
 
 #include <otfs.h>
 
@@ -45,7 +45,7 @@ ot_bool alp_ext_proc(alp_tmpl* alp, id_tmpl* user_id) {
 int test_veelite_openclose(void) {
     uint8_t id;
 
-    vl_init();
+    vl_init(NULL);
 
     for (id=0; id<ISF_NUM_STOCK_FILES; id++) {
         vlFILE* fp;
@@ -81,7 +81,7 @@ int test_veelite_maxopen(void) {
     int i;
     vlFILE* fp;
     
-    vl_init();
+    vl_init(NULL);
 
     for (i=0; i<16; i++) {
         fp = ISF_open_su(0);
@@ -93,7 +93,7 @@ int test_veelite_maxopen(void) {
         }
     }
     
-    vl_init();
+    vl_init(NULL);
     
     return 0;
 }
@@ -154,7 +154,7 @@ int sub_loadstore(uint8_t id) {
 
 int test_veelite_loadstore(void) {
     uint8_t id;
-    vl_init();
+    vl_init(NULL);
     
     for (id=0; id<ISF_NUM_STOCK_FILES; id++) {
         sub_loadstore(id);
@@ -219,7 +219,7 @@ int sub_memptr(uint8_t id) {
 
 int test_veelite_memptr(void) {
     uint8_t id;
-    vl_init();
+    vl_init(NULL);
     
     for (id=0; id<ISF_NUM_STOCK_FILES; id++) {
         sub_memptr(id);
@@ -233,9 +233,13 @@ int test_veelite_memptr(void) {
 
 
 int main(void) {
+    uint32_t    fs_base[1024];
+    vlFSHEADER* fs_head;
     
     srand(time(NULL));
-    vworm_init();
+    
+    fs_head = (vlFSHEADER*)overhead_files;
+    vworm_init((void*)fs_base, fs_head);
     
     printf("STARTING File open limit test\nShould open 3 times, then not open\n");
     test_veelite_maxopen();

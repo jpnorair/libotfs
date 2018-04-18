@@ -111,7 +111,7 @@
 #define ISF_ID_sensor_alarms                    0x0D    // Std File, but not used
 #define ISF_ID_root_authentication_key          0x0E
 #define ISF_ID_user_authentication_key          0x0F
-#define ISF_ID_pv_config                    0x10
+#define ISF_ID_pv_config                        0x10
 #define ISF_ID_pv_fault_config                  0x11
 #define ISF_ID_nameplate_ratings                0x12
 #define ISF_ID_adjusted_settings                0x13
@@ -178,7 +178,7 @@
 #define ISF_MOD_sensor_alarms                   ISF_MOD_file_standard
 #define ISF_MOD_root_authentication_key         b00000000
 #define ISF_MOD_user_authentication_key         b00110000
-#define ISF_MOD_pv_config                   b00100100
+#define ISF_MOD_pv_config                       b00100100
 #define ISF_MOD_pv_fault_config                 b00100100
 #define ISF_MOD_nameplate_ratings               b00100100
 #define ISF_MOD_adjusted_settings               b00100100
@@ -420,7 +420,7 @@
 #   define ISF_BASE_sensor_alarms               (ISF_BASE_sensor_list+ISF_ALLOC(sensor_list))
 #   define ISF_BASE_root_authentication_key     (ISF_BASE_sensor_alarms+ISF_ALLOC(sensor_alarms))
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
-#   define ISF_BASE_pv_config               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
+#   define ISF_BASE_pv_config                   (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
 #   define ISF_BASE_pv_fault_config             (ISF_BASE_pv_config+ISF_ALLOC(pv_config))
 #   define ISF_BASE_nameplate_ratings           (ISF_BASE_pv_fault_config+ISF_ALLOC(pv_fault_config))
 #   define ISF_BASE_adjusted_settings           (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))
@@ -447,7 +447,7 @@
 #   define ISF_BASE_sensor_alarms               (ISF_BASE_sensor_list+ISF_ALLOC(sensor_list))
 #   define ISF_BASE_root_authentication_key     (ISF_BASE_sensor_alarms+ISF_ALLOC(sensor_alarms))
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
-#   define ISF_BASE_pv_config               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
+#   define ISF_BASE_pv_config                   (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
 #   define ISF_BASE_pv_fault_config             (ISF_BASE_pv_config+ISF_ALLOC(pv_config))
 #   define ISF_BASE_nameplate_ratings           (ISF_BASE_pv_fault_config+ISF_ALLOC(pv_fault_config))
 #   define ISF_BASE_adjusted_settings           (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))
@@ -476,7 +476,7 @@
 #define ISF_MIRROR_sensor_alarms                (ISF_MIRROR_sensor_list+ISF_MIRALLOC(sensor_list))
 #define ISF_MIRROR_root_authentication_key      (ISF_MIRROR_sensor_alarms+ISF_MIRALLOC(sensor_alarms))
 #define ISF_MIRROR_user_authentication_key      (ISF_MIRROR_root_authentication_key+ISF_MIRALLOC(root_authentication_key))
-#define ISF_MIRROR_pv_config                (ISF_MIRROR_user_authentication_key+ISF_MIRALLOC(user_authentication_key))
+#define ISF_MIRROR_pv_config                    (ISF_MIRROR_user_authentication_key+ISF_MIRALLOC(user_authentication_key))
 #define ISF_MIRROR_pv_fault_config              (ISF_MIRROR_pv_config+ISF_MIRALLOC(pv_config))
 #define ISF_MIRROR_nameplate_ratings            (ISF_MIRROR_pv_fault_config+ISF_MIRALLOC(pv_fault_config))
 #define ISF_MIRROR_adjusted_settings            (ISF_MIRROR_nameplate_ratings+ISF_MIRALLOC(nameplate_ratings))
