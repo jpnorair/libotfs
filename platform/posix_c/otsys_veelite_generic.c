@@ -93,11 +93,12 @@ vas_loc vas_check(vaddr addr) {
 ot_uint sub_copy_section(ot_u32* section, void* defaults, ot_uint defaults_size, ot_uint input_size) {
     // Dynamic sizing variant would require re-setting the input struct...
     ot_uint  copylen;
-    copylen = ((defaults_size+3) / 4);
-    copylen = (copylen < input_size) ? copylen : input_size;
+    copylen = (defaults_size < input_size) ? defaults_size : input_size;
+    copylen = ((copylen+3) / 4);
     
     ot_memcpy_4(section, defaults, copylen);
     
+    //printf("defaults_size = %d\ninput_size = %d\n", defaults_size, input_size);
     return copylen;
     
     //ot_memcpy_4(section, (void*)overhead_files, copylen);

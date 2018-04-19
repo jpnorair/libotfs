@@ -37,6 +37,7 @@
   * and parameter settings.  Take a look at features_config.h to see
   * what the features are.
   */
+#define OT_FEATURE_MULTIFS          ENABLED
 
 #include "features_config.h"
 

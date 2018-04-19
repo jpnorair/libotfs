@@ -242,7 +242,7 @@ void sub_hexdump(void* base, size_t bytes, size_t cols) {
             printf("%05d: ", i);
         }
     
-        printf("%02X ", a[i-1]);
+        printf("%02X ", a[i]);
         
         i++;
         if ((i%cols) == 0) {
@@ -259,6 +259,7 @@ void sub_hexdump(void* base, size_t bytes, size_t cols) {
 int main(void) {
     uint32_t    fs_base[1024];
     vlFSHEADER* fs_head;
+    int rc;
     
     printf("Name of app in use with libotfs: %s\n", LIBOTFS_APP_NAME);
     printf("size of vl_header_t: %zu\n", sizeof(vl_header_t));
@@ -266,12 +267,32 @@ int main(void) {
     srand(time(NULL));
     
     fs_head = (vlFSHEADER*)overhead_files;
-    vworm_init((void*)fs_base, fs_head);
+    printf("Input FS Header:\n");
+    printf("->ftab_alloc    = %d\n", fs_head->ftab_alloc);
+#   if (OT_FEATURE(VLACTIONS) == ENABLED)
+    printf("->res_act0      = %d\n", fs_head->res_act0);
+    printf("->res_act2      = %d\n", fs_head->res_act2);
+#   endif
+    printf("->gfb.alloc     = %d\n", fs_head->gfb.alloc);
+    printf("->gfb.used      = %d\n", fs_head->gfb.used);
+    printf("->gfb.files     = %d\n", fs_head->gfb.files);
+    printf("->iss.alloc     = %d\n", fs_head->iss.alloc);
+    printf("->iss.used      = %d\n", fs_head->iss.used);
+    printf("->iss.files     = %d\n", fs_head->iss.files);
+    printf("->isf.alloc     = %d\n", fs_head->isf.alloc);
+    printf("->isf.used      = %d\n", fs_head->isf.used);
+    printf("->isf.files     = %d\n", fs_head->isf.files);
+#   if (OT_FEATURE(VLMODTIME) == ENABLED)
+    printf("->res_time0     = %d\n", fs_head->res_time0);
+    printf("->res_time4     = %d\n", fs_head->res_time4);
+#   endif
     
+    rc = vworm_init((void*)fs_base, fs_head);
+    printf("vworm_init() returned %d\n", rc);
     
-    
+
     //sub_hexdump(fs_base, sizeof(fs_base), sizeof(vl_header_t));
-    return 0;
+    //return 0;
     
     printf("STARTING File open limit test\nShould open 3 times, then not open\n");
     test_veelite_maxopen();

@@ -702,7 +702,7 @@ OT_WEAK ot_u8 vl_write( vlFILE* fp, ot_uint offset, ot_u16 data ) {
 ///      file data.  Will return NULL if file is not in the mirror, which is 
 ///      the only place where it can be guaranteed to be in contiguous RAM.
 OT_WEAK vl_u8* vl_memptr( vlFILE* fp ) {
-#   if !defined(__C2000__)
+#   if MCU_CONFIG(DATAFLASH)
     if (fp->read == &vsram_read) {
         return (vl_u8*)vsram_get(fp->start);
     }

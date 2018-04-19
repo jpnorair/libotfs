@@ -65,6 +65,7 @@
 #define MCU_CONFIG_MULTISPEED           DISABLED         // Allows usage of MF-HF clock boosting
 #define MCU_CONFIG_MAPEEPROM            DISABLED
 #define MCU_CONFIG_MEMCPYDMA            DISABLED        // MEMCPY DMA should be lower priority than MPIPE DMA
+#define MCU_CONFIG_DATAFLASH            DISABLED
 
 
 /** Platform Memory Configuration <BR>
