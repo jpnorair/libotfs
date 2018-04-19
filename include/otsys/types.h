@@ -64,6 +64,8 @@
 
 
 
+
+
 /** @typedef ot_bool
   * Boolean, takes True or False
   * NOTE: even if <stdbool.h> is available, sometimes the enumerated version
@@ -76,11 +78,27 @@
 #endif
 #if defined(__HAS_C99) || 1
 #   include <stdbool.h>
+#   include <stdint.h>
     typedef bool    ot_bool;
 #   define True     true
 #   define False    false
+
+    typedef int8_t      ot_s8;
+    typedef uint8_t     ot_u8;
+    typedef int16_t     ot_s16;
+    typedef uint16_t    ot_u16;
+    typedef int32_t     ot_s32;
+    typedef int32_t     ot_u32;
+
 #else
     typedef enum { False = 0, True = !False } ot_bool;
+    typedef signed char         ot_s8;
+    typedef unsigned char       ot_u8;
+    typedef signed short        ot_s16;
+    typedef unsigned short      ot_u16;
+    typedef signed long         ot_s32;
+    typedef unsigned long       ot_u32;
+    
 #endif
 
 
@@ -88,12 +106,7 @@
 /** @typedef ot_s8, ot_u8, ot_s16, ot_u16, ot_s32, ot_u32
   * Signed and unsigned integers of explicit bit widths
   */
-typedef signed char         ot_s8;
-typedef unsigned char       ot_u8;
-typedef signed short        ot_s16;
-typedef unsigned short      ot_u16;
-typedef signed long         ot_s32;
-typedef unsigned long       ot_u32;
+
 
 
     
@@ -104,8 +117,8 @@ typedef unsigned long       ot_u32;
   *
   * @todo optimize these conditionally based on machine specs
   */
-typedef signed short        ot_int;
-typedef unsigned short      ot_uint;
+typedef ot_s16  ot_int;
+typedef ot_u16  ot_uint;
 
 
 /** @typedef ot_long, ot_ulong
@@ -115,8 +128,8 @@ typedef unsigned short      ot_uint;
   *
   * @todo optimize these conditionally based on machine specs
   */
-typedef signed long         ot_long;
-typedef unsigned long       ot_ulong;
+typedef ot_s32  ot_long;
+typedef ot_u32  ot_ulong;
 
 
 

@@ -25,7 +25,7 @@
 
 #ifndef __APP_CONFIG_H
 #define __APP_CONFIG_H
-
+#define LIBOTFS_APP_NAME    "posix_null"
 
 #include "build_config.h"
 

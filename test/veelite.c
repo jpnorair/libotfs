@@ -24,6 +24,8 @@
 
 #if 1
 
+
+
 #include <otfs.h>
 
 #include <stdint.h>
@@ -232,14 +234,44 @@ int test_veelite_memptr(void) {
 
 
 
+void sub_hexdump(void* base, size_t bytes, size_t cols) {
+    uint8_t* a = (uint8_t*)base;
+    
+    for (int i=0; i<bytes; ) {
+        if ((i%cols) == 0) {
+            printf("%05d: ", i);
+        }
+    
+        printf("%02X ", a[i-1]);
+        
+        i++;
+        if ((i%cols) == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+
+}
+
+
+
+
 int main(void) {
     uint32_t    fs_base[1024];
     vlFSHEADER* fs_head;
+    
+    printf("Name of app in use with libotfs: %s\n", LIBOTFS_APP_NAME);
+    printf("size of vl_header_t: %zu\n", sizeof(vl_header_t));
     
     srand(time(NULL));
     
     fs_head = (vlFSHEADER*)overhead_files;
     vworm_init((void*)fs_base, fs_head);
+    
+    
+    
+    //sub_hexdump(fs_base, sizeof(fs_base), sizeof(vl_header_t));
+    return 0;
     
     printf("STARTING File open limit test\nShould open 3 times, then not open\n");
     test_veelite_maxopen();

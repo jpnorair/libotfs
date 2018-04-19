@@ -69,7 +69,7 @@ install:
 	@ln -s libotfs.$(VERSION) ./$(PACKAGEDIR)/../libotfs
 	
 directories:
-	@mkdir -p $(PACKAGEDIR)
+	@mkdir -p pkg
 	@mkdir -p $(BUILDDIR)
 
 #Clean only Objects
@@ -78,7 +78,7 @@ clean:
 
 #Full Clean, Objects and Binaries
 cleaner: clean
-	@$(RM) -rf $(PACKAGEDIR)
+	@$(RM) -rf pkg
 
 # Test
 test: $(PRODUCT)
@@ -87,26 +87,26 @@ test: $(PRODUCT)
 
 #Packaging stage: copy/move files to pkg output directory
 $(PRODUCT): $(PRODUCT).a
-	@cp -R ./include/* ./$(PACKAGEDIR)
-	@cp ./main/otfs.h ./$(PACKAGEDIR)
-	@cp /usr/local/include/Judy.h ./$(PACKAGEDIR)
+	@cp -R ./include/* ./pkg
+	@cp ./main/otfs.h ./pkg
+	@cp /usr/local/include/Judy.h ./pkg
 
 #Build the static library
 #There are several supported variants.
 libotfs.Darwin.a: $(SUBMODULES) $(LIBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
 	$(OTFS_LIBTOOL) -static -o libotfs.a /usr/local/lib/libJudy.a $(LIBTOOL_OBJ)
-	@mv libotfs.a $(PACKAGEDIR)/
+	@mv libotfs.a pkg/
 
 libotfs.Linux.a: $(SUBMODULES) $(LIBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
 	$(OTFS_LIBTOOL) --tag=CC --mode=link $(OTFS_CC) -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o libotfs.a $(LIBTOOL_OBJ)
-	@mv $libotfs.a $(PACKAGEDIR)/
+	@mv $libotfs.a pkg/
 
 libotfs.c2000.a: $(SUBMODULES) $(LIBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR)/libotfs.c2000 -type f -name "*.$(OBJEXT)"))
 	ar2000 -a libotfs.a $(LIBTOOL_OBJ)
-	@mv libotfs.a $(PACKAGEDIR)/
+	@mv libotfs.a pkg/
 
 #Library dependencies (not in otfs sources)
 $(LIBMODULES): %: 

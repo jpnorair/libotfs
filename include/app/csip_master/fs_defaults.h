@@ -119,9 +119,19 @@ const ot_u8 overhead_files[] = {
 #   endif
     
     /* GFB Files */
-    0x00, 0x00, 0x00, 0x01,                 /* GFB Elements 0 */
-    0x00, GFB_MOD_standard,
-    0x00, 0x14, 0xFF, 0xFF,
+    SPLIT_SHORT_LE(0),                  /* Length, little endian */
+    SPLIT_SHORT_LE(GFB_BLOCK_BYTES),    /* GFB Elements 0 */
+    0x00, GFB_MOD_standard,             /* ID, Perms */
+    SPLIT_SHORT_LE((GFB_START_VADDR + (GFB_BLOCK_BYTES * 0))),
+    0xFF, 0xFF,
+    FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
+    
+    SPLIT_SHORT_LE(0),                  /* Length, little endian */
+    SPLIT_SHORT_LE(GFB_BLOCK_BYTES),    /* GFB Elements 0 */
+    0x01, GFB_MOD_standard,             /* ID, Perms */
+    SPLIT_SHORT_LE((GFB_START_VADDR + (GFB_BLOCK_BYTES * 1))),
+    0xFF, 0xFF,
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
     

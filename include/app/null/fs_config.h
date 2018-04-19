@@ -79,9 +79,9 @@
  * the GFB data sections to store file metadata, and have the actual file
  * data stored somewhere else (like on flash).
  */
-#define GFB_BLOCK_BYTES         256
+#define GFB_BLOCK_BYTES         128
 #define GFB_BLOCKS_PER_FILE     1
-#define GFB_NUM_STOCK_FILES     1
+#define GFB_NUM_STOCK_FILES     2
 #define GFB_NUM_USER_FILES      0
 #define GFB_MOD_standard        b00110000
 

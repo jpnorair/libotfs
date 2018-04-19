@@ -373,12 +373,14 @@ OT_WEAK void vl_remove_action(vlBLOCK block_id, ot_u8 data_id) {
 
 
 void sub_action(vlFILE* fp) {
+#if (OT_FEATURE(VLACTIONS))
     ot_u16 select;
     select = vworm_read(fp->header+10) >> 8;        ///@todo this is little endian only
     
     if (select < OT_PARAM(VLACTIONS)) {
         vlaction[select](fp);
     }
+#endif
 }
 
 

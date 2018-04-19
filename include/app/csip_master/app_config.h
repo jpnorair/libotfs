@@ -25,7 +25,7 @@
 
 #ifndef __APP_CONFIG_H
 #define __APP_CONFIG_H
-
+#define LIBOTFS_APP_NAME    "csip_master"
 
 #include "build_config.h"
 
