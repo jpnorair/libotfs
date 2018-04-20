@@ -17,13 +17,10 @@
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       31 Oct 2017
-  * @brief      Unit Tests for low level veelite functions, assuming POSIX build
+  * @brief      Functional Tests for low level veelite functions.
   *
   ******************************************************************************
   */
-
-#if 1
-
 
 
 #include <otfs.h>
