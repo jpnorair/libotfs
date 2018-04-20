@@ -39,25 +39,25 @@
 #   include "Judy.h"
 #endif
 
-int otfs_defaults(otfs_t* otfs, size_t maxalloc) {
+int otfs_load_defaults(otfs_t* fs, size_t maxalloc) {
     vlFSHEADER header;
     
-    if (otfs == NULL) {
+    if (fs == NULL) {
         return -1;
     }
     
     vworm_fsheader_defload(&header);
-    otfs->fs_alloc = vworm_fsalloc((const vlFSHEADER*)&header);
-    if (otfs->fs_alloc >= maxalloc) {
+    fs->fs_alloc = vworm_fsalloc((const vlFSHEADER*)&header);
+    if (fs->fs_alloc >= maxalloc) {
         return -2;
     }
     
-    otfs->fs_base = malloc(otfs->fs_alloc);
-    if (otfs->fs_base == NULL) {
+    fs->fs_base = malloc(fs->fs_alloc);
+    if (fs->fs_base == NULL) {
         return -3;
     }
     
-    return vworm_fsdata_defload(otfs->fs_base, (const vlFSHEADER*)&header);
+    return vworm_fsdata_defload(fs->fs_base, (const vlFSHEADER*)&header);
 }
 
 
@@ -96,5 +96,43 @@ int otfs_new(const otfs_t* fs) {
 
     return 0;   
 }
+
+
+
+
+int otfs_del(const otfs_t* fs, bool unload) {
+    id_tmpl user_id;
+    int rc;
+    
+    if (fs == NULL) {
+        return -1;
+    }
+    
+    user_id.length  = 8;
+    user_id.value   = fs->fs_id.u8;
+    rc              = vl_multifs_del(&user_id);
+    if (rc == 0) {
+        if ((unload == true) && (fs->fs_base != NULL)) {
+            free(fs->fs_base);
+        }
+    }
+    
+    return rc;
+}
+
+
+
+int otfs_setfs(const uint8_t* eui64_bytes) {
+    id_tmpl user_id;
+    vlFSHEADER getfs;
+    
+    user_id.length  = 8;
+    user_id.value   = eui64_bytes;
+    
+    return vl_multifs_switch(&getfs, &user_id;
+}
+
+
+
 
 

@@ -30,17 +30,14 @@
 #include <stdlib.h>
 #include <time.h>
 
+// Default parameters
+#define DEF_INSTANCES_FS    12
+#define DEF_FS_ALLOC        2048
 
-
-
-#if (OT_FEATURE(ALPEXT) == ENABLED)
-ot_bool alp_ext_proc(alp_tmpl* alp, id_tmpl* user_id) {
-    return 0;
-}
-#endif
-
-
-
+typedef struct {
+    otfs_t      info;
+    uint32_t    data[DEF_FS_ALLOC/4];
+} fs_bundle_t;
 
 
 
@@ -67,14 +64,37 @@ void sub_hexdump(void* base, size_t bytes, size_t cols) {
 
 
 int main(void) {
-    uint32_t    fs_base[1024];
-    vlFSHEADER* fs_head;
+    fs_bundle_t* fs;
     int rc;
     
+    printf("MultiFS CRUD test\n");
+    printf("===============================================================================\n");
     printf("Name of app in use with libotfs: %s\n", LIBOTFS_APP_NAME);
     printf("size of vl_header_t: %zu\n", sizeof(vl_header_t));
     
     srand(time(NULL));
+    
+    // Allocate fs bundle
+    fs = malloc(sizeof(fs_bundle_t) * DEF_INSTANCES_FS);
+    if (fs == NULL) {
+        fprintf(stderr, "Error: malloc returned NULL (LINE %d)\n", __LINE__-2);
+        return -1;
+    }
+    
+    // Add filesystems to OTFS
+    for (int i=0; i<DEF_INSTANCES_FS; i++) {
+        otfs_defaults(&fs[i].info, DEF_FS_ALLOC);
+        
+    }
+    
+    
+    
+    
+    int otfs_new(const otfs_t* fs);
+    
+    
+    
+    
     
     fs_head = (vlFSHEADER*)overhead_files;
     printf("Input FS Header:\n");
@@ -123,4 +143,3 @@ int main(void) {
     return 0;
 }
 
-#endif

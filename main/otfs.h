@@ -75,12 +75,39 @@ typedef struct {
 } otfs_t;
 
 
-int otfs_defaults(otfs_t* fs, size_t maxalloc);
 
+/** @brief Load Application Defaults into an empty FS
+  * @param fs   (otfs_t*) pointer to already allocated otfs_t variable to empty fs
+  * @retval     (int) return zero on success, or non-zero on error
+  */
+int otfs_load_defaults(otfs_t* fs, size_t maxalloc);
+
+
+/** @brief Create a new OTFS instance.
+  * @param fs   (const otfs_t*) pointer to already allocated and non-empty otfs_t varable
+  * @retval     (int) return zero on success, or non-zero on error
+  *
+  * The fs variable supplied as the parameter must be a non-empty fs.
+  * Using otfs_defaults() before otfs_new() is one way to populate an
+  * fs with default values.
+  */
 int otfs_new(const otfs_t* fs);
 
-int otfs_del(const otfs_t* fs);
 
+/** @brief Delete an OTFS instance.
+  * @param fs       (const otfs_t*) pointer to already allocated and non-empty otfs_t varable
+  * @param unload   (bool) if true, otfs_del() will free the memory at fs->base
+  * @retval         (int) return zero on success, or non-zero on error
+  *
+  */
+int otfs_del(const otfs_t* fs, bool unload);
+
+
+/** @brief Select an FS to do operations on.
+  * @param fs   (const uint8_t*) eui64 identifier of the FS to select.
+  * @retval     (int) return zero on success, or non-zero on error
+  *
+  */
 int otfs_setfs(const uint8_t* eui64_bytes);
 
 

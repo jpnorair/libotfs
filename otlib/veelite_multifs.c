@@ -78,6 +78,7 @@ ot_u8 vl_multifs_add(vlFSHEADER* newfs, id_tmpl* fsid) {
     
     /// Error on case when FSID already exists.
     /// 0x02 Veelite error is: "Cannot create file: File ID already exists."
+    /// The variant for MultiFS is 0x12.
     if (*new_value == 0) {
         return 0x12;
     }
