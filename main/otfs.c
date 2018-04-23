@@ -129,7 +129,6 @@ int otfs_setfs(const uint8_t* eui64_bytes) {
     user_id.length  = 8;
     user_id.value   = eui64_bytes;
     
-    
     return vl_multifs_switch(&getfs, &user_id;
 }
 

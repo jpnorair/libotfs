@@ -83,17 +83,28 @@ int main(void) {
     
     // Add filesystems to OTFS
     for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        otfs_defaults(&fs[i].info, DEF_FS_ALLOC);
+        rc = otfs_defaults(&fs[i].info, DEF_FS_ALLOC);
+        if (rc != 0) {
+            fprintf(stderr, "Error: otfs_defaults() returned %d (LINE %d)\n", rc, __LINE__-2);
+        }
         
+        rc = otfs_new(&fs[i].info);
+        if (rc != 0) {
+            fprintf(stderr, "Error: otfs_new() returned %d (LINE %d)\n", rc, __LINE__-2);
+        }
     }
     
     
+
     
     
-    int otfs_new(const otfs_t* fs);
-    
-    
-    
+    // End: clear memory
+    for (int i=0; i<DEF_INSTANCES_FS; i++) {
+        rc = otfs_del(&fs[i].info, true);
+        if (rc != 0) {
+            fprintf(stderr, "Error: otfs_del() returned %d (LINE %d)\n", rc, __LINE__-2);
+        }
+    }
     
     
     fs_head = (vlFSHEADER*)overhead_files;
