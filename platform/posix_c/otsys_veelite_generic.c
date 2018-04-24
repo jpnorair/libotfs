@@ -186,16 +186,19 @@ ot_u8 vworm_init(void* fs_base, const vlFSHEADER* fs) {
 /// filesystem values into a memory-base supplied by the caller.
 
 #   if (OT_FEATURE(MULTIFS))
-    if ((fs == NULL) || (fs_base == NULL))  {
+    if (fs_base == NULL)  {
         return 1;
     }
-    if (fs->ftab_alloc == 0) {
-        /// Error when ftab has no bytes
-        return 2; 
+    if (fs != NULL) {
+        if (fs->ftab_alloc == 0) {
+            /// Error when ftab has no bytes
+            return 2; 
+        }
+        vworm_fsdata_defload(fs_base, fs);
     }
 
     fsram = (ot_u32*)fs_base;
-    vworm_fsdata_defload(fsram, fs);
+    
     
     /// No MultiFS
 #   else

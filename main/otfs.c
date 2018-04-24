@@ -75,21 +75,17 @@ int otfs_load_defaults(otfs_t* fs, size_t maxalloc) {
 int otfs_new(const otfs_t* fs) {
 #if (OT_FEATURE_MULTIFS == ENABLED)
     id_tmpl user_id;
-    const vlFSHEADER* fsheader;
     int rc;
-
-    // The filesystem header is at the front of the fs section
-    fsheader = fs->base;
-    
-    vworm_init(fs->base, fsheader);
 
     user_id.length  = 8;
     user_id.value   = fs->uid.u8;
     
-    rc = vl_multifs_add(fsheader, &user_id);
+    rc = vl_multifs_add((void*)fs->base, &user_id);
     if (rc != 0) {
         return -rc;
     }
+    
+    vworm_init(fs->base, NULL);
 
 #else 
     vworm_init(NULL, NULL);
@@ -135,7 +131,7 @@ int otfs_del(const otfs_t* fs, bool unload) {
 
 int otfs_setfs(const uint8_t* eui64_bytes) {
     id_tmpl user_id;
-    vlFSHEADER getfs;
+    void* getfs;
     
     user_id.length  = 8;
     user_id.value   = eui64_bytes;
