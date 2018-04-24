@@ -22,8 +22,8 @@ ifeq ($(TARGET),$(THISMACHINE))
 	OTFS_LIBTOOL:= libtool
 	OTFS_CFLAGS := -std=gnu99 -O3 -pthread
 	OTFS_DEF    := $(EXT_DEF)
-	OTFS_INC    := -I$(DEFAULT_INC) -I/usr/local/include $(EXT_INC)
-	OTFS_LIB    := -Wl,-Bstatic -L./ -L/usr/local/lib -lJudy $(EXT_LIBS)
+	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbpkg/$(TARGET)/libjudy $(EXT_INC)
+	OTFS_LIB    := -Wl,-Bstatic -L./ -L./../_hbpkg/$(TARGET)/libjudy -ljudy $(EXT_LIBS)
 	PLATFORM    := ./platform/posix_c
 
 else ifeq ($(TARGET),c2000)
@@ -64,7 +64,6 @@ install:
 	@cp ./pkg/libotfs.a ./$(PACKAGEDIR)
 	@cp -R ./include/* ./$(PACKAGEDIR)
 	@cp ./main/otfs.h ./$(PACKAGEDIR)
-	@cp /usr/local/include/Judy.h ./$(PACKAGEDIR)
 	@rm -f $(PACKAGEDIR)/../libotfs
 	@ln -s libotfs.$(VERSION) ./$(PACKAGEDIR)/../libotfs
 	
@@ -89,13 +88,12 @@ test: $(PRODUCT)
 $(PRODUCT): $(PRODUCT).a
 	@cp -R ./include/* ./pkg
 	@cp ./main/otfs.h ./pkg
-	@cp /usr/local/include/Judy.h ./pkg
 
 #Build the static library
 #There are several supported variants.
 libotfs.Darwin.a: $(SUBMODULES) $(LIBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
-	$(OTFS_LIBTOOL) -static -o libotfs.a /usr/local/lib/libJudy.a $(LIBTOOL_OBJ)
+	$(OTFS_LIBTOOL) -static -o libotfs.a ./../_hbpkg/$(TARGET)/libjudy/libjudy.a $(LIBTOOL_OBJ)
 	@mv libotfs.a pkg/
 
 libotfs.Linux.a: $(SUBMODULES) $(LIBMODULES)

@@ -80,7 +80,7 @@ int sub_store(uint8_t id, uint8_t* data, size_t length) {
     int alloc;
     int written;
     uint8_t temp[256];
-    
+
     fp = ISF_open_su(id);
     if (fp == NULL) {
         printf("FAIL: File %d didn't open!\n", id);
@@ -172,19 +172,17 @@ int main(void) {
     
     // Add filesystems to OTFS
     for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        rc = otfs_load_defaults(&fs[i], DEF_FS_ALLOC);
+        rc = otfs_load_defaults(NULL, &fs[i], DEF_FS_ALLOC);
         if (rc < 0) {
             fprintf(stderr, "%sError: otfs_defaults() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
         }
         else {
-            int fs_size = rc;
-        
-            rc = otfs_new(&fs[i]);
+            rc = otfs_new(NULL, &fs[i]);
             if (rc != 0) {
                 fprintf(stderr, "%sError: otfs_new() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
             }
             else {
-                printf("Device FS [%016llX] Added, %d bytes (%d/%d)\n", fs[i].uid.u64, fs_size, i, DEF_INSTANCES_FS);
+                printf("Device FS [%016llX] Added, %d bytes (%d/%d)\n", fs[i].uid.u64, fs[i].alloc, i, DEF_INSTANCES_FS);
             }
         }
     }
@@ -193,14 +191,14 @@ int main(void) {
     ///         The low level features are tested elsewhere, so this test doesn't
     ///         go into extreme depths of fuzzing the low level Veelite calls.
     for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        rc = otfs_setfs(&fs[i].uid.u8[0]);
+        rc = otfs_setfs(NULL, &fs[i].uid.u8[0]);
         if (rc != 0) {
             fprintf(stderr, "%sError: otfs_setfs() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
         }
         else {
             uint8_t testwrite[32];
             printf("Device FS [%016llX] Activated\n", fs[i].uid.u64);
-            
+
             arc4random_buf(testwrite, 32);
             rc = sub_store(0x11, testwrite, 32);
             if (rc == 0) {
@@ -214,15 +212,21 @@ int main(void) {
     }
     
     
-    // End: free memory
+    // End: free memory cell by cell
     for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        rc = otfs_del(&fs[i], true);
+        rc = otfs_del(NULL, &fs[i], true);
         if (rc != 0) {
             fprintf(stderr, "%sError: otfs_del() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
         }
+        else {
+            printf("FS instance %d deleted\n", i);
+        }
     }
     
+    
+    // Final Deallocation
     otfs_deinit(NULL);
+    printf("\nJudy array totally deallocated\n");
     
     return 0;
 }

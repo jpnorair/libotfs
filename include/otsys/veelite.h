@@ -194,12 +194,11 @@ void vl_remove_action(vlBLOCK block_id, ot_u8 data_id);
 // Functions primarily for use with Multi-FS features.
 ot_u8 vl_multifs_init(void** handle);
 
-ot_u8 vl_multifs_deinit(void** handle);
+ot_u8 vl_multifs_deinit(void* handle);
 
-ot_u8 vl_multifs_add(void* newfsbase, id_tmpl* fsid);
+ot_u8 vl_multifs_add(void* handle, void* newfsbase, id_tmpl* fsid);
 
-
-ot_u8 vl_multifs_del(id_tmpl* fsid);
+ot_u8 vl_multifs_del(void* handle, id_tmpl* fsid);
 
 
 
@@ -220,7 +219,7 @@ ot_u8 vl_multifs_del(id_tmpl* fsid);
   * of devices they interact with.  Multi-FS usage on endpoints is possible but 
   * this is not the intent of it.
   */
-ot_u8 vl_multifs_switch(void** getfsbase, id_tmpl* fsid);
+ot_u8 vl_multifs_switch(void* handle, void** getfsbase, id_tmpl* fsid);
 
 #endif
 

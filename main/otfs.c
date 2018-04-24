@@ -33,34 +33,32 @@
 // for malloc
 #include <stdlib.h>
 
-// MULTIFS feature stores multiple filesystems keyed on 64 bit IDs.
-// It uses the "Judy" library, which is used as a sort of growable Hash Table.
-//#if (OT_FEATURE(MULTIFS))
-//#   include "Judy.h"
-//#endif
 
 
 int otfs_init(void** handle) {
     return vl_multifs_init(handle);
 }
 
-int otfs_deinit(void** handle) {
+int otfs_deinit(void* handle) {
     return vl_multifs_deinit(handle);
 }
 
 
-int otfs_load_defaults(otfs_t* fs, size_t maxalloc) {
+int otfs_load_defaults(void* handle, otfs_t* fs, size_t maxalloc) {
     vlFSHEADER header;
     
     if (fs == NULL) {
         return -1;
     }
     
+    //Section between these comments could be refactored
     vworm_fsheader_defload(&header);
+    
     fs->alloc = vworm_fsalloc((const vlFSHEADER*)&header);
     if (fs->alloc >= maxalloc) {
         return -2;
     }
+    //End of refactorable section
     
     fs->base = malloc(fs->alloc);
     if (fs->base == NULL) {
@@ -72,7 +70,7 @@ int otfs_load_defaults(otfs_t* fs, size_t maxalloc) {
 
 
 
-int otfs_new(const otfs_t* fs) {
+int otfs_new(void* handle, const otfs_t* fs) {
 #if (OT_FEATURE_MULTIFS == ENABLED)
     id_tmpl user_id;
     int rc;
@@ -80,7 +78,7 @@ int otfs_new(const otfs_t* fs) {
     user_id.length  = 8;
     user_id.value   = fs->uid.u8;
     
-    rc = vl_multifs_add((void*)fs->base, &user_id);
+    rc = vl_multifs_add(handle, (void*)fs->base, &user_id);
     if (rc != 0) {
         return -rc;
     }
@@ -107,7 +105,7 @@ int otfs_new(const otfs_t* fs) {
 
 
 
-int otfs_del(const otfs_t* fs, bool unload) {
+int otfs_del(void* handle, const otfs_t* fs, bool unload) {
     id_tmpl user_id;
     int rc;
     
@@ -117,7 +115,7 @@ int otfs_del(const otfs_t* fs, bool unload) {
     
     user_id.length  = 8;
     user_id.value   = fs->uid.u8;
-    rc              = vl_multifs_del(&user_id);
+    rc              = vl_multifs_del(handle, &user_id);
     if (rc == 0) {
         if ((unload == true) && (fs->base != NULL)) {
             free(fs->base);
@@ -129,14 +127,14 @@ int otfs_del(const otfs_t* fs, bool unload) {
 
 
 
-int otfs_setfs(const uint8_t* eui64_bytes) {
+int otfs_setfs(void* handle, const uint8_t* eui64_bytes) {
     id_tmpl user_id;
     void* getfs;
     
     user_id.length  = 8;
     user_id.value   = eui64_bytes;
     
-    return vl_multifs_switch(&getfs, &user_id);
+    return vl_multifs_switch(handle, &getfs, &user_id);
 }
 
 

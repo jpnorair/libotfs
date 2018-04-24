@@ -199,7 +199,6 @@ ot_u8 vworm_init(void* fs_base, const vlFSHEADER* fs) {
 
     fsram = (ot_u32*)fs_base;
     
-    
     /// No MultiFS
 #   else
 

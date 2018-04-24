@@ -79,14 +79,14 @@ typedef struct {
 
 int otfs_init(void** handle);
 
-int otfs_deinit(void** handle);
+int otfs_deinit(void* handle);
 
 
 /** @brief Load Application Defaults into an empty FS
   * @param fs   (otfs_t*) pointer to already allocated otfs_t variable to empty fs
   * @retval     (int) returns negative values on error, else size of filesystem in bytes (octets)
   */
-int otfs_load_defaults(otfs_t* fs, size_t maxalloc);
+int otfs_load_defaults(void* handle, otfs_t* fs, size_t maxalloc);
 
 
 /** @brief Create a new OTFS instance.
@@ -97,7 +97,7 @@ int otfs_load_defaults(otfs_t* fs, size_t maxalloc);
   * Using otfs_defaults() before otfs_new() is one way to populate an
   * fs with default values.
   */
-int otfs_new(const otfs_t* fs);
+int otfs_new(void* handle, const otfs_t* fs);
 
 
 /** @brief Delete an OTFS instance.
@@ -106,7 +106,7 @@ int otfs_new(const otfs_t* fs);
   * @retval         (int) return zero on success, or non-zero on error
   *
   */
-int otfs_del(const otfs_t* fs, bool unload);
+int otfs_del(void* handle, const otfs_t* fs, bool unload);
 
 
 /** @brief Select an FS to do operations on.
@@ -114,7 +114,7 @@ int otfs_del(const otfs_t* fs, bool unload);
   * @retval     (int) return zero on success, or non-zero on error
   *
   */
-int otfs_setfs(const uint8_t* eui64_bytes);
+int otfs_setfs(void* handle, const uint8_t* eui64_bytes);
 
 
 #endif
