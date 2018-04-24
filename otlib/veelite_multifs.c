@@ -64,19 +64,19 @@ ot_u8 vl_multifs_init(void** handle) {
 }
 
 ot_u8 vl_multifs_deinit(void** handle) {
-    unsigned int bytes;
+    MCU_TYPE_UINT bytes;
     JHSFA(bytes, fstab);
     return 0;
 }
 
 
-ot_u8 vl_multifs_add(vlFSHEADER* newfs, id_tmpl* fsid) {
-    unsigned int* new_value;
+ot_u8 vl_multifs_add(void* newfsbase, id_tmpl* fsid) {
+    MCU_TYPE_UINT* new_value;
     
     {   uint64_t test;
         memcpy(&test, fsid->value, 8);
         printf("--> UID = %016llX\n", test);
-        printf("--> Value = %016llX\n", (unsigned int)newfs);
+        printf("--> Value = %016llX\n", (unsigned int)newfsbase);
     }
     
     JHSI( new_value, fstab, fsid->value, fsid->length ); 
@@ -91,14 +91,15 @@ ot_u8 vl_multifs_add(vlFSHEADER* newfs, id_tmpl* fsid) {
     /// Error on case when FSID already exists.
     /// 0x02 Veelite error is: "Cannot create file: File ID already exists."
     /// The variant for MultiFS is 0x12.
-    if (*new_value == 0) {
+    if (*new_value != 0) {
         return 0x12;
     }
     
     /// Finally attach the newfs after errors are handled.  It is important to
     /// have the new_value data type be an integer type that is as big as the 
     /// pointer type on the platform.
-    *new_value = (unsigned int)newfs;
+    printf("--> Judy Value = %016llX\n", (unsigned int)new_value);
+    *new_value = (MCU_TYPE_UINT)newfsbase;
     
     return 0;
 }
@@ -115,27 +116,31 @@ ot_u8 vl_multifs_del(id_tmpl* fsid) {
 }
 
 
-ot_u8 vl_multifs_switch(vlFSHEADER* getfs, id_tmpl* fsid) {
-    MCU_TYPE_UINT* get_value;
-    
-    {   uint64_t test;
-        memcpy(&test, fsid->value, 8);
-        printf("--> fsid->length = %d, fsid->value = %016llX\n", fsid->length, test);
-    }
-    
+ot_u8 vl_multifs_switch(void** getfsbase, id_tmpl* fsid) {
+    MCU_TYPE_UINT* get_value = NULL;
     
     /// First, retrieve the FS context based on fsid.
     JHSG(get_value, fstab, fsid->value, fsid->length);
     
+    {   uint64_t test;
+        memcpy(&test, fsid->value, 8);
+        printf("--> fsid->length = %d, fsid->value = %016llX\n", fsid->length, test);
+        printf("--> Value = %016llX\n", (MCU_TYPE_UINT)get_value);
+    }
+    
     if (get_value == NULL) {
         return 0x11;
     }
-    if (getfs != NULL) {
-        *getfs = *((vlFSHEADER*)*get_value);
+    if (getfsbase != NULL) {
+        printf("unbork\n");
+        *getfsbase = *((void**)*get_value);
+        printf("bork\n");
+        
+        /// Now, switch the context internally so that Veelite interface works with
+        /// the new FS.
+        vworm_init(*getfsbase, NULL);
+        vl_init(NULL);
     }
-    
-    /// Now, switch the context internally so that Veelite interface works with
-    /// the new FS. 
     
     return 0;
 }

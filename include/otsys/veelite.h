@@ -196,7 +196,7 @@ ot_u8 vl_multifs_init(void** handle);
 
 ot_u8 vl_multifs_deinit(void** handle);
 
-ot_u8 vl_multifs_add(vlFSHEADER* newfs, id_tmpl* fsid);
+ot_u8 vl_multifs_add(void* newfsbase, id_tmpl* fsid);
 
 
 ot_u8 vl_multifs_del(id_tmpl* fsid);
@@ -220,7 +220,7 @@ ot_u8 vl_multifs_del(id_tmpl* fsid);
   * of devices they interact with.  Multi-FS usage on endpoints is possible but 
   * this is not the intent of it.
   */
-ot_u8 vl_multifs_switch(vlFSHEADER* getfs, id_tmpl* fsid);
+ot_u8 vl_multifs_switch(void** getfsbase, id_tmpl* fsid);
 
 #endif
 

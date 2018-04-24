@@ -43,12 +43,6 @@
 #define DEF_INSTANCES_FS    12
 #define DEF_FS_ALLOC        2048
 
-typedef struct {
-    otfs_t      info;
-    uint32_t    data[DEF_FS_ALLOC/4];
-} fs_bundle_t;
-
-
 
 int sub_streamcmp(uint8_t* s1, uint8_t* s2, int size) {
     int test = 0;
@@ -144,7 +138,7 @@ char* sub_yesno(int exp) {
 
 
 int main(void) {
-    fs_bundle_t* fs;
+    otfs_t* fs;
     int rc;
     
     printf("MultiFS CRUD test\n");
@@ -156,7 +150,7 @@ int main(void) {
     srand(time(NULL));
     
     // Allocate fs bundle
-    fs = malloc(sizeof(fs_bundle_t) * DEF_INSTANCES_FS);
+    fs = malloc(sizeof(otfs_t) * DEF_INSTANCES_FS);
     if (fs == NULL) {
         fprintf(stderr, "%sError: malloc returned NULL (LINE %d)\n", KRED, __LINE__-2);
         return -1;
@@ -167,9 +161,9 @@ int main(void) {
     // Add the UIDs to the Filesystems.  This should be done first.
     // They are random numbers that are backchecked against the previous ones.
     for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        arc4random_buf(&fs[i].info.uid.u64, 8);
+        arc4random_buf(&fs[i].uid.u64, 8);
         for (int j=0; j<i; j++) {
-            if (fs[i].info.uid.u64 == fs[j].info.uid.u64) {
+            if (fs[i].uid.u64 == fs[j].uid.u64) {
                 i--;
                 break;
             }
@@ -178,19 +172,19 @@ int main(void) {
     
     // Add filesystems to OTFS
     for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        rc = otfs_load_defaults(&fs[i].info, DEF_FS_ALLOC);
+        rc = otfs_load_defaults(&fs[i], DEF_FS_ALLOC);
         if (rc < 0) {
             fprintf(stderr, "%sError: otfs_defaults() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
         }
         else {
             int fs_size = rc;
         
-            rc = otfs_new(&fs[i].info);
+            rc = otfs_new(&fs[i]);
             if (rc != 0) {
                 fprintf(stderr, "%sError: otfs_new() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
             }
             else {
-                printf("Device FS [%016llX] Added, %d bytes (%d/%d)\n", fs[i].info.uid.u64, fs_size, i, DEF_INSTANCES_FS);
+                printf("Device FS [%016llX] Added, %d bytes (%d/%d)\n", fs[i].uid.u64, fs_size, i, DEF_INSTANCES_FS);
             }
         }
     }
@@ -199,13 +193,13 @@ int main(void) {
     ///         The low level features are tested elsewhere, so this test doesn't
     ///         go into extreme depths of fuzzing the low level Veelite calls.
     for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        rc = otfs_setfs(&fs[i].info.uid.u8[0]);
+        rc = otfs_setfs(&fs[i].uid.u8[0]);
         if (rc != 0) {
             fprintf(stderr, "%sError: otfs_setfs() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
         }
         else {
             uint8_t testwrite[32];
-            printf("Device FS [%016llX] Activated\n", fs[i].info.uid.u64);
+            printf("Device FS [%016llX] Activated\n", fs[i].uid.u64);
             
             arc4random_buf(testwrite, 32);
             rc = sub_store(0x11, testwrite, 32);
@@ -222,7 +216,7 @@ int main(void) {
     
     // End: free memory
     for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        rc = otfs_del(&fs[i].info, true);
+        rc = otfs_del(&fs[i], true);
         if (rc != 0) {
             fprintf(stderr, "%sError: otfs_del() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
         }
