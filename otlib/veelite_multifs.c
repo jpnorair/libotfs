@@ -58,16 +58,28 @@ static void* fstab = NULL;     // Judy-based FS Table
 
 
 
-ot_u8 vl_multifs_init(void* handle) {
+ot_u8 vl_multifs_init(void** handle) {
     /// Judy seems to be self initializing
+    return 0;
+}
+
+ot_u8 vl_multifs_deinit(void** handle) {
+    unsigned int bytes;
+    JHSFA(bytes, fstab);
     return 0;
 }
 
 
 ot_u8 vl_multifs_add(vlFSHEADER* newfs, id_tmpl* fsid) {
-    MCU_TYPE_UINT* new_value;
+    unsigned int* new_value;
     
-    JHSI( newfs, fstab, fsid->value, fsid->length ); 
+    {   uint64_t test;
+        memcpy(&test, fsid->value, 8);
+        printf("--> UID = %016llX\n", test);
+        printf("--> Value = %016llX\n", (unsigned int)newfs);
+    }
+    
+    JHSI( new_value, fstab, fsid->value, fsid->length ); 
     
     /// Error on case when out of memory.
     /// 0x05 Veelite error is: "Cannot create file: Supplied length (in header) 
@@ -86,7 +98,7 @@ ot_u8 vl_multifs_add(vlFSHEADER* newfs, id_tmpl* fsid) {
     /// Finally attach the newfs after errors are handled.  It is important to
     /// have the new_value data type be an integer type that is as big as the 
     /// pointer type on the platform.
-    *new_value = (MCU_TYPE_UINT)newfs;
+    *new_value = (unsigned int)newfs;
     
     return 0;
 }
@@ -105,6 +117,12 @@ ot_u8 vl_multifs_del(id_tmpl* fsid) {
 
 ot_u8 vl_multifs_switch(vlFSHEADER* getfs, id_tmpl* fsid) {
     MCU_TYPE_UINT* get_value;
+    
+    {   uint64_t test;
+        memcpy(&test, fsid->value, 8);
+        printf("--> fsid->length = %d, fsid->value = %016llX\n", fsid->length, test);
+    }
+    
     
     /// First, retrieve the FS context based on fsid.
     JHSG(get_value, fstab, fsid->value, fsid->length);

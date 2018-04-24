@@ -30,6 +30,15 @@
 #include <stdlib.h>
 #include <time.h>
 
+#define KNRM  "\x1B[0m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
+
 // Default parameters
 #define DEF_INSTANCES_FS    12
 #define DEF_FS_ALLOC        2048
@@ -39,6 +48,15 @@ typedef struct {
     uint32_t    data[DEF_FS_ALLOC/4];
 } fs_bundle_t;
 
+
+
+int sub_streamcmp(uint8_t* s1, uint8_t* s2, int size) {
+    int test = 0;
+    while (--size >= 0) {
+        test += (*s1++ != *s2++);
+    }
+    return test;
+}
 
 
 void sub_hexdump(void* base, size_t bytes, size_t cols) {
@@ -61,6 +79,68 @@ void sub_hexdump(void* base, size_t bytes, size_t cols) {
 }
 
 
+int sub_store(uint8_t id, uint8_t* data, size_t length) {
+    vlFILE* fp;
+    int retval;
+    int errors;
+    int alloc;
+    int written;
+    uint8_t temp[256];
+    
+    fp = ISF_open_su(id);
+    if (fp == NULL) {
+        printf("FAIL: File %d didn't open!\n", id);
+        retval = -1;
+        goto sub_store_END;
+    }
+    
+    alloc = vl_checkalloc(fp);
+    if (alloc < length) {
+        length = alloc;
+    }
+
+    vl_store(fp, length, data);
+        
+    written = vl_checklength(fp);
+    if (length != written) {
+        printf("FAIL: File %d, length after store does not match number of stored bytes\n", id);
+        retval = -2;
+        goto sub_store_END;
+    }
+    
+    if (alloc == 0) {
+        printf("SKIP: File %d has 0 byte alloc.\n", id);
+        retval = 0;
+        goto sub_store_END;
+    }
+    
+    vl_load(fp, length, temp);
+    
+    errors = sub_streamcmp(temp, data, length);
+    if (errors != 0) {
+        printf("FAIL: File %d has %d errors detected in store->load comparison\n", id, errors);
+        retval = -3;
+        goto sub_store_END;
+    }
+
+    printf("PASS: File %d passes store->load check\n", id);
+
+    sub_store_END:
+    vl_close(fp);
+    
+    return retval;
+}
+
+
+
+char* sub_yesno(int exp) {
+    static char* yes = "Yes";
+    static char* no = "No";
+    return (exp) ? yes : no;
+}
+
+
+
 
 
 int main(void) {
@@ -70,86 +150,85 @@ int main(void) {
     printf("MultiFS CRUD test\n");
     printf("===============================================================================\n");
     printf("Name of app in use with libotfs: %s\n", LIBOTFS_APP_NAME);
-    printf("size of vl_header_t: %zu\n", sizeof(vl_header_t));
+    printf("MultiFS Enabled?                 %s\n", sub_yesno(OT_FEATURE_MULTIFS == ENABLED));
+    printf("size of vl_header_t:             %zu\n", sizeof(vl_header_t));
     
     srand(time(NULL));
     
     // Allocate fs bundle
     fs = malloc(sizeof(fs_bundle_t) * DEF_INSTANCES_FS);
     if (fs == NULL) {
-        fprintf(stderr, "Error: malloc returned NULL (LINE %d)\n", __LINE__-2);
+        fprintf(stderr, "%sError: malloc returned NULL (LINE %d)\n", KRED, __LINE__-2);
         return -1;
+    }
+    
+    otfs_init(NULL);
+    
+    // Add the UIDs to the Filesystems.  This should be done first.
+    // They are random numbers that are backchecked against the previous ones.
+    for (int i=0; i<DEF_INSTANCES_FS; i++) {
+        arc4random_buf(&fs[i].info.uid.u64, 8);
+        for (int j=0; j<i; j++) {
+            if (fs[i].info.uid.u64 == fs[j].info.uid.u64) {
+                i--;
+                break;
+            }
+        }
     }
     
     // Add filesystems to OTFS
     for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        rc = otfs_defaults(&fs[i].info, DEF_FS_ALLOC);
-        if (rc != 0) {
-            fprintf(stderr, "Error: otfs_defaults() returned %d (LINE %d)\n", rc, __LINE__-2);
+        rc = otfs_load_defaults(&fs[i].info, DEF_FS_ALLOC);
+        if (rc < 0) {
+            fprintf(stderr, "%sError: otfs_defaults() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
         }
+        else {
+            int fs_size = rc;
         
-        rc = otfs_new(&fs[i].info);
-        if (rc != 0) {
-            fprintf(stderr, "Error: otfs_new() returned %d (LINE %d)\n", rc, __LINE__-2);
+            rc = otfs_new(&fs[i].info);
+            if (rc != 0) {
+                fprintf(stderr, "%sError: otfs_new() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
+            }
+            else {
+                printf("Device FS [%016llX] Added, %d bytes (%d/%d)\n", fs[i].info.uid.u64, fs_size, i, DEF_INSTANCES_FS);
+            }
         }
     }
     
-    
+    /// Test 1: select different filesystem, do a write
+    ///         The low level features are tested elsewhere, so this test doesn't
+    ///         go into extreme depths of fuzzing the low level Veelite calls.
+    for (int i=0; i<DEF_INSTANCES_FS; i++) {
+        rc = otfs_setfs(&fs[i].info.uid.u8[0]);
+        if (rc != 0) {
+            fprintf(stderr, "%sError: otfs_setfs() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
+        }
+        else {
+            uint8_t testwrite[32];
+            printf("Device FS [%016llX] Activated\n", fs[i].info.uid.u64);
+            
+            arc4random_buf(testwrite, 32);
+            rc = sub_store(0x11, testwrite, 32);
+            if (rc == 0) {
+                printf("Wrote 32 bytes to File %d\n", 0x11);
+                sub_hexdump(testwrite, 32, 16);
+            }
+            
+            printf("\n");
+        }
 
+    }
     
     
-    // End: clear memory
+    // End: free memory
     for (int i=0; i<DEF_INSTANCES_FS; i++) {
         rc = otfs_del(&fs[i].info, true);
         if (rc != 0) {
-            fprintf(stderr, "Error: otfs_del() returned %d (LINE %d)\n", rc, __LINE__-2);
+            fprintf(stderr, "%sError: otfs_del() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
         }
     }
     
-    
-    fs_head = (vlFSHEADER*)overhead_files;
-    printf("Input FS Header:\n");
-    printf("->ftab_alloc    = %d\n", fs_head->ftab_alloc);
-#   if (OT_FEATURE(VLACTIONS) == ENABLED)
-    printf("->res_act0      = %d\n", fs_head->res_act0);
-    printf("->res_act2      = %d\n", fs_head->res_act2);
-#   endif
-    printf("->gfb.alloc     = %d\n", fs_head->gfb.alloc);
-    printf("->gfb.used      = %d\n", fs_head->gfb.used);
-    printf("->gfb.files     = %d\n", fs_head->gfb.files);
-    printf("->iss.alloc     = %d\n", fs_head->iss.alloc);
-    printf("->iss.used      = %d\n", fs_head->iss.used);
-    printf("->iss.files     = %d\n", fs_head->iss.files);
-    printf("->isf.alloc     = %d\n", fs_head->isf.alloc);
-    printf("->isf.used      = %d\n", fs_head->isf.used);
-    printf("->isf.files     = %d\n", fs_head->isf.files);
-#   if (OT_FEATURE(VLMODTIME) == ENABLED)
-    printf("->res_time0     = %d\n", fs_head->res_time0);
-    printf("->res_time4     = %d\n", fs_head->res_time4);
-#   endif
-    
-    rc = vworm_init((void*)fs_base, fs_head);
-    printf("vworm_init() returned %d\n", rc);
-    
-
-    //sub_hexdump(fs_base, sizeof(fs_base), sizeof(vl_header_t));
-    //return 0;
-    
-    printf("STARTING File open limit test\nShould open 3 times, then not open\n");
-    test_veelite_maxopen();
-    printf("ENDING File open limit test\n\n");
-    
-    printf("STARTING Open/Close test\n");
-    test_veelite_openclose();
-    printf("ENDING Open/Close test\n\n");
-    
-    printf("STARTING Load/Store test\n");
-    test_veelite_loadstore();
-    printf("ENDING Load/Store test\n\n");
-    
-    printf("STARTING Memptr test\n");
-    test_veelite_memptr();
-    printf("ENDING Memptr test\n\n");
+    otfs_deinit(NULL);
     
     return 0;
 }

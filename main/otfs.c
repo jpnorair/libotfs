@@ -35,9 +35,19 @@
 
 // MULTIFS feature stores multiple filesystems keyed on 64 bit IDs.
 // It uses the "Judy" library, which is used as a sort of growable Hash Table.
-#if (OT_FEATURE(MULTIFS))
-#   include "Judy.h"
-#endif
+//#if (OT_FEATURE(MULTIFS))
+//#   include "Judy.h"
+//#endif
+
+
+int otfs_init(void** handle) {
+    return vl_multifs_init(handle);
+}
+
+int otfs_deinit(void** handle) {
+    return vl_multifs_deinit(handle);
+}
+
 
 int otfs_load_defaults(otfs_t* fs, size_t maxalloc) {
     vlFSHEADER header;
@@ -47,37 +57,38 @@ int otfs_load_defaults(otfs_t* fs, size_t maxalloc) {
     }
     
     vworm_fsheader_defload(&header);
-    fs->fs_alloc = vworm_fsalloc((const vlFSHEADER*)&header);
-    if (fs->fs_alloc >= maxalloc) {
+    fs->alloc = vworm_fsalloc((const vlFSHEADER*)&header);
+    if (fs->alloc >= maxalloc) {
         return -2;
     }
     
-    fs->fs_base = malloc(fs->fs_alloc);
-    if (fs->fs_base == NULL) {
+    fs->base = malloc(fs->alloc);
+    if (fs->base == NULL) {
         return -3;
     }
     
-    return vworm_fsdata_defload(fs->fs_base, (const vlFSHEADER*)&header);
+    return vworm_fsdata_defload(fs->base, (const vlFSHEADER*)&header);
 }
 
 
 
 int otfs_new(const otfs_t* fs) {
-#if (OTFS_FEATURE_MULTIFS)
+#if (OT_FEATURE_MULTIFS == ENABLED)
     id_tmpl user_id;
     const vlFSHEADER* fsheader;
+    int rc;
 
     // The filesystem header is at the front of the fs section
-    fsheader = fs->fs_base;
+    fsheader = fs->base;
     
-    vworm_init(fs->fs_base, fsheader);
-
-    vl_multifs_init(NULL);
+    vworm_init(fs->base, fsheader);
 
     user_id.length  = 8;
-    user_id.value   = fs->fs_id.u8;
-    if (vl_multifs_add(fsheader, &user_id) != 0) {
-        return -1;
+    user_id.value   = fs->uid.u8;
+    
+    rc = vl_multifs_add(fsheader, &user_id);
+    if (rc != 0) {
+        return -rc;
     }
 
 #else 
@@ -109,11 +120,11 @@ int otfs_del(const otfs_t* fs, bool unload) {
     }
     
     user_id.length  = 8;
-    user_id.value   = fs->fs_id.u8;
+    user_id.value   = fs->uid.u8;
     rc              = vl_multifs_del(&user_id);
     if (rc == 0) {
-        if ((unload == true) && (fs->fs_base != NULL)) {
-            free(fs->fs_base);
+        if ((unload == true) && (fs->base != NULL)) {
+            free(fs->base);
         }
     }
     
@@ -129,7 +140,7 @@ int otfs_setfs(const uint8_t* eui64_bytes) {
     user_id.length  = 8;
     user_id.value   = eui64_bytes;
     
-    return vl_multifs_switch(&getfs, &user_id;
+    return vl_multifs_switch(&getfs, &user_id);
 }
 
 

@@ -192,8 +192,9 @@ void vl_remove_action(vlBLOCK block_id, ot_u8 data_id);
 // Multi-FS functions
 #if (OT_FEATURE(MULTIFS))
 // Functions primarily for use with Multi-FS features.
-ot_u8 vl_multifs_init(void* handle);
+ot_u8 vl_multifs_init(void** handle);
 
+ot_u8 vl_multifs_deinit(void** handle);
 
 ot_u8 vl_multifs_add(vlFSHEADER* newfs, id_tmpl* fsid);
 

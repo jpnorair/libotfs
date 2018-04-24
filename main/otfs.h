@@ -39,6 +39,7 @@
 /// The installation uses sed to modify these line on the installed copy of this header.
 
 // All headers, for testing.
+#include <app/config.h>
 #include <otplatform.h>
 #include <otstd.h>
 #include <otlib.h>
@@ -69,16 +70,21 @@ typedef union {
 
 
 typedef struct {
-    otfs_id_union   fs_id;
-    void*           fs_base;
-    size_t          fs_alloc;
+    otfs_id_union   uid;
+    void*           base;
+    size_t          alloc;
 } otfs_t;
 
 
 
+int otfs_init(void** handle);
+
+int otfs_deinit(void** handle);
+
+
 /** @brief Load Application Defaults into an empty FS
   * @param fs   (otfs_t*) pointer to already allocated otfs_t variable to empty fs
-  * @retval     (int) return zero on success, or non-zero on error
+  * @retval     (int) returns negative values on error, else size of filesystem in bytes (octets)
   */
 int otfs_load_defaults(otfs_t* fs, size_t maxalloc);
 

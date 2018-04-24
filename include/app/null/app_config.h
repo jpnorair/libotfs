@@ -25,7 +25,11 @@
 
 #ifndef __APP_CONFIG_H
 #define __APP_CONFIG_H
-#define LIBOTFS_APP_NAME    "posix_null"
+
+
+#define LIBOTFS_APP_NAME        "posix_null"
+#define OT_FEATURE_MULTIFS      ENABLED
+
 
 #include "build_config.h"
 
@@ -37,8 +41,6 @@
   * and parameter settings.  Take a look at features_config.h to see
   * what the features are.
   */
-#define OT_FEATURE_MULTIFS          ENABLED
-
 #include "features_config.h"
 
 
