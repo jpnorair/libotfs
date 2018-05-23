@@ -22,8 +22,8 @@ ifeq ($(TARGET),$(THISMACHINE))
 	OTFS_LIBTOOL:= libtool
 	OTFS_CFLAGS := -std=gnu99 -O3 -pthread
 	OTFS_DEF    := $(EXT_DEF)
-	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbpkg/$(TARGET)/libjudy $(EXT_INC)
-	OTFS_LIB    := -Wl,-Bstatic -L./ -L./../_hbpkg/$(TARGET)/libjudy -ljudy $(EXT_LIBS)
+	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbpkg/$(TARGET)/libjudy -I./../_hbpkg/$(TARGET)/liboteax $(EXT_INC)
+	OTFS_LIB    := -Wl,-Bstatic -ljudy -loteax $(patsubst -I%,-L%,$(OTFS_INC)) $(EXT_LIBS)
 	PLATFORM    := ./platform/posix_c
 
 else ifeq ($(TARGET),c2000)
@@ -42,6 +42,8 @@ else ifeq ($(TARGET),c2000)
 else
 	error "TARGET set to unknown value: $(TARGET)"
 endif
+
+
 
 # Export the following variables to the shell: will affect submodules
 export OTFS_CC

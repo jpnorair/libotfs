@@ -56,26 +56,6 @@ extern const id_tmpl*   auth_guest;
 
 
 
-typedef struct {
-    ot_int      length;
-    ot_u8       value[8];
-} auth_id;
-
-///@todo change all usage of this struct to comply with TI C2000 (used only in auth.c)
-typedef struct OT_PACKED {
-    ot_u8   index;
-    ot_u8   options;
-    ot_u8   length;
-    ot_u8   protocol;
-    ot_u32  lifetime;
-} auth_info;
-
-typedef struct {
-    auth_info*  info;
-    auth_id*    id;
-    ot_u8*      keydata;
-} auth_handle;
-
 
 
 
@@ -92,13 +72,13 @@ typedef struct {
   * Call once during startup, or whenever user-code decides it is a good idea
   * to refresh the Key table.
   */
-void auth_init();
+void auth_init(void);
 
 
 /** @brief Encrypts the data in a ot_queue, in-place
   * @param q            (ot_queue*) input q containing encrypted data
-  * @param key_index    (ot_u8) Key Index to use for encryption
-  * @param options      (ot_u8) Decryption options specific to type of Crypto
+  * @param key_index    (ot_uint) Key Index to use for encryption
+  * @param options      (ot_uint) Decryption options specific to type of Crypto
   * @retval None
   * @ingroup auth
   * @sa auth_decrypt_q
@@ -112,13 +92,13 @@ void auth_init();
   *
   * Encryption is performed on the entire queue, between front and putcursor.
   */
-//ot_int auth_encrypt_q(ot_queue* q, ot_u8 key_index, ot_u8 options);
+//ot_int auth_encrypt_q(ot_queue* q, ot_uint key_index, ot_uint options);
 
 
 /** @brief Decrypts the data in a ot_queue, in-place
   * @param q            (ot_queue*) input q containing encrypted data
-  * @param key_index    (ot_u8) Key Index to use for decryption
-  * @param options      (ot_u8) Decryption options specific to type of Crypto
+  * @param key_index    (ot_uint) Key Index to use for decryption
+  * @param options      (ot_uint) Decryption options specific to type of Crypto
   * @retval None
   * @ingroup auth
   * @sa auth_encrypt_q
@@ -132,7 +112,7 @@ void auth_init();
   *
   * Decryption is performed on the entire queue, between front and putcursor.
   */
-//ot_int auth_decrypt_q(ot_queue* q, ot_u8 key_index, ot_u8 options);
+//ot_int auth_decrypt_q(ot_queue* q, ot_uint key_index, ot_uint options);
 
 
 
@@ -144,23 +124,23 @@ void auth_putnonce(ot_u8* dst, ot_uint limit);
   * @param nonce        (ot_u8*) A Cryptographic nonce or init vector (IV)
   * @param data         (ot_u8*) stream for in-place encryption
   * @param datalen      (ot_uint) length of stream in bytes
-  * @param key_index    (ot_u8) Key Index to use for encryption
-  * @param options      (ot_u8) Decryption options specific to type of Crypto
+  * @param key_index    (ot_uint) Key Index to use for encryption
+  * @param options      (ot_uint) Decryption options specific to type of Crypto
   * @retval ot_int      number of bytes added to stream as result of encryption,
   *                       or negative on error.
   * @ingroup auth
   * @sa auth_decrypt
   *
   */
-ot_int auth_encrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index, ot_u8 options);
+ot_int auth_encrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_uint key_index, ot_uint options);
 
 
 /** @brief Decrypts a datastream, in-place
   * @param nonce        (ot_u8*) A Cryptographic nonce or init vector (IV)
   * @param data         (ot_u8*) stream for in-place decryption
   * @param datalen      (ot_uint) length of stream in bytes
-  * @param key_index    (ot_u8) Key Index to use for decryption
-  * @param options      (ot_u8) Decryption options specific to type of Crypto
+  * @param key_index    (ot_uint) Key Index to use for decryption
+  * @param options      (ot_uint) Decryption options specific to type of Crypto
   * @retval ot_int      number of bytes removed from stream as result of
   *                       decryption, or negative on error.
   * @ingroup auth
@@ -169,11 +149,11 @@ ot_int auth_encrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index,
   * It is important to align the front of the iostream and length per the
   * specification of the crypto format to be used.
   */
-ot_int auth_decrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index, ot_u8 options);
+ot_int auth_decrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_uint key_index, ot_uint options);
 
 
 /** @brief Returns Decryption-Key DATA of a given key index, but no Auth/Sec metadata
-  * @param index    (ot_u8) Key Index input
+  * @param index    (ot_uint) Key Index input
   * @retval void*   Pointer to Key Data.  Always is word-aligned.
   * @ingroup auth
   * @sa auth_get_enckey
@@ -181,7 +161,7 @@ ot_int auth_decrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index,
   * This function is generally used by crypto libraries that interface with the
   * Authentication Module, in order to retrieve key data.
   */
-ot_u8* auth_get_deckey(ot_u8 index);
+void* auth_get_deckey(ot_uint index);
 
 
 /** @brief Returns Encryption-Key DATA of a given key index, but no Auth/Sec metadata
@@ -193,7 +173,7 @@ ot_u8* auth_get_deckey(ot_u8 index);
   * This function is generally used by crypto libraries that interface with the
   * Authentication Module, in order to retrieve key data.
   */
-ot_u8* auth_get_enckey(ot_u8 index);
+void* auth_get_enckey(ot_uint index);
 
 
 
@@ -251,50 +231,59 @@ ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, id_tmpl* user_id);
   */
 
 /** @brief Finds a Key-Index, given a User ID
-  * @param handle       (auth_handle*) Output handle for key being read
+  * @param key_index    (ot_uint*) returns a key index
   * @param user_id      (id_tmpl*) input user id
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
   */
-ot_u8 auth_find_keyindex(auth_handle* handle, id_tmpl* user_id);
+ot_u8 auth_find_keyindex(ot_uint* key_index, id_tmpl* user_id);
 
 
-/** @brief Reads an Auth/Sec Key Element, given key index
-  * @param handle       (auth_handle*) Output handle for key being read
-  * @param key_index    (ot_u16) input key index to read
+/** @brief Finds an Auth Handle, given a User ID
+  * @param handle       (void*) Output handle for key being read
+  * @param user_id      (id_tmpl*) input user id
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
   */
-ot_u8 auth_read_key(auth_handle* handle, ot_u16 key_index);
+ot_u8 auth_find_key(void* handle, id_tmpl* user_id);
+
+
+/** @brief Reads an Auth/Sec Key Element, given key index
+  * @param handle       (void*) Output handle for key being read
+  * @param key_index    (ot_uint) input key index to read
+  * @retval ot_u8       Zero (0) on success, else an error code
+  * @ingroup Authentication
+  */
+ot_u8 auth_read_key(void* handle, ot_uint key_index);
 
 
 /** @brief Updates an Auth/Sec Key Element, given
-  * @param handle       (auth_handle*) Input Key Information
-  * @param key_index    (ot_u16) Input Key Index
+  * @param handle       (void*) Input Key Information
+  * @param key_index    (ot_uint) Input Key Index
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
   *
   * Sub-elements in "handle" that are set to NULL will be skipped during the
   * update procedure.
   */
-ot_u8 auth_update_key(auth_handle* handle, ot_u16 key_index);
+ot_u8 auth_update_key(void* handle, ot_uint key_index);
 
 
 /** @brief Create a Key given Auth/Sec information
-  * @param key_index    (ot_u16*) Output Key Index
-  * @param handle       (auth_handle*) Input Key & Auth/Sec Information
+  * @param key_index    (ot_uint*) Output Key Index
+  * @param handle       (void*) Input Key & Auth/Sec Information
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
   */
-ot_u8 auth_create_key(ot_u16* key_index, auth_handle* handle);
+ot_u8 auth_create_key(ot_uint* key_index, void* handle);
 
 
 /** @brief Deletes an Auth/Sec Key Element, given key index
-  * @param key_index    (ot_u16) input key index to delete
+  * @param key_index    (ot_uint) input key index to delete
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
   */
-ot_u8 auth_delete_key(ot_u16 key_index);
+ot_u8 auth_delete_key(ot_uint key_index);
 
 
 
@@ -303,7 +292,7 @@ ot_u8 auth_delete_key(ot_u16 key_index);
 
 
 /* @brief Adds a new key entry and associated key data to the Crypto_Heap.
-  * @param handle       (auth_handle*) Output handle for this new entry
+  * @param handle       (void*) Output handle for this new entry
   * @param new_user     (id_tmpl*) ID information for new user
   * @param new_info     (auth_info*) Auth/Sec parameters
   * @param new_key      (ot_u8*) cryptographic key data
@@ -313,21 +302,21 @@ ot_u8 auth_delete_key(ot_u16 key_index);
   * If a new key is added, but there is no room left, the oldest key will be
   * deleted to make room for this new key.
 
-ot_u8 auth_new_nlsuser(auth_handle* handle, id_tmpl* new_user, auth_info* new_info, ot_u8* new_key);
+ot_u8 auth_new_nlsuser(void* handle, id_tmpl* new_user, auth_info* new_info, ot_u8* new_key);
 */
 
 
 /* @brief Searches and returns a key based on UID or VID (if UID is NULL).
-  * @param handle       (auth_handle*) Output handle for this new entry
+  * @param handle       (void*) Output handle for this new entry
   * @param user_id      (id_tmpl*) Device ID of user to find auth/sec data
   * @param mod_flags    (ot_u8) extra user flags
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
 */
-//ot_u8 auth_search_user(auth_handle* handle, id_tmpl* user_id, ot_u8 mod_flags);
+//ot_u8 auth_search_user(void* handle, id_tmpl* user_id, ot_u8 mod_flags);
 ot_u8 auth_search_user(id_tmpl* user_id, ot_u8 mod_flags);
 
-const id_tmpl* auth_get_user(ot_u16 user_index);
+const id_tmpl* auth_get_user(ot_uint user_index);
 
 
 #endif

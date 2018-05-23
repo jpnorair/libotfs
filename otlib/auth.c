@@ -45,6 +45,40 @@ const id_tmpl*   auth_user;
 const id_tmpl*   auth_guest;
 
 
+typedef struct {
+    ot_int      length;
+    uint64_t    value;
+} authid_t;
+
+
+///@todo change all usage of this struct to comply with TI C2000 (used only in auth.c)
+typedef struct OT_PACKED {
+    ot_u8   index;
+    ot_u8   options;
+    ot_u8   length;
+    ot_u8   protocol;
+    ot_u32  lifetime;
+} auth_info;
+
+
+///@note the context data element should mirror the one from OTEAX.
+typedef struct {   
+    uint32_t    ks[44];
+    uint32_t    flags;
+} eax_ctx_t;
+
+
+typedef struct {
+    auth_info*  info;
+    authid_t    id;
+    eax_ctx_t   ctx;
+} authdata_t;
+
+
+
+
+
+
 
 #if !defined(OT_PARAM_MAX_CRYPTO_KEYS)
 #   define _SEC_KEYS    16
@@ -74,7 +108,7 @@ const id_tmpl*   auth_guest;
 
 
 
-ot_u8 _nonce[8];
+ot_u32 _nonce_ctr;
 
 
 typedef struct {
@@ -187,7 +221,7 @@ void sub_expand_key(auth_dlls_struct* key) {
 
 
 ///@todo Bring this into OT Utils?
-ot_bool sub_idcmp(id_tmpl* user_id, auth_id* auth_id) {
+ot_bool sub_idcmp(id_tmpl* user_id, authid_t* auth_id) {
     ot_bool id_check;
 
     if (user_id->length != auth_id->length) {
@@ -224,12 +258,12 @@ ot_bool sub_authcmp(id_tmpl* user_id, id_tmpl* comp_id, ot_u8 mod_flags) {
   */
 
 #ifndef EXTF_auth_init
-void auth_init() {
+void auth_init(void) {
 #if (_SEC_DLL)
     ot_uint i;
 
     /// Start the nonce at a random value
-    rand_stream(_nonce, 8);
+    rand_stream(&_nonce_ctr, 4);
 
     /// Load key files into cache for faster access.  We assume that there is
     /// only one type of crypto, which is AES128.
@@ -256,20 +290,33 @@ void auth_init() {
 
 #ifndef EXTF_auth_init
 void auth_putnonce(ot_u8* dst, ot_uint limit) {
-    // Rotate the nonce
-    *((ot_u32*)&_nonce[0]) += rand_prn16();
-    *((ot_u32*)&_nonce[4]) ^= *((ot_u32*)&_nonce[0]);
+    ot_int pad_bytes;
+    ot_int write_bytes;
 
-    // Write it to dst
-    memcpy(dst, _nonce, limit);
+    // Increment the nonce
+    _nonce_ctr++;
+    
+    // If limit is > 4 (size of nonce in bytes), we advance dst accordingly (Thus it is
+    // padded with its existing contents).
+    // If limit is <= 4, then the write_bytes get shortened.
+    write_bytes = 4;
+    pad_bytes   = limit - 4;
+    if (pad_bytes > 0) {
+        dst += pad_bytes;
+    }
+    else {
+        write_bytes += pad_bytes;
+    }
+    
+    memcpy(dst, &_nonce_ctr, write_bytes);
 }
 #endif
 
 
 
-// EAX has a symmetric cipher (Yay!)
+// EAX has a symmetric cipher, meaning that there is only a single cryptographic routine.
 #if (_SEC_DLL)
-ot_int __eaxcrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index, ot_u8 options,
+ot_int __eaxcrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_uint key_index, ot_uint options,
                      ot_int (*__crypt)(ot_u8*, ot_u8*, ot_uint, EAXdrv_t*) )   {
     EAXdrv_t context;
     ot_int  retval;
@@ -284,7 +331,7 @@ ot_int __eaxcrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index, o
 #endif
 
 #ifndef EXTF_auth_encrypt
-ot_int auth_encrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index, ot_u8 options) {
+ot_int auth_encrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_uint key_index, ot_uint options) {
 /// "options" not presently used.
 #if (_SEC_DLL)
     return __eaxcrypt(nonce, data, datalen, key_index, options, &EAXdrv_encrypt);
@@ -296,7 +343,7 @@ ot_int auth_encrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index,
 
 
 #ifndef EXTF_auth_decrypt
-ot_int auth_decrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index, ot_u8 options) {
+ot_int auth_decrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_uint key_index, ot_uint options) {
 /// "options" not presently used.
 #if (_SEC_DLL)
     return __eaxcrypt(nonce, data, datalen, key_index, options, &EAXdrv_decrypt);
@@ -308,9 +355,9 @@ ot_int auth_decrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_u8 key_index,
 
 
 #ifndef EXTF_auth_get_deckey
-ot_u8* auth_get_deckey(ot_u8 index) {
+void* auth_get_deckey(ot_uint index) {
 #if (_SEC_DLL)
-    return (ot_u8*)auth_key[index].cache;
+    return (void*)auth_key[index].cache;
 #else
     return NULL;
 #endif
@@ -319,12 +366,12 @@ ot_u8* auth_get_deckey(ot_u8 index) {
 
 
 #ifndef EXTF_auth_get_enckey
-ot_u8* auth_get_enckey(ot_u8 index) {
+void* auth_get_enckey(ot_uint index) {
 #if (_SEC_TWINKEYS)
     ot_u32* enckey;
     enckey  = auth_key[index].cache;
     enckey += (auth_key[index].info.options) ? auth_key[index].info.length : 0;
-    return (ot_u8*)enckey;
+    return (void*)enckey;
 #else
     return auth_get_deckey(index);
 #endif
@@ -427,19 +474,19 @@ ot_u8 auth_find_keyindex(auth_handle* handle, id_tmpl* user_id) {
     return 255;
 }
 
-ot_u8 auth_read_key(auth_handle* handle, ot_u16 key_index) {
+ot_u8 auth_read_key(auth_handle* handle, ot_uint key_index) {
     return 255;
 }
 
-ot_u8 auth_update_key(auth_handle* handle, ot_u16 key_index) {
+ot_u8 auth_update_key(auth_handle* handle, ot_uint key_index) {
     return 255;
 }
 
-ot_u8 auth_create_key(ot_u16* key_index, auth_handle* handle) {
+ot_u8 auth_create_key(ot_uint* key_index, auth_handle* handle) {
     return 255;
 }
 
-ot_u8 auth_delete_key(ot_u16 key_index) {
+ot_u8 auth_delete_key(ot_uint key_index) {
     return 255;
 }
 
