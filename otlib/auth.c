@@ -45,38 +45,60 @@ const id_tmpl*   auth_user;
 const id_tmpl*   auth_guest;
 
 
-typedef struct {
-    ot_int      length;
-    uint64_t    value;
-} authid_t;
-
-
-///@todo change all usage of this struct to comply with TI C2000 (used only in auth.c)
 typedef struct OT_PACKED {
-    ot_u8   index;
-    ot_u8   options;
-    ot_u8   length;
-    ot_u8   protocol;
-    ot_u32  lifetime;
-} auth_info;
+    uint64_t    id;
+    ot_u16      flags;
+    ot_u32      EOL;
+} authinfo_t;
+
+typedef struct OT_PACKED {
+    ot_u16  flags;
+    ot_u32  EOL;
+    ot_u32  key[4];
+} keyfile_t;
 
 
 ///@note the context data element should mirror the one from OTEAX.
 typedef struct {   
     uint32_t    ks[44];
-    uint32_t    flags;
+    uint32_t    inf;
 } eax_ctx_t;
 
-
 typedef struct {
-    auth_info*  info;
-    authid_t    id;
     eax_ctx_t   ctx;
-} authdata_t;
+} eax_data_t;
 
+#if (_SEC_DLL)
+#   if (AUTH_NUM_ELEMENTS >= 0)
+    // Static allocation:
+    // First two elements are root and admin for the active device.
+    static eax_data_t dlls_ctx[2 + AUTH_NUM_ELEMENTS];
+    
+#   elif (AUTH_NUM_ELEMENTS < 0)
+    // Dynamic Allocation:
+    // Is allocated at time of initialization.
+    // Must be at least 2 elements.
+    // Items will only be cleared during deinit/delete.
+    static eax_data_t* dlls_ctx = NULL;
+    
+#   endif
+#endif
 
-
-
+#if (_SEC_ANY)
+#   if (AUTH_NUM_ELEMENTS > 0)
+    // Static allocation
+    // First two elements are root and admin for the active device.
+    static authinfo_t dlls_info[2 + AUTH_NUM_ELEMENTS];
+    
+#   elif (AUTH_NUM_ELEMENTS < 0)
+    // Dynamic Allocation:
+    // Is allocated at time of initialization.
+    // Must be at least 2 elements.
+    // Items will only be cleared during deinit/delete.
+    static authinfo_t* dlls_info = NULL;
+    
+#   endif
+#endif
 
 
 
@@ -90,77 +112,6 @@ typedef struct {
 #   define _SEC_KEYS    OT_PARAM(MAX_CRYPTO_KEYS)
 
 #endif
-
-
-/// AES Expanded Key Cache
-#ifndef AES_EXPKEYS
-#   define AES_EXPKEYS  0
-#endif
-
-#if AES_EXPKEYS
-#   define _SEC_TWINKEYS    1
-#   define _SEC_CACHESIZE   (_SEC_KEYSIZE*2)
-
-#else
-#   define _SEC_CACHESIZE   16
-
-#endif
-
-
-
-ot_u32 _nonce_ctr;
-
-
-typedef struct {
-    auth_info   info;
-    ot_u32      cache[_SEC_CACHESIZE/4];
-} auth_dlls_struct;
-
-
-#if (_SEC_DLL)
-/// Presently, EAX is the only type supported
-static auth_dlls_struct    auth_key[_SEC_KEYS];
-#endif
-
-
-
-
-
-// Maybe in the future, but probably some type of malloc will get implemented
-// instead of this special-purpose heap
-#if 0
-
-    /** @typedef crypto_Heap_Type
-      * Struct used for the Key Heap Data Type
-      *
-      * ot_uint end:            byte offset to end of heap where there is free space
-      * ot_u8   heapdata[]:     heap data storage.  Stores crypto_Entries mixed with
-      *                         key data.
-      */
-    typedef struct {
-        ot_u8   alloc;
-        id_tmpl id;
-    } heap_item;
-
-    typedef struct {
-        ot_int  free_space;
-        ot_int  end;
-        ot_u8   data[_SEC_HEAPSIZE];
-    } auth_heap_struct;
-
-#   define _SEC_HEAPSIZE   ((16+sizeof(heap_item))*2)  //OT_PARAM(AUTH_HEAP_SIZE)
-#   define _SEC_TABLESIZE  2   //OT_PARAM(AUTH_TABLE_SIZE)
-
-#   if (_SEC_NLS)
-        auth_ctl          auth_table[_SEC_TABLESIZE];
-        auth_heap_struct    auth_heap;
-#   endif
-
-#endif
-
-
-
-
 
 
 
@@ -196,26 +147,10 @@ void crypto_clean();
   * ========================================================================<BR>
   */
 #if (_SEC_DLL || _SEC_NL)
-void sub_expand_key(auth_dlls_struct* key) {
-/// Storing expanded keys is not presently supported in the AES library.  
-/// Without Expanded Key Caching feature, the AES driver will expand the key
-/// each time cryptography is performed.
-#if (AES_EXPKEYS)
-#   error "Storing expanded keys is not presently supported in the AES library"
-
-#   if (_SEC_TWINKEYS == 0)
-        key->info.options = 0;
-        key->info.length  = 44;
-        AES_expand_enckey(key->cache, key->cache);
-#   else
-        ot_u32* enckey;
-        key->info.options = 1;
-        key->info.length  = 44;
-        enckey = key->cache + 44;
-        AES_expand_enckey(key->cache, enckey);
-        AES_expand_deckey(key->cache, key->cache);
-#   endif
-#endif
+void sub_expand_key(void* rawkey, eax_ctx_t* ctx) {
+/// This routine will expand the key (128 bits) into a much larger key sequence.
+/// The key sequence is what is actually used to do cryptographic operations.
+    EAXdrv_init(rawkey, (void*)ctx);
 }
 
 
@@ -260,26 +195,31 @@ ot_bool sub_authcmp(id_tmpl* user_id, id_tmpl* comp_id, ot_u8 mod_flags) {
 #ifndef EXTF_auth_init
 void auth_init(void) {
 #if (_SEC_DLL)
-    ot_uint i;
+#   define _KFILE_BYTES     (2 + 4 + 16)
+    ot_int      i;
+    vlFILE*     fp;
+    keyfile_t   kfile;
 
     /// Start the nonce at a random value
     rand_stream(&_nonce_ctr, 4);
 
-    /// Load key files into cache for faster access.  We assume that there is
-    /// only one type of crypto, which is AES128.
+    /// The first two keys are local keys that will change whenever the device
+    /// reference changes.  Load them into the buffers.
     for (i=0; i<2; i++) {
-#       define _LOADSIZE    (sizeof(ot_u8) + sizeof(ot_u8) + sizeof(ot_u32) + 16)
-        vlFILE* fp;
         fp = ISF_open_su(i+ISF_ID(root_authentication_key));
-        vl_load(fp, _LOADSIZE, &(auth_key[i].info.length));
-        vl_close(fp);
-        
-        
-        
-        sub_expand_key(&auth_key[i]);
-#       undef _LOADSIZE
+        if (fp != NULL) {
+            vl_load(fp, _KFILE_BYTES, &kfile);
+            dlls_info[i].id     = i;
+            dlls_info[i].flags  = kfile.flags;
+            dlls_info[i].EOL    = kfile.EOL;
+            sub_expand_key((void*)kfile.key, &dlls_ctx[i]);
+            vl_close(fp);
+        }
     }
+
+#   undef _KFILE_BYTES
 #endif
+
 #if (_SEC_NLS)
     ///@todo
 #endif
@@ -289,7 +229,7 @@ void auth_init(void) {
 
 
 #ifndef EXTF_auth_init
-void auth_putnonce(ot_u8* dst, ot_uint limit) {
+void auth_putnonce(void* dst, ot_uint limit) {
     ot_int pad_bytes;
     ot_int write_bytes;
 
