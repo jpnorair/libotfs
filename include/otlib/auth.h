@@ -75,6 +75,20 @@ extern const id_tmpl*   auth_guest;
 void auth_init(void);
 
 
+
+/** @brief Deinitialize Authentication Module
+  * @param None
+  * @retval None
+  * @ingroup Authentication
+  *
+  * This will wipe and deallocate all internal data used by the auth module.
+  * If your implementation does not use dynamic memory allocation, you can
+  * ignore this function, however it also wipes the RAM for security purposes.
+  */
+void auth_deinit(void);
+
+
+
 /** @brief Encrypts the data in a ot_queue, in-place
   * @param q            (ot_queue*) input q containing encrypted data
   * @param key_index    (ot_uint) Key Index to use for encryption
@@ -117,39 +131,76 @@ void auth_init(void);
 
 
 
-void auth_putnonce(ot_u8* dst, ot_uint limit);
+/** @brief Writes a 32 bit nonce to destination in memory, and advances nonce.
+  * @param dst          (void*) destination in memory to write nonce
+  * @param limit        (ot_uint) number of bytes to limit nonce writing
+  * @retval None
+  * @ingroup Authentication
+  * @sa auth_getnonce()
+  * 
+  * If the "limit" input is less than 4, then only part of the nonce will be 
+  * written.  If "limit" input is greater than 4, the extra bytes in "limit" 
+  * will be skipped-over.  So the nonce will be placed at: (dst + limit - 4).
+  */
+void auth_putnonce(void* dst, ot_uint limit);
+
+
+
+/** @brief Returns a 32 bit nonce, and advances nonce.
+  * @param None
+  * @retval ot_u32      Internal 32 bit nonce
+  * @ingroup Authentication
+  * @sa auth_putnonce()
+  * 
+  * This function returns the internal nonce for you to do with as you wish.
+  */
+ot_u32 auth_getnonce(void);
 
 
 /** @brief Encrypts a datastream, in-place
-  * @param nonce        (ot_u8*) A Cryptographic nonce or init vector (IV)
-  * @param data         (ot_u8*) stream for in-place encryption
+  * @param iv           (void*) A Cryptographic init vector (IV)
+  * @param data         (void*) stream for in-place encryption
   * @param datalen      (ot_uint) length of stream in bytes
   * @param key_index    (ot_uint) Key Index to use for encryption
-  * @param options      (ot_uint) Decryption options specific to type of Crypto
   * @retval ot_int      number of bytes added to stream as result of encryption,
   *                       or negative on error.
   * @ingroup auth
   * @sa auth_decrypt
+  * @sa auth_putnonce
+  * @sa auth_getnonce
   *
+  * Usage of this function should be mostly self-explanatory, however some 
+  * information should be provided about the usage of "nonce".
+  *
+  * The "iv" input will take 7 bytes from the iv pointer and use this as the iv.
+  * If your device cannot address at the byte level, zero pad the 8th byte.
+  *
+  * In typical usage, auth_putnonce() is used before this function to write the
+  * nonce to a packet buffer, then the raw data is put onto the packet buffer, 
+  * then this function is called with iv pointing to 3 bytes ahead of the nonce
+  * and data pointing to the start of the raw data.
+  *
+  * The data is encrypted IN PLACE.  There is no double bufferring required.
   */
-ot_int auth_encrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_uint key_index, ot_uint options);
+ot_int auth_encrypt(void* iv, void* data, ot_uint datalen, ot_uint key_index);
 
 
 /** @brief Decrypts a datastream, in-place
-  * @param nonce        (ot_u8*) A Cryptographic nonce or init vector (IV)
-  * @param data         (ot_u8*) stream for in-place decryption
+  * @param iv           (void*) A Cryptographic init vector (IV)
+  * @param data         (void*) stream for in-place decryption
   * @param datalen      (ot_uint) length of stream in bytes
   * @param key_index    (ot_uint) Key Index to use for decryption
-  * @param options      (ot_uint) Decryption options specific to type of Crypto
   * @retval ot_int      number of bytes removed from stream as result of
   *                       decryption, or negative on error.
   * @ingroup auth
   * @sa auth_encrypt
   *
-  * It is important to align the front of the iostream and length per the
-  * specification of the crypto format to be used.
+  * This function is very similar to auth_encrypt(), but it should be used in 
+  * decryption processes.  The major difference is that the decryption process
+  * will validate the authentication tag footer and return 4 on success, 
+  * whereas encryption adds this footer.
   */
-ot_int auth_decrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_uint key_index, ot_uint options);
+ot_int auth_decrypt(void* iv, void* data, ot_uint datalen, ot_uint key_index);
 
 
 /** @brief Returns Decryption-Key DATA of a given key index, but no Auth/Sec metadata

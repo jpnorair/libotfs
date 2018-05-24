@@ -328,41 +328,40 @@ ot_int auth_encrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
 
 #ifndef EXTF_auth_decrypt
 ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index) {
-/// "options" not presently used.
-#if (_SEC_ANY)
-    return __eaxcrypt(nonce, data, datalen, key_index, options, &EAXdrv_decrypt);
-    
-#else
-    return -1;
-#endif
+/// EAX cryptography is symmetric, so decrypt and encrypt are identical.
+    return auth_encrypt(nonce, data, datalen, key_index)
 }
 #endif
+
+
+
+
+#ifndef EXTF_auth_get_enckey
+ot_int auth_get_enckey(void** key, ot_uint index) {
+///@todo not sure if this function should be removed
+#if (_SEC_ANY)
+    if ((key != NULL) && (key_index < dlls_size)) {
+        *((ot_u32*)key) = dlls_ctx[index].ctx.ks;
+        return sizeof(dlls_ctx[index].ctx.ks);
+    }
+#endif
+
+    return -1;
+}
+#endif
+
 
 
 
 #ifndef EXTF_auth_get_deckey
-void* auth_get_deckey(ot_uint index) {
-#if (_SEC_DLL)
-    return (void*)auth_key[index].cache;
-#else
-    return NULL;
-#endif
+ot_int auth_get_deckey(void** key, ot_uint index) {
+/// EAX cryptography is symmetric, so decrypt and encrypt are the same.
+    return auth_get_enckey(key, index);
 }
 #endif
 
 
-#ifndef EXTF_auth_get_enckey
-void* auth_get_enckey(ot_uint index) {
-#if (_SEC_TWINKEYS)
-    ot_u32* enckey;
-    enckey  = auth_key[index].cache;
-    enckey += (auth_key[index].info.options) ? auth_key[index].info.length : 0;
-    return (void*)enckey;
-#else
-    return auth_get_deckey(index);
-#endif
-}
-#endif
+
 
 
 
