@@ -66,55 +66,28 @@ typedef struct {
 
 typedef struct {
     eax_ctx_t   ctx;
-} eax_data_t;
+} authctx_t;
 
 #if (_SEC_DLL)
+    static uint32_t dlls_nonce;
+    static ot_uint  dlls_size   = 0;
+
 #   if (AUTH_NUM_ELEMENTS >= 0)
     // Static allocation:
     // First two elements are root and admin for the active device.
-    static eax_data_t dlls_ctx[2 + AUTH_NUM_ELEMENTS];
+    static authctx_t    dlls_ctx[2 + AUTH_NUM_ELEMENTS];
+    static authinfo_t   dlls_info[2 + AUTH_NUM_ELEMENTS];
     
 #   elif (AUTH_NUM_ELEMENTS < 0)
     // Dynamic Allocation:
     // Is allocated at time of initialization.
     // Must be at least 2 elements.
     // Items will only be cleared during deinit/delete.
-    static eax_data_t* dlls_ctx = NULL;
-    
-#   endif
-#endif
-
-#if (_SEC_ANY)
-#   if (AUTH_NUM_ELEMENTS > 0)
-    // Static allocation
-    // First two elements are root and admin for the active device.
-    static authinfo_t dlls_info[2 + AUTH_NUM_ELEMENTS];
-    
-#   elif (AUTH_NUM_ELEMENTS < 0)
-    // Dynamic Allocation:
-    // Is allocated at time of initialization.
-    // Must be at least 2 elements.
-    // Items will only be cleared during deinit/delete.
+    static authctx_t* dlls_ctx = NULL;
     static authinfo_t* dlls_info = NULL;
     
 #   endif
 #endif
-
-
-
-#if !defined(OT_PARAM_MAX_CRYPTO_KEYS)
-#   define _SEC_KEYS    16
-
-#elif (OT_PARAM(MAX_CRYPTO_KEYS) < 2)
-#   define _SEC_KEYS    2
-
-#else
-#   define _SEC_KEYS    OT_PARAM(MAX_CRYPTO_KEYS)
-
-#endif
-
-
-
 
 
 
@@ -200,8 +173,27 @@ void auth_init(void) {
     vlFILE*     fp;
     keyfile_t   kfile;
 
-    /// Start the nonce at a random value
-    rand_stream(&_nonce_ctr, 4);
+    ///@todo put in code to:
+    /// 1. initialize dynamic memory if it's enabled, and if pointer is NULL
+    /// 2. 
+#   if (AUTH_NUM_ELEMENTS < 0)
+    /// Initialize dynamic memory if it's enabled.
+    /// - if one of the tables is NULL, make sure to wipe both as clean start point.
+    /// - Initialize the table in 64 unit chunks.
+    if ((dlls_info == NULL) || (dlls_ctx == NULL)) {
+        auth_deinit();
+        
+        ///@todo do the actual initialization.  Will be done through libjudy.
+    }
+    
+#   endif
+
+    /// If this function gets called when dlls_size < 2, it's a call with empty
+    /// tables.
+    if (dlls_size < 2) {
+        dlls_size   = 2;
+        dlls_nonce  = rand_prn32();
+    }
 
     /// The first two keys are local keys that will change whenever the device
     /// reference changes.  Load them into the buffers.
@@ -216,6 +208,8 @@ void auth_init(void) {
             vl_close(fp);
         }
     }
+    
+    /// Keys after the first two persist through calls of auth_init().
 
 #   undef _KFILE_BYTES
 #endif
@@ -228,70 +222,122 @@ void auth_init(void) {
 
 
 
-#ifndef EXTF_auth_init
-void auth_putnonce(void* dst, ot_uint limit) {
-    ot_int pad_bytes;
-    ot_int write_bytes;
+#ifndef EXTF_auth_deinit
+void auth_deinit(void) {
+/// clear all memory used for key storage, and free it if necessary.
 
-    // Increment the nonce
-    _nonce_ctr++;
+#   if (AUTH_NUM_ELEMENTS >= 0)
+    // Clear memory elements.  They are statically allocated in this case,
+    // so no freeing is required.
+    memset(dlls_info, 0, sizeof(dlls_info));
+    memset(dlls_ctx, 0, sizeof(dlls_ctx));
     
-    // If limit is > 4 (size of nonce in bytes), we advance dst accordingly (Thus it is
-    // padded with its existing contents).
-    // If limit is <= 4, then the write_bytes get shortened.
+#   else
+    // Clear memory elements and free them.
+    if (dlls_info != NULL) {
+        memset(dlls_info, 0, sizeof(authinfo_t) * dlls_size);
+        free(dlls_info);
+    }
+    if (dlls_ctx != NULL) {
+        memset(dlls_ctx, 0, sizeof(authctx_t) * dlls_size);
+        free(dlls_ctx);
+    }
+    dlls_size = 0;
+    
+#   endif
+}
+#endif
+
+
+
+#ifndef EXTF_auth_putnonce
+void auth_putnonce(void* dst, ot_uint limit) {
+    ot_int      pad_bytes;
+    ot_int      write_bytes;
+    uint32_t    output_nonce;
+    
+    /// If limit is > 4 (size of nonce in bytes), we advance dst accordingly (Thus it is
+    /// padded with its existing contents).
+    /// If limit is <= 4, then the write_bytes get shortened.
     write_bytes = 4;
     pad_bytes   = limit - 4;
     if (pad_bytes > 0) {
-        dst += pad_bytes;
+        (ot_u8*)dst += pad_bytes;
     }
     else {
         write_bytes += pad_bytes;
     }
     
-    memcpy(dst, &_nonce_ctr, write_bytes);
+    /// Increment the internal nonce integer each time a nonce is put.
+    /// It's also possible to change to network endian here, but it
+    /// doesn't technically matter as long as the nonce data is 
+    /// conveyed congruently.
+    output_nonce = dlls_nonce++;
+    
+    memcpy_bytes(dst, &output_nonce, write_bytes);
 }
 #endif
 
 
 
-// EAX has a symmetric cipher, meaning that there is only a single cryptographic routine.
-#if (_SEC_DLL)
-ot_int __eaxcrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_uint key_index, ot_uint options,
-                     ot_int (*__crypt)(ot_u8*, ot_u8*, ot_uint, EAXdrv_t*) )   {
-    EAXdrv_t context;
-    ot_int  retval;
-
-    retval = EAXdrv_init(auth_get_deckey(key_index), &context);
-    if (retval == 0) {
-        retval = __crypt(nonce, data, datalen, &context);
-        retval = retval ? -2 : 4;
-    }
-    return retval;
+#ifndef EXTF_auth_getnonce
+ot_u32 auth_getnonce(void) {
+    /// Increment the internal nonce integer each time a nonce is got.
+    dlls_nonce++;
+    return dlls_nonce;
 }
 #endif
+
+
 
 #ifndef EXTF_auth_encrypt
-ot_int auth_encrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_uint key_index, ot_uint options) {
-/// "options" not presently used.
-#if (_SEC_DLL)
-    return __eaxcrypt(nonce, data, datalen, key_index, options, &EAXdrv_encrypt);
+ot_int auth_encrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index) {
+/// Nonce input is 7 bytes.
+/// on Devices without byte access (C2000), nonce will be 8 bytes with last byte 0.
+
+#if (_SEC_ANY)
+    /// DLL Encryption stage.
+    /// Use AES context from auth_init() to do the encryption.
+    ot_int retval;
+    
+    /// Error if key index is not available
+    if (key_index >= dlls_size) {
+        return -1;
+    }
+    
+#   ifdef __C2000__
+    ot_u32  iv[2];
+    iv[0]   = ((ot_u32*)nonce)[0];
+    iv[1]   = ((ot_u32*)nonce)[1];
+    iv[1]  &= 0x00FFFFFF;
+    retval  = EAXdrv_encrypt(nonce, data, datalen, &dlls_ctx[key_index].ctx);
+#   else
+    retval  = EAXdrv_encrypt(nonce, data, datalen, &dlls_ctx[key_index].ctx);
+#   endif
+
+    return (retval != 0) ? -2 : 4;
+    
 #else
     return -1;
 #endif
 }
 #endif
+
+
 
 
 #ifndef EXTF_auth_decrypt
-ot_int auth_decrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, ot_uint key_index, ot_uint options) {
+ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index) {
 /// "options" not presently used.
-#if (_SEC_DLL)
+#if (_SEC_ANY)
     return __eaxcrypt(nonce, data, datalen, key_index, options, &EAXdrv_decrypt);
+    
 #else
     return -1;
 #endif
 }
 #endif
+
 
 
 #ifndef EXTF_auth_get_deckey
