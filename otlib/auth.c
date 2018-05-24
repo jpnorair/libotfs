@@ -68,7 +68,7 @@ typedef struct {
     eax_ctx_t   ctx;
 } authctx_t;
 
-#if (_SEC_DLL)
+#if (_SEC_ANY)
     static uint32_t dlls_nonce;
     static ot_uint  dlls_size   = 0;
 
@@ -129,19 +129,10 @@ void sub_expand_key(void* rawkey, eax_ctx_t* ctx) {
 
 
 ///@todo Bring this into OT Utils?
-ot_bool sub_idcmp(id_tmpl* user_id, authid_t* auth_id) {
-    ot_bool id_check;
-
-    if (user_id->length != auth_id->length) {
-        return False;
-    }
-    if (user_id->length == 2) {
-        return (((ot_u16*)user_id->value)[0] == ((ot_u16*)auth_id->value)[0]);
-    }
-
-    id_check    = (((ot_u32*)user_id->value)[0] == ((ot_u32*)auth_id->value)[0]);
-    id_check   &= (((ot_u32*)user_id->value)[1] == ((ot_u32*)auth_id->value)[1]);
-    return id_check;
+ot_bool sub_idcmp(id_tmpl* user_id, uint64_t id) {
+    ot_int length;
+    length = (dlls_info[index].id < 65536) ? 2 : 8;
+    return (ot_bool)((length == user_id->length) && (*(uint64_t*)user_id->value == id));
 }
 
 
@@ -290,12 +281,12 @@ ot_u32 auth_getnonce(void) {
 
 
 
-#ifndef EXTF_auth_encrypt
-ot_int auth_encrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index) {
-/// Nonce input is 7 bytes.
-/// on Devices without byte access (C2000), nonce will be 8 bytes with last byte 0.
-
+ot_int sub_do_crypto(void* nonce, void* data, ot_uint datalen, ot_uint key_index,
+                        ot_int (*EAXdrv_fn)(void*, void*, ot_uint, EAXdrv_t*) ) {
 #if (_SEC_ANY)
+    /// Nonce input is 7 bytes.
+    /// on Devices without byte access (C2000), nonce will be 8 bytes with last byte 0.
+
     /// DLL Encryption stage.
     /// Use AES context from auth_init() to do the encryption.
     ot_int retval;
@@ -310,13 +301,25 @@ ot_int auth_encrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
     iv[0]   = ((ot_u32*)nonce)[0];
     iv[1]   = ((ot_u32*)nonce)[1];
     iv[1]  &= 0x00FFFFFF;
-    retval  = EAXdrv_encrypt(nonce, data, datalen, &dlls_ctx[key_index].ctx);
+    retval  = EAXdrv_fn(nonce, data, datalen, &dlls_ctx[key_index].ctx);
 #   else
-    retval  = EAXdrv_encrypt(nonce, data, datalen, &dlls_ctx[key_index].ctx);
+    retval  = EAXdrv_fn(nonce, data, datalen, &dlls_ctx[key_index].ctx);
 #   endif
 
     return (retval != 0) ? -2 : 4;
     
+#else
+    return -1;
+    
+#endif
+}
+
+
+
+#ifndef EXTF_auth_encrypt
+ot_int auth_encrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index) {
+#if (_SEC_ANY)
+    return sub_do_crypto(nonce, data, datalen, key_index, &EAXdrv_encrypt);
 #else
     return -1;
 #endif
@@ -325,11 +328,14 @@ ot_int auth_encrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
 
 
 
-
 #ifndef EXTF_auth_decrypt
 ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index) {
-/// EAX cryptography is symmetric, so decrypt and encrypt are identical.
-    return auth_encrypt(nonce, data, datalen, key_index)
+/// EAX cryptography is symmetric, so decrypt and encrypt are almost identical.
+#if (_SEC_ANY)
+    return sub_do_crypto(nonce, data, datalen, key_index, &EAXdrv_decrypt);
+#else
+    return -1;
+#endif
 }
 #endif
 
@@ -380,47 +386,118 @@ ot_int auth_get_deckey(void** key, ot_uint index) {
   * Specifically, the Auth-Sec ALP should have hooks into these functions.
   */
   
-ot_u8 auth_search_user(id_tmpl* user_id, ot_u8 req_mod) {
-///@todo this function must be written.  It must search the authentication table
-///      in order to find if the user is qualified to operate at the requested
-///      mod level.  Return 0 on success, non-zero otherwise.
-    return 0;
+ot_int auth_search_user(id_tmpl* user_id, ot_u8 req_mod) {
+/// Compare user-id and mod against stored keys.
+/// The req_mod input is a bitfield with the structure: --rwrwrw
+/// The first rw is for root, second for user, third for guest.
+#if (_SEC_ANY)
+#   if (AUTH_NUM_ELEMENTS >= 0)
+    ot_int i; 
+    uint64_t id_u64;
+    
+    // Static allocation 
+    ///@todo Current implementation is linear search.  In the future maybe
+    ///      implement binary search, although for small tables typical for
+    ///      this static allocation, it might be faster with linear search.
+    
+    if (user_id.length == 2) {
+        id_u64 = (uint64_t)*(ot_u16*)user_id.value;
+    }
+    else {
+        id_u64 = *(uint64_t*)user_id.value;
+    }
+    
+    // mask-out the don't-care bits
+    req_mod &= 0x3f;
+    
+    // Linear Search
+    // - Compare id, also compare mod bits against stored flags
+    // - If key timeout is enabled (EOL != 0), then make sure key isn't expired
+    // - If key is expired, delete it.
+    for (i=0; i<dlls_size; i++) {
+        if (id_u64 == dlls_info.id) {
+            if ((req_mod & dlls_info.flags) == dlls_info.flags) {
+                if (dlls_info.EOL != 0) {
+                    if (dlls_info.EOL <= time_get_utc()) {
+                        auth_delete_key(i);
+                        i--;
+                        continue;
+                    }
+                }
+                // Key is found, and valid
+                return i;
+            }
+        }
+    }
+    
+    return -1;
+    
+#   elif (AUTH_NUM_ELEMENTS < 0)
+    ///@todo Dynamic Allocation: uses libjudy
+    return -1;
+    
+#   else
+    return -1;
+    
+#   endif
+
+#else
+    return -1;
+    
+#endif
 }
 
 
 
-const id_tmpl* auth_get_user(ot_u16 user_index) {
-/// @todo this must be tied into a table to return a handle.  
-/// Right now it just returns root if index is zero, user if index is 1, and 
-/// guest if index is anything else
-    switch (user_index) {
-        case 0: return auth_root;
-        case 1: return auth_user;
-       default: return auth_guest;
+ot_int auth_get_user(id_tmpl* user_id, ot_u16 index) {
+#   if (_SEC_ANY)
+    if ((user_id != NULL) && (index < dlls_size)) {
+        ot_int length;
+        length = (dlls_info[index].id < 65536) ? 2 : 8;
+        memcpy(user_id.value, dlls_info[index].id, length);
+        return length;
     }
+#   endif
+    return -1;
 }
 
 
 ot_bool auth_isroot(id_tmpl* user_id) {
-/// NULL is how root is implemented in internal calls
-#if (_SEC_NLS)
-    return sub_authcmp(user_id, auth_root, AUTH_FLAG_ISROOT);
-#elif (_SEC_DLL)
-    return (ot_bool)((user_id == NULL) || (user_id == auth_root));
+/// Here's the trick: 
+/// - Using NULL for user_id is ok for root calls from internal firmware.  Check this first.
+/// - An external root key may be somewhere else in the list.  Check this last.
+
+#if (_SEC_ANY)
+    ot_int length;
+    if (user_id == NULL) {
+        return true;
+    }
+    ///@todo change 0x30 into a #define
+    return (ot_bool)(auth_search_user(user_id, 0x30) >= 0);
+    
 #else
+    /// When security/auth features are not compiled-in, just check against NULL.
     return (ot_bool)(user_id == NULL);
+    
 #endif
 }
 
 
 ot_bool auth_isuser(id_tmpl* user_id) {
-/// NULL is how root is implemented in internal calls
-#if (_SEC_NLS)
-    return sub_authcmp(user_id, auth_user, AUTH_FLAG_ISUSER);
-#elif (_SEC_DLL)
-    return (ot_bool)((user_id == NULL) || (user_id == auth_user));
+/// Here's the trick:
+/// - Null is the root key, which is always OK to use for user calls.
+/// - An external root/user key may be somewhere else in the list.  Check this last.
+#if (_SEC_ANY)
+    ot_int length;
+    if (user_id == NULL) {
+        return true;
+    }
+    ///@todo change 0x0C into a #define
+    return (ot_bool)(auth_search_user(user_id, 0x0C) >= 0);
+
 #else
     return (ot_bool)(user_id == NULL);
+    
 #endif
 }
 
@@ -437,6 +514,7 @@ ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, id_tmpl* user_id) {
 /// If the code gets here then there was not a user match, or the device is not
 /// implementing user authentication.  Try guest access.
     return (0x07 & data_mod & req_mod);
+    
 #endif
 }
 
