@@ -251,16 +251,16 @@ void auth_deinit(void) {
 
 
 #ifndef EXTF_auth_putnonce
-void auth_putnonce(void* dst, ot_uint limit) {
+void auth_putnonce(void* dst, ot_uint total_size) {
     ot_int      pad_bytes;
     ot_int      write_bytes;
     uint32_t    output_nonce;
     
-    /// If limit is > 4 (size of nonce in bytes), we advance dst accordingly (Thus it is
+    /// If total_size is > 4 (size of nonce in bytes), we advance dst accordingly (Thus it is
     /// padded with its existing contents).
-    /// If limit is <= 4, then the write_bytes get shortened.
+    /// If total_size is <= 4, then the write_bytes get shortened.
     write_bytes = 4;
-    pad_bytes   = limit - 4;
+    pad_bytes   = total_size - 4;
     if (pad_bytes > 0) {
         (ot_u8*)dst += pad_bytes;
     }
@@ -275,6 +275,27 @@ void auth_putnonce(void* dst, ot_uint limit) {
     output_nonce = dlls_nonce++;
     
     memcpy_bytes(dst, &output_nonce, write_bytes);
+}
+#endif
+
+
+#ifndef EXTF_auth_putnonce_q
+void auth_putnonce_q(ot_queue* q, ot_uint total_size) {
+    ot_int      pad_bytes;
+    ot_int      write_bytes;
+    uint32_t    output_nonce;
+
+    write_bytes = 4;
+    pad_bytes   = total_size - 4;
+    if (pad_bytes > 0) {
+        q->putcursor += pad_bytes;
+    }
+    else {
+        write_bytes += pad_bytes;
+    }
+    
+    output_nonce = dlls_nonce++;
+    q_writelong_be(q, output_nonce);
 }
 #endif
 

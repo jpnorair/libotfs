@@ -133,17 +133,29 @@ void auth_deinit(void);
 
 /** @brief Writes a 32 bit nonce to destination in memory, and advances nonce.
   * @param dst          (void*) destination in memory to write nonce
-  * @param limit        (ot_uint) number of bytes to limit nonce writing
+  * @param total_size   (ot_uint) total bytes to put to destination
   * @retval None
   * @ingroup Authentication
+  * @sa auth_putnonce_q()
   * @sa auth_getnonce()
   * 
-  * If the "limit" input is less than 4, then only part of the nonce will be 
-  * written.  If "limit" input is greater than 4, the extra bytes in "limit" 
-  * will be skipped-over.  So the nonce will be placed at: (dst + limit - 4).
+  * If the "total_size" input is less than 4, then only part of the nonce will be 
+  * written.  If "total_size" input is greater than 4, then (total_size - 4)
+  * bytes will skipped from dst, before writing the nonce.
   */
-void auth_putnonce(void* dst, ot_uint limit);
+void auth_putnonce(void* dst, ot_uint total_size);
 
+
+/** @brief Writes a pre-padded 32 bit nonce to a queue
+  * @param q            (ot_queue*) destination in memory to write nonce
+  * @param total_size   (ot_uint) total bytes to put to queue
+  * @retval None
+  * @ingroup Authentication
+  * @sa auth_putnonce()
+  * 
+  * Identical to auth_putnonce() except with queue output.
+  */
+void auth_putnonce_q(ot_queue* q, ot_uint total_size);
 
 
 /** @brief Returns a 32 bit nonce, and advances nonce.
