@@ -169,6 +169,7 @@ void auth_putnonce_q(ot_queue* q, ot_uint total_size);
 ot_u32 auth_getnonce(void);
 
 
+
 /** @brief Encrypts a datastream, in-place
   * @param iv           (void*) A Cryptographic init vector (IV)
   * @param data         (void*) stream for in-place encryption
@@ -197,6 +198,7 @@ ot_u32 auth_getnonce(void);
 ot_int auth_encrypt(void* iv, void* data, ot_uint datalen, ot_uint key_index);
 
 
+
 /** @brief Decrypts a datastream, in-place
   * @param iv           (void*) A Cryptographic init vector (IV)
   * @param data         (void*) stream for in-place decryption
@@ -215,28 +217,36 @@ ot_int auth_encrypt(void* iv, void* data, ot_uint datalen, ot_uint key_index);
 ot_int auth_decrypt(void* iv, void* data, ot_uint datalen, ot_uint key_index);
 
 
+
 /** @brief Returns Decryption-Key DATA of a given key index, but no Auth/Sec metadata
+  * @param key      (void**) Is loaded with pointer to expanded key.  Always word-aligned.
   * @param index    (ot_uint) Key Index input
-  * @retval void*   Pointer to Key Data.  Always is word-aligned.
+  * @retval ot_int  returns sizeof the key data, or negative on error.
   * @ingroup auth
   * @sa auth_get_enckey
   *
-  * This function is generally used by crypto libraries that interface with the
-  * Authentication Module, in order to retrieve key data.
+  * For expert use only.
+  *
+  * @note for the standard EAX crypto implementation, there is only one key for 
+  *       both encryption and decryption.
   */
-void* auth_get_deckey(ot_uint index);
+ot_int auth_get_deckey(void** key, ot_uint index);
+
 
 
 /** @brief Returns Encryption-Key DATA of a given key index, but no Auth/Sec metadata
-  * @param index    (ot_u8) Key Index input
-  * @retval void*   Pointer to Key Data.  Always is word-aligned.
+  * @param key      (void**) Is loaded with pointer to expanded key.  Always word-aligned.
+  * @param index    (ot_uint) Key Index input
+  * @retval ot_int  returns sizeof the key data, or negative on error.
   * @ingroup auth
-  * @sa auth_get_deckey
+  * @sa auth_get_enckey
   *
-  * This function is generally used by crypto libraries that interface with the
-  * Authentication Module, in order to retrieve key data.
+  * For expert use only.
+  *
+  * @note for the standard EAX crypto implementation, there is only one key for 
+  *       both encryption and decryption.
   */
-void* auth_get_enckey(ot_uint index);
+ot_int auth_get_enckey(void** key, ot_uint index);
 
 
 
@@ -377,7 +387,7 @@ ot_u8 auth_new_nlsuser(void* handle, id_tmpl* new_user, auth_info* new_info, ot_
   * @ingroup Authentication
 */
 //ot_u8 auth_search_user(void* handle, id_tmpl* user_id, ot_u8 mod_flags);
-ot_u8 auth_search_user(id_tmpl* user_id, ot_u8 mod_flags);
+ot_int auth_search_user(id_tmpl* user_id, ot_u8 mod_flags);
 
 const id_tmpl* auth_get_user(ot_uint user_index);
 
