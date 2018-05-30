@@ -57,14 +57,14 @@
   * @param  length      (ot_uint) number of bytes to transfer/copy
   * @retval None
   * @ingroup Memcpy
-  * @sa ot_memcpy2()
-  * @sa ot_memcpy4()
+  * @sa ot_memcpy_2()
+  * @sa ot_memcpy_4()
   * @sa ot_memset()
   *
   * ot_memcpy() is the generic implementation of memcpy, which must
   * handle byte-aligned memory copies.
   *
-  * ot_memcpy2() and ot_memcpy4() are two and four byte aligned
+  * ot_memcpy_2() and ot_memcpy_4() are two and four byte aligned
   * variants of ot_memcpy()
   */
 void ot_memcpy(void* dst, void* src, ot_uint length);

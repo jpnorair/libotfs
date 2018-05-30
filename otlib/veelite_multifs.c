@@ -80,7 +80,7 @@ ot_u8 vl_multifs_add(void* handle, void* newfsbase, id_tmpl* fsid) {
     MCU_TYPE_UINT* new_value;
     
     //{   uint64_t test;
-    //    memcpy(&test, fsid->value, 8);
+    //    ot_memcpy(&test, fsid->value, 8);
     //    printf("--> UID = %016llX\n", test);
     //    printf("--> Value = %016llX\n", (unsigned int)newfsbase);
     //}
@@ -143,7 +143,7 @@ ot_u8 vl_multifs_switch(void* handle, void** getfsbase, id_tmpl* fsid) {
     val = judy_slot(obj, fsid->value, fsid->length);
     
     //{   uint64_t test;
-    //    memcpy(&test, fsid->value, 8);
+    //    ot_memcpy(&test, fsid->value, 8);
     //    printf("--> fsid->length = %d, fsid->value = %016llX\n", fsid->length, test);
     //    printf("--> Value = %016llX\n", (MCU_TYPE_UINT)val);
     //}

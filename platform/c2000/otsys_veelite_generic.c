@@ -96,11 +96,11 @@ ot_uint sub_copy_section(ot_u32* section, void* defaults, ot_uint defaults_size,
     copylen = ((defaults_size+3) / 4);
     copylen = (copylen < input_size) ? copylen : input_size;
     
-    ot_memcpy4(section, defaults, copylen);
+    ot_memcpy_4(section, defaults, copylen);
     
     return copylen;
     
-    //ot_memcpy4(section, (void*)overhead_files, copylen);
+    //ot_memcpy_4(section, (void*)overhead_files, copylen);
 }
 
 
@@ -133,7 +133,7 @@ ot_u32 vworm_fsalloc(const vlFSHEADER* fs) {
 
 void vworm_fsheader_defload(vlFSHEADER* fs) {
     if (fs != NULL) {
-        memcpy((void*)fs, (void*)overhead_files, sizeof(vlFSHEADER));
+        ot_memcpy((void*)fs, (void*)overhead_files, sizeof(vlFSHEADER));
     }
 }
 
@@ -196,12 +196,12 @@ ot_u8 vworm_init(void* fs_base, const vlFSHEADER* fs) {
     /// No MultiFS
 #   else
 
-    ot_memcpy4(&fsram[OVERHEAD_START_VADDR/4], (void*)overhead_files, OVERHEAD_TOTAL_BYTES/4);
+    ot_memcpy_4(&fsram[OVERHEAD_START_VADDR/4], (void*)overhead_files, OVERHEAD_TOTAL_BYTES/4);
 #   if (GFB_TOTAL_BYTES > 0)
-    ot_memcpy4(&fsram[GFB_START_VADDR/4], (void*)gfb_stock_files, GFB_TOTAL_BYTES/4);
+    ot_memcpy_4(&fsram[GFB_START_VADDR/4], (void*)gfb_stock_files, GFB_TOTAL_BYTES/4);
 #   endif
 #   if (ISF_TOTAL_BYTES > 0)
-    ot_memcpy4(&fsram[ISF_START_VADDR/4], (void*)isf_stock_files, ISF_VWORM_STOCK_BYTES/4);
+    ot_memcpy_4(&fsram[ISF_START_VADDR/4], (void*)isf_stock_files, ISF_VWORM_STOCK_BYTES/4);
 #   endif
     
 #   endif

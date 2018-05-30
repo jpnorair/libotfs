@@ -60,7 +60,8 @@
 
 
 void ot_memcpy(ot_u8* dst, ot_u8* src, ot_uint length) {
-    memcpy(dst, src, (size_t)length);
+    length = (length+1) >> 1;
+    ot_memcpy_2( (ot_u16*)dst, (ot_u16*)src, length);
 }
 
 void ot_memcpy_2(ot_u16* dst, ot_u16* src, ot_uint length) {
@@ -68,20 +69,22 @@ void ot_memcpy_2(ot_u16* dst, ot_u16* src, ot_uint length) {
 }
 
 void ot_memcpy_4(ot_u32* dst, ot_u32* src, ot_uint length) {
-    memcpy(dst, src, (size_t)length<<1);
+    ot_memcpy_2(dst, src, (size_t)length<<1);
 }
 
 
 void ot_memset(ot_u8* dst, ot_u8 value, ot_uint length) {
-    memset(dst, value, (size_t)length);
+    length  = (length+1) >> 1;
+    value   = (value << 8) | value;
+    ot_memset_2( (ot_u16*)dst, (ot_u16)value, (ot_uint)length );
 }
 
 void ot_memset_2(ot_u16* dst, ot_u16 value, ot_uint length) {
-    memset( (ot_u8*)dst, (ot_u8)value, length );
+    memset(dst, value, length);
 }
 
 void ot_memset_4(ot_u32* dst, ot_u32 value, ot_uint length) {
-    memset( (ot_u8*)dst, (ot_u8)value, length<<1 );
+    ot_memset_2( (ot_16*)dst, (ot_u16)value, length<<1 );
 }
 
 

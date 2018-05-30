@@ -84,36 +84,41 @@ ot_u8 sub_get_headerlen(ot_u8 tnf) {
 
 
 
-void sub_insert_header(alp_tmpl* alp, ot_u8* hdr_position, ot_u8 hdr_len) {
+void sub_insert_header(alp_tmpl* alp, ot_qcur hdr_position, ot_u8 hdr_len) {
 /// <LI> Add hdr_len to the queue length (cursors are already in place). </LI>
 /// <LI> If using NDEF (hdr_len != 4), output header processing is ugly. </LI>
 /// <LI> Pure ALP (hdr_len == 4) output header processing is universal. </LI>
 /// <LI> Finally, always clear MB because now the first record is done. </LI>
-    if (hdr_position == NULL) {
-        hdr_position            = alp->outq->putcursor;
-        alp->outq->putcursor   += hdr_len;      //__q_putcursor_move(alp->outq, hdr_len);
+    ot_qcur savedput = alp->outq->putcursor + hdr_len;
+    
+    ///@todo make sure this works, might need to have qcur be signed
+    if (hdr_position != NULL) {
+        alp->outq->putcursor = hdr_position;
     }
 
 #   if (OT_FEATURE(NDEF) == ENABLED)
     if (hdr_len != 4) {
-        *hdr_position++ = alp->OUTREC(FLAGS);        //Flags byte (always)
-        *hdr_position++ = 0;                        //Type Len (NDEF only)
-        *hdr_position++ = alp->OUTREC(PLEN);      //Payload len
+        q_writebyte(alp->outq, alp->OUTREC(FLAGS));     //Flags byte (always)
+        q_writebyte(alp->outq, 0);                      //Type Len (NDEF only)
+        q_writebyte(alp->outq, alp->OUTREC(PLEN));      //Payload len
+        
         if (alp->OUTREC(FLAGS) & ALP_FLAG_MB) {
             alp->OUTREC(FLAGS)  &= ~(NDEF_IL | 7);
-            alp->OUTREC(FLAGS)  |= TNF_Unchanged;    // Make next record "Unchanged"
-            *hdr_position++     = 2;                //NDEF ID Len
-            *hdr_position++     = alp->OUTREC(ID);   //ALP-ID    (ID 1)
-            *hdr_position       = alp->OUTREC(CMD);  //ALP-CMD   (ID 2)
+            alp->OUTREC(FLAGS)  |= TNF_Unchanged;       // Make next record "Unchanged"
+            q_writebyte(alp->outq, 2);                  //NDEF ID Len
+            q_writebyte(alp->outq, alp->OUTREC(ID));    //ALP-ID    (ID 1)
+            q_writebyte(alp->outq, alp->OUTREC(CMD));   //ALP-CMD   (ID 2)
         }
     }
     else
 #   else
     {
-        memcpy(hdr_position, &alp->OUTREC(FLAGS), 4);
+        q_writelong_be(alp->outq, alp->OUTREC);
+        //ot_memcpy(hdr_position, &alp->OUTREC(FLAGS), 4);
     }
 #   endif
 
+    alp->outq->putcursor = savedput;
     alp->OUTREC(FLAGS)  &= ~ALP_FLAG_MB;
 }
 
@@ -208,9 +213,9 @@ ot_bool alp_proc(alp_tmpl* alp, const id_tmpl* user_id) {
             q_empty(proc_elem->appq);
         }
         
-        ///@note make q_transfer
-        q_writestring(proc_elem->appq, alp->inq->getcursor, alp->INREC(PLEN));
-        //q_writestring(proc_elem->appq, alp->inq->getcursor, alp->inq->getcursor[1]);
+        q_movedata(proc_elem->appq, alp->inq, alp->INREC(PLEN));
+        //q_writestring(proc_elem->appq, alp->inq->getcursor, alp->INREC(PLEN));        // attempt 1
+        //q_writestring(proc_elem->appq, alp->inq->getcursor, alp->inq->getcursor[1]);  // attempt 0
     }
     
     /// If the Message-End flag is set, then run the processor callback
@@ -256,8 +261,8 @@ void alp_add_app(alp_tmpl* alp, ot_u8 alp_id, alp_fn callback, ot_queue appq) {
 
 ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id) {
     ALP_status  exit_code;
-    ot_u8*      input_position;
-    ot_u8*      hdr_position;
+    ot_qcur     input_position;
+    ot_qcur     hdr_position;
     ot_u8       hdr_len;
     ot_int      proc_output;
     ot_int      bytes;
@@ -270,9 +275,7 @@ ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id) {
 
     /// Safety check: make sure both queues have room remaining for the
     /// most minimal type of message, an empty message
-    if (((alp->inq->back - alp->inq->getcursor) < 4) || \
-        ((alp->outq->back - alp->outq->putcursor) < 4)) {
-        
+    if ((q_readspace(alp->inq) < 4) || (q_writespace(alp->outq) < 4)) {
         exit_code = MSG_Null;
         goto alp_parse_message_END;
     }
@@ -283,15 +286,14 @@ ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id) {
     /// OpenTag requirement, bypass it and go to the next.  Else, copy
     /// the input record to the output record.  alp_proc() will adjust
     /// the output payload length and flags, as necessary.
-    input_position      = alp->inq->getcursor;
-    alp->inq->getcursor+= 4;
-
     if (alp->OUTREC(FLAGS) & ALP_FLAG_ME) {
-        alp->OUTREC(FLAGS)  = input_position[0];
+        alp->OUTREC(FLAGS)  = q_getcursor_val(alp->inq, 0);
         alp->OUTREC(PLEN)   = 0;
-        alp->OUTREC(ID)     = input_position[2];
-        alp->OUTREC(CMD)    = input_position[3];
+        alp->OUTREC(ID)     = q_getcursor_val(alp->inq, 2);
+        alp->OUTREC(CMD)    = q_getcursor_val(alp->inq, 3);
     }
+    input_position          = alp->inq->getcursor;
+    alp->inq->getcursor    += 4;
 
     ///@todo transform output creation part to a separate function call the
     ///      application should use when building response messages.  That
@@ -316,8 +318,11 @@ ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id) {
         alp->OUTREC(FLAGS)    &= ~NDEF_CF;
     }
     else {
-        memcpy(hdr_position, &alp->OUTREC(FLAGS), 4);
-        alp->OUTREC(FLAGS) &= ~ALP_FLAG_MB;
+        ot_qptr savedput        = alp->outq->putcursor;
+        alp->outq->putcursor    = hdr_position;
+        q_writelong_be(alp->outq, alp->OUTREC(FLAGS));
+        alp->outq->putcursor    = savedput;
+        alp->OUTREC(FLAGS)     &= ~ALP_FLAG_MB;
     }
 
     /// The input record, now treated, shall be rewound

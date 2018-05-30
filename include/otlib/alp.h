@@ -74,7 +74,7 @@
 #define _I_PLEN         -3
 #define _I_FLAGS        -4
 
-#define INREC(X)        inq->getcursor[_I_##X]
+#define INREC(X)        q_getcursor_val(inq, _I_##X)    /* inq->getcursor[_I_##X] */
 #define OUTREC(X)       outrec._O_##X
 #define BOOKMARK_IN     bookmark_in
 #define BOOKMARK_OUT    outrec.bookmark

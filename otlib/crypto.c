@@ -55,7 +55,7 @@ ot_int __EAX_crypt( ot_u8* dst, ot_u8* src, ot_uint srclen, ot_u8* nonce, ot_u8*
     
     if (retval == 0) {
         if ((dst != src) && (dst != NULL) && (srclen != 0)) {
-            memcpy(dst, src, srclen);
+            ot_memcpy(dst, src, srclen);
         }
         if (__crypt(nonce, dst, srclen, &context) == 0) {
             return 4;

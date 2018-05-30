@@ -119,7 +119,7 @@ void crypto_clean();
 /** Subroutines <BR>
   * ========================================================================<BR>
   */
-#if (_SEC_DLL || _SEC_NL)
+#if (_SEC_ANY)
 void sub_expand_key(void* rawkey, eax_ctx_t* ctx) {
 /// This routine will expand the key (128 bits) into a much larger key sequence.
 /// The key sequence is what is actually used to do cryptographic operations.
@@ -158,7 +158,7 @@ ot_bool sub_authcmp(id_tmpl* user_id, id_tmpl* comp_id, ot_u8 mod_flags) {
 
 #ifndef EXTF_auth_init
 void auth_init(void) {
-#if (_SEC_DLL)
+#if (_SEC_ANY)
 #   define _KFILE_BYTES     (2 + 4 + 16)
     ot_int      i;
     vlFILE*     fp;
@@ -265,9 +265,10 @@ void auth_putnonce(void* dst, ot_uint total_size) {
     /// conveyed congruently.
     output_nonce = dlls_nonce++;
     
-    memcpy_bytes(dst, &output_nonce, write_bytes);
+    ot_memcpy(dst, &output_nonce, write_bytes);
 }
 #endif
+
 
 
 #ifndef EXTF_auth_putnonce_q
@@ -420,13 +421,9 @@ ot_int auth_search_user(id_tmpl* user_id, ot_u8 req_mod) {
     ///@todo Current implementation is linear search.  In the future maybe
     ///      implement binary search, although for small tables typical for
     ///      this static allocation, it might be faster with linear search.
-    
-    if (user_id.length == 2) {
-        id_u64 = (uint64_t)*(ot_u16*)user_id.value;
-    }
-    else {
-        id_u64 = *(uint64_t*)user_id.value;
-    }
+    id_u64 = (user_id.length == 2) ? \
+                (uint64_t)*(ot_u16*)user_id.value : \
+                *(uint64_t*)user_id.value;
     
     // mask-out the don't-care bits
     req_mod &= 0x3f;
@@ -475,7 +472,7 @@ ot_int auth_get_user(id_tmpl* user_id, ot_u16 index) {
     if ((user_id != NULL) && (index < dlls_size)) {
         ot_int length;
         length = (dlls_info[index].id < 65536) ? 2 : 8;
-        memcpy(user_id.value, dlls_info[index].id, length);
+        ot_memcpy(user_id.value, dlls_info[index].id, length);
         return length;
     }
 #   endif

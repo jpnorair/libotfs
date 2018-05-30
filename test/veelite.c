@@ -190,7 +190,7 @@ int sub_memptr(uint8_t id) {
         ptr = vl_memptr(fp);
         if (ptr != NULL) {
             sub_randload(temp, alloc);
-            memcpy(ptr, temp, alloc);
+            ot_memcpy(ptr, temp, alloc);
             vl_close(fp);
         
             fp = ISF_open_su(id);

@@ -40,6 +40,7 @@ extern "C" {
 //#include <otsys/threads.h>
 
 
+#if !defined(__C2000__)
 /** @typedef ot_queue
   * 
   * The ot_queue data type does not contain the data in the queues themselves, just
@@ -52,16 +53,43 @@ extern "C" {
   * ot_u8* getcursor    Cursor address for reading from queue
   * ot_u8* putcursor    Cursor address for writing to queue
   */
+typedef ot_u8*  ot_qcur;
+  
 typedef struct {
     ot_u16      alloc;
     ot_uni16    options;
   //ot_tmask    tmask;    
-    ot_u8*      getcursor;
-    ot_u8*      putcursor;
-    ot_u8*      front;
-    ot_u8*      back;
+    ot_qcur     getcursor;
+    ot_qcur     putcursor;
+    ot_qcur     front;
+    ot_qcur     back;
 } ot_queue;
 
+#else
+/** @typedef ot_queue
+  * 
+  * The ot_queue data type does not contain the data in the queues themselves, just
+  * information on how to get that data as well as any other useful variables.
+  *
+  * ot_u8* front        First address of queue data
+  * ot_u16 alloc        Allocation of the queue data, in bytes
+  * ot_uni16 options    User flags
+  * ot_u16 getcursor    Cursor address for reading from queue
+  * ot_u16 putcursor    Cursor address for writing to queue
+  * ot_u16 back         Used for boundary checking (user adjustable)
+  */
+typedef ot_u16  ot_qcur;
+  
+typedef struct {
+    ot_uint*    front;
+    ot_u16      alloc;
+    ot_uni16    options;
+    ot_qcur     getcursor;
+    ot_qcur     putcursor;
+    ot_qcur     back;
+} ot_queue;
+
+#endif
 
 
 /** Queue "Object" functions
@@ -75,7 +103,7 @@ typedef struct {
   * @retval none
   * @ingroup Queue
   */
-void q_init(ot_queue* q, ot_u8* buffer, ot_u16 alloc);
+void q_init(ot_queue* q, void* buffer, ot_u16 alloc);
 
 
 /** @brief Reposition the ot_queue pointers to a new buffer, don't change attributes
@@ -86,7 +114,7 @@ void q_init(ot_queue* q, ot_u8* buffer, ot_u16 alloc);
   *
   * Most commonly used when multiple frames are in the same queue.
   */
-void q_rebase(ot_queue* q, ot_u8* buffer);
+void q_rebase(ot_queue* q, void* buffer);
 
 
 /** @brief Copies one ot_queue "object" to another, without copying the data
@@ -237,10 +265,10 @@ void q_rewind(ot_queue* q);
   * @param q        (ot_queue*) Pointer to the ot_queue ADT
   * @param offset   (ot_uint) bytes to offset the fist data writes from the front
   * @param options  (ot_u16) option bits.  user-defined usage.
-  * @retval ot_u8*  Pointer to queue get & putcursor, or NULL if an error
+  * @retval void*   Pointer to putcursor/getcursor of the queue, or NULL on error
   * @ingroup Queue
   */
-ot_u8* q_start(ot_queue* q, ot_uint offset, ot_u16 options);
+void* q_start(ot_queue* q, ot_uint offset, ot_u16 options);
 
 
 
@@ -254,10 +282,10 @@ ot_u8* q_start(ot_queue* q, ot_uint offset, ot_u16 options);
 /** @brief Returns the current getcursor position, and then moves it forward
   * @param q        (ot_queue*) Pointer to the ot_queue ADT
   * @param shift    (ot_int) bytes to move getcursor forward
-  * @retval ot_u8*  Pointer to getcursor at original position
+  * @retval ot_qcur Pointer to getcursor at original position
   * @ingroup Queue
   */
-ot_u8* q_markbyte(ot_queue* q, ot_int shift);
+ot_qcur q_markbyte(ot_queue* q, ot_int shift);
 
 
 /** @brief Writes a byte to a ot_queue's putcursor, and advances it
@@ -295,6 +323,7 @@ void q_writeshort_be(ot_queue* q, ot_u16 short_in);
   *       in order to move integers from memory to the queue.
   */
 void q_writelong(ot_queue* q, ot_u32 long_in);
+void q_writelong_be(ot_queue* q, ot_u32 long_in);
 
 
 
@@ -329,6 +358,9 @@ ot_u16 q_readshort_be(ot_queue* q);
   *       in order to move integers from memory to the queue.
   */
 ot_u32 q_readlong(ot_queue* q);
+ot_u32 q_readlong_be(ot_queue* q);
+
+
 
 
 void q_writestring(ot_queue* q, ot_u8* string, ot_int length);

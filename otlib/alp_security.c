@@ -109,9 +109,9 @@ OT_WEAK ot_bool alp_proc_sec(alp_tmpl* alp, id_tmpl* user_id) {
     id_tmpl*    id_ptr;
     ot_int      key_index;
     ot_u8       errcode = 0;
-    ot_u8       cmd_in  = alp->inq->getcursor[0];       //ot_u8 cmd_in = __q_putcursor_array(alp->inq, 0);
+    ot_u8       cmd_in  = q_getcursor_val(alp->inq, 0);
     
-    alp->inq->getcursor+= 4;     //__q_getcursor_move(alp->inq, 4);
+    alp->inq->getcursor+= 4;
 
 #   if 0 || (OT_FEATURE(CLIENT))
     /// Put your client code in here, which handles the response.  Response

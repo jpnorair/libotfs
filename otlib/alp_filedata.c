@@ -152,8 +152,7 @@ OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, const id_tmpl* user_id) {
     else {
         ///@todo find if this is even necessary.  I don't think it is.  It is
         /// here now for safety purposes.
-        alp->outq->putcursor   -= alp->OUTREC(PLEN);        //__q_putcursor_move(alp->outq, -(alp->OUTREC(PLEN)));
-        
+        alp->outq->putcursor   -= alp->OUTREC(PLEN);
     }
 
     return True;
@@ -177,7 +176,7 @@ ot_bool sub_testchunk(ot_int data_in) {
 
 /// This is a form of overwrite protection
 ot_bool sub_qnotfull(ot_u8 write, ot_u8 write_size, ot_queue* q) {
-    return (ot_bool)((write_size <= q_space(q)) || (write_size == 0));
+    return (ot_bool)((write_size <= q_writespace(q)) || (write_size == 0));
 
     ///@note impl used prior to q_space()
     //return (ot_bool)(((q->putcursor+write_size) < q->back) || (write == 0));
@@ -273,7 +272,7 @@ ot_int sub_filedata( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8
     ot_u8   file_mod    = ((cmd_in & 0x02) ? VL_ACCESS_W : VL_ACCESS_R);
     ot_queue*  inq      = alp->inq;
     ot_queue*  outq     = alp->outq;
-    ot_u8*  outq_marker = alp->outq->putcursor;
+    ot_qcur outq_marker = alp->outq->putcursor;
 
     sub_filedata_TOP:
 
@@ -336,7 +335,7 @@ ot_int sub_filedata( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8
         else {
             ot_u8 overhead = 5 << (inc_header != 0);
             
-            if (overhead >= q_space(outq)) {
+            if (overhead >= q_writespace(outq)) {
                 goto sub_filedata_overrun;
             }
             
@@ -365,7 +364,7 @@ ot_int sub_filedata( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8
             q_writeshort(outq, span);
 
             for (; offset<limit; offset+=2, span-=2, data_out+=2) {
-                if (2 >= q_space(outq)) {
+                if (2 >= q_writespace(outq)) {
                     goto sub_filedata_overrun;
                 }
                 q_writeshort_be(outq, vl_read(fp, offset));
@@ -378,7 +377,7 @@ ot_int sub_filedata( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8
         /// error on the first read item that has an error in it.
         sub_filedata_senderror:
         if (respond) {
-            if (2 >= q_space(outq)) {
+            if (2 >= q_writespace(outq)) {
                 goto sub_filedata_overrun;
             }
             if (file_mod | err_code) {
@@ -467,7 +466,7 @@ ot_int sub_filecreate(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u
         data_in            -= 6;
         id                  = q_readbyte(alp->inq);
         mod                 = q_readbyte(alp->inq);
-        alp->inq->getcursor+= 2;        // __q_getcursor_move(alp->inq, 2);            
+        alp->inq->getcursor+= 2;           
         alloc               = q_readshort(alp->inq);
         err_code            = vl_new(&fp, file_block, id, mod, alloc, user_id);
 

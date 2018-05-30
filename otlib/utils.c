@@ -209,7 +209,7 @@ ot_int slistf(ot_u8* dst, const char* label, char format, ot_u8 number, ot_u8* s
     // No formatting (text)
     else {
         *dst++ = ' ';
-        memcpy(dst, src, number);
+        ot_memcpy(dst, src, number);
         dst += number;
     }
 

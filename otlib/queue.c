@@ -79,7 +79,7 @@ void q_rebase(ot_queue* q, ot_u8* buffer) {
 
 #ifndef EXTF_q_copy
 void q_copy(ot_queue* q1, ot_queue* q2) {
-    memcpy((ot_u8*)q1, (ot_u8*)q2, sizeof(ot_queue));
+    ot_memcpy((ot_u8*)q1, (ot_u8*)q2, sizeof(ot_queue));
 }
 #endif
 
@@ -107,12 +107,18 @@ ot_int q_span(ot_queue* q) {
 #endif
 
 
-#ifndef EXTF_q_space
-ot_int q_space(ot_queue* q) {
+#ifndef EXTF_q_writespace
+ot_int q_writespace(ot_queue* q) {
     return (q->back - q->putcursor);
 }
 #endif
 
+
+#ifndef EXTF_q_readspace
+ot_int q_readspace(ot_queue* q) {
+    return (q->back - q->getcursor);
+}
+#endif
 
 
 
@@ -175,7 +181,7 @@ void q_rewind(ot_queue* q) {
         q->putcursor   -= dist;
         q->getcursor    = q->front;
         
-        memcpy(q->front, get, put-get);
+        ot_memcpy(q->front, get, put-get);
     }
 }
 #endif
@@ -331,7 +337,7 @@ void q_writestring(ot_queue* q, ot_u8* string, ot_int length) {
         length = limit;
     } 
     if (length > 0) {
-        memcpy(q->putcursor, string, length);
+        ot_memcpy(q->putcursor, string, length);
         q->putcursor   += length;
     }
 }
@@ -347,7 +353,7 @@ void q_readstring(ot_queue* q, ot_u8* string, ot_int length) {
         length = limit;
     }
     if (length > 0) {
-        memcpy(string, q->getcursor, length);
+        ot_memcpy(string, q->getcursor, length);
         q->getcursor += length;
     }
 }
