@@ -37,6 +37,9 @@
 #define _SEC_ALL    (_SEC_NL && _SEC_DLL)
 #define _SEC_ANY    (_SEC_NL || _SEC_DLL)
 
+///@todo bring this into OT_config.h eventually, when the feature gets supported
+
+
 
 
 /// User aliases for sandboxed processes only
@@ -69,14 +72,17 @@ typedef struct {
 } authctx_t;
 
 #if (_SEC_ANY)
+#   undef   AUTH_NUM_ELEMENTS
+#   define  AUTH_NUM_ELEMENTS   3
+
     static uint32_t dlls_nonce;
     static ot_uint  dlls_size   = 0;
 
 #   if (AUTH_NUM_ELEMENTS >= 0)
     // Static allocation:
     // First two elements are root and admin for the active device.
-    static authctx_t    dlls_ctx[2 + AUTH_NUM_ELEMENTS];
-    static authinfo_t   dlls_info[2 + AUTH_NUM_ELEMENTS];
+    static authctx_t    dlls_ctx[AUTH_NUM_ELEMENTS];
+    static authinfo_t   dlls_info[AUTH_NUM_ELEMENTS];
     
 #   elif (AUTH_NUM_ELEMENTS < 0)
     // Dynamic Allocation:
@@ -87,6 +93,11 @@ typedef struct {
     static authinfo_t* dlls_info = NULL;
     
 #   endif
+
+#else
+#   undef   AUTH_NUM_ELEMENTS
+#   define  AUTH_NUM_ELEMENTS   0
+
 #endif
 
 
@@ -217,7 +228,7 @@ void auth_init(void) {
 void auth_deinit(void) {
 /// clear all memory used for key storage, and free it if necessary.
 
-#   if (AUTH_NUM_ELEMENTS >= 0)
+#   if (AUTH_NUM_ELEMENTS > 0)
     // Clear memory elements.  They are statically allocated in this case,
     // so no freeing is required.
     memset(dlls_info, 0, sizeof(dlls_info));
@@ -413,7 +424,7 @@ ot_int auth_search_user(id_tmpl* user_id, ot_u8 req_mod) {
 /// The req_mod input is a bitfield with the structure: --rwrwrw
 /// The first rw is for root, second for user, third for guest.
 #if (_SEC_ANY)
-#   if (AUTH_NUM_ELEMENTS >= 0)
+#   if (AUTH_NUM_ELEMENTS > 0)
     ot_int i; 
     uint64_t id_u64;
     

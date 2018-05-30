@@ -129,6 +129,41 @@ void q_copy(ot_queue* q1, ot_queue* q2);
 
 
 
+/** Queue "Intrinsics"
+  * ==================
+  */
+
+/** @brief Returns the value of an offset from getcursor
+  * @param q        (ot_queue*) Input Queue
+  * @param offset   (ot_int) offset from getcursor position
+  * @retval ot_u8   value at getcursor offset
+  * @ingroup Queue
+  */
+ot_u8 q_getcursor_val(ot_queue* q, ot_int offset);
+
+/** @brief Returns the value of an offset from putcursor
+  * @param q        (ot_queue*) Input Queue
+  * @param offset   (ot_int) offset from putcursor position
+  * @retval ot_u8   value at putcursor offset
+  * @ingroup Queue
+  */
+ot_u8 q_putcursor_val(ot_queue* q, ot_int offset);
+
+
+/** @brief Returns the cursor of an offset from Queue front
+  * @param q        (ot_queue*) Input Queue
+  * @param offset   (ot_int) offset from queue front
+  * @retval ot_qcur cursor at offset from front
+  * @ingroup Queue
+  */
+ot_qcur q_offset(ot_queue* q, ot_int offset);
+
+
+
+
+
+
+
 /** Queue Info functions
   * ====================
   */
@@ -147,13 +182,19 @@ ot_int q_length(ot_queue* q);
   */
 ot_int q_span(ot_queue* q);
 
-/** @brief Returns the amount of unused bytes at end of the queue (bytes
-  *        between put and back)
+/** @brief Returns the writeable space (bytes) in the queue (back-put)
   * @param q        (ot_queue*) ot_queue to determine space 
   * @retval none
   * @ingroup Queue
   */
-ot_int q_space(ot_queue* q);
+ot_int q_writespace(ot_queue* q);
+
+/** @brief Returns the readable space (bytes) in the queue (back-get)
+  * @param q        (ot_queue*) ot_queue to determine space 
+  * @retval none
+  * @ingroup Queue
+  */
+ot_int q_readspace(ot_queue* q);
 
 
 
@@ -265,7 +306,7 @@ void q_rewind(ot_queue* q);
   * @param q        (ot_queue*) Pointer to the ot_queue ADT
   * @param offset   (ot_uint) bytes to offset the fist data writes from the front
   * @param options  (ot_u16) option bits.  user-defined usage.
-  * @retval void*   Pointer to putcursor/getcursor of the queue, or NULL on error
+  * @retval void*   Pointer to offset front of the queue
   * @ingroup Queue
   */
 void* q_start(ot_queue* q, ot_uint offset, ot_u16 options);
@@ -362,9 +403,59 @@ ot_u32 q_readlong_be(ot_queue* q);
 
 
 
+/** @brief Writes a specified BINARY string of bytes to the queue
+  * @param q        (ot_queue*) Pointer to the ot_queue ADT
+  * @param string   (ot_u8*) binary string input
+  * @param length   (ot_int) length of binary string in bytes.
+  * @retval ot_int  Number of bytes written
+  * @ingroup Queue
+  * 
+  * A binary string is not zero terminated, it is determined by the
+  * length from the length parameter.
+  *
+  * if the length input is greater than the amount of write space
+  * in the queue, then the write will be limited to this amount.
+  */
+ot_int q_writestring(ot_queue* q, ot_u8* string, ot_int length);
 
-void q_writestring(ot_queue* q, ot_u8* string, ot_int length);
-void q_readstring(ot_queue* q, ot_u8* string, ot_int length);
+
+/** @brief Reads a specified BINARY string of bytes to the queue
+  * @param q        (ot_queue*) Pointer to the ot_queue ADT
+  * @param string   (ot_u8*) binary string output
+  * @param length   (ot_int) length of binary string in bytes.
+  * @retval ot_int  Number of bytes written
+  * @ingroup Queue
+  * 
+  * A binary string is not zero terminated, it is determined by the
+  * length from the length parameter.
+  *
+  * if the length input is greater than the amount of read space
+  * in the queue, then the read will be limited to this amount.
+  */
+ot_int q_readstring(ot_queue* q, ot_u8* string, ot_int length);
+
+
+
+/** @brief Moves bytes from one queue to another
+  * @param qdst     (ot_queue*) Destination queue
+  * @param qsrc     (ot_queue*) Source queue
+  * @param length   (ot_int) maximum length of data transfer
+  * @retval ot_int  Number of bytes written, or negative on error.
+  * @ingroup Queue
+  * 
+  * Move "length" bytes from "qsrc" to "qdst."  The queue cursors
+  * in qdst and qsrc will be updated accordingly.
+  *
+  * If length is less than or equal to 0, q_movedata will return 0.
+  *
+  * If length is greater than the q_readspace(qsrc) or greater
+  * than q_writespace(qdst), the queues will be untouched and a 
+  * negative value will be returned.  This value corresponds to
+  * the deficit in bytes between the supplied length and the 
+  * smaller of the qsrc read-space and qdst write-space
+  */
+ot_int q_movedata(ot_queue* qdst, ot_queue* qsrc, ot_int length);
+
 
 
 

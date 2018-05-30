@@ -47,9 +47,6 @@
 #define AUTH_FLAG_ISROOT    0x40
 
 
-///@todo bring this into OT_config.h eventually, when the feature gets supported
-#define AUTH_NUM_ELEMENTS 0
-
 extern const id_tmpl*   auth_root;      // this is self-root, uses local root key
 extern const id_tmpl*   auth_user;      // this is self-user, uses local user key
 extern const id_tmpl*   auth_guest;

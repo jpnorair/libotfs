@@ -12,15 +12,37 @@
 #ifndef __EXTF_CONFIG_H
 #define __EXTF_CONFIG_H
 
-
+/// Queue Module: on C2000 this is completely different
+///@todo could put all C2000 generic patches in a separate include header
+#define EXTF_q_init
+#define EXTF_q_rebase
+#define EXTF_q_copy
+#define EXTF_q_intrinsics
+#define EXTF_q_length
+#define EXTF_q_span
+#define EXTF_q_writespace
+#define EXTF_q_readspace
+#define EXTF_q_blocktime
+#define EXTF_q_blockwrite
+#define EXTF_q_lock
+#define EXTF_q_unlock
+#define EXTF_q_empty
+#define EXTF_q_rewind
+#define EXTF_q_start
+#define EXTF_q_markbyte
+#define EXTF_q_writebyte
 #define EXTF_q_writeshort
 #define EXTF_q_writeshort_be
 #define EXTF_q_writelong
+#define EXTF_q_writelong_be
 #define EXTF_q_readbyte
 #define EXTF_q_readshort
 #define EXTF_q_readshort_be
 #define EXTF_q_readlong
-
+#define EXTF_q_readlong_be
+#define EXTF_q_writestring
+#define EXTF_q_readstring
+#define EXTF_q_movedata
 
 
 /// ALP Module EXTFs
@@ -68,9 +90,6 @@
 
 /// OTAPI EXTFs
 
-
-
-/// ot_queue EXTFs
 
 
 /// Radio EXTFs

@@ -113,7 +113,7 @@ void sub_insert_header(alp_tmpl* alp, ot_qcur hdr_position, ot_u8 hdr_len) {
     else
 #   else
     {
-        q_writelong_be(alp->outq, alp->OUTREC);
+        q_writelong_be(alp->outq, alp->OUTREC(FLAGS));
         //ot_memcpy(hdr_position, &alp->OUTREC(FLAGS), 4);
     }
 #   endif
@@ -318,7 +318,7 @@ ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id) {
         alp->OUTREC(FLAGS)    &= ~NDEF_CF;
     }
     else {
-        ot_qptr savedput        = alp->outq->putcursor;
+        ot_qcur savedput        = alp->outq->putcursor;
         alp->outq->putcursor    = hdr_position;
         q_writelong_be(alp->outq, alp->OUTREC(FLAGS));
         alp->outq->putcursor    = savedput;

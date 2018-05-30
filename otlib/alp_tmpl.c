@@ -73,9 +73,9 @@ OT_WEAK void alp_breakdown_queue(ot_queue* in_q, void* data_type) {
     ((ot_queue*)data_type)->options     = in_q->options;
     queue_front                         = q_markbyte(in_q, queue_length);
     ((ot_queue*)data_type)->front       = queue_front;
-    ((ot_queue*)data_type)->back        = q_cursor_val((ot_queue*)data_type, queue_length);
-    ((ot_queue*)data_type)->getcursor   = q_cursor_val((ot_queue*)data_type, 0);
-    ((ot_queue*)data_type)->putcursor   = q_cursor_val((ot_queue*)data_type, 0);
+    ((ot_queue*)data_type)->back        = q_offset((ot_queue*)data_type, queue_length);
+    ((ot_queue*)data_type)->getcursor   = q_offset((ot_queue*)data_type, 0);
+    ((ot_queue*)data_type)->putcursor   = q_offset((ot_queue*)data_type, 0);
     //((ot_queue*)data_type)->back        = queue_front+queue_length;
     //((ot_queue*)data_type)->getcursor   = queue_front;
     //((ot_queue*)data_type)->putcursor   = queue_front;

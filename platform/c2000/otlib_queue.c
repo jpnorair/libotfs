@@ -67,6 +67,27 @@ void q_init(ot_queue* q, void* buffer, ot_u16 alloc) {
 }
 
 
+void q_rebase(ot_queue* q, void* buffer) {
+    q->front        = buffer;
+    q->getcursor    = 0;
+    q->putcursor    = 0;
+    q->back         = 0;
+}
+
+
+void q_copy(ot_queue* q1, ot_queue* q2) {
+    ot_memcpy_2((ot_u8*)q1, (ot_u8*)q2, sizeof(ot_queue));
+}
+
+
+
+
+
+
+/** Queue "Intrinsics"
+  * ==================
+  */
+
 OT_INLINE ot_u8 q_getcursor_val(ot_queue* q, ot_int offset) {
     return __byte(q->front, q->getcursor + offset);
 }
@@ -75,7 +96,7 @@ OT_INLINE ot_u8 q_putcursor_val(ot_queue* q, ot_int offset) {
     return __byte(q->front, q->getcursor + offset);
 }
 
-ot_qcur q_cursor_val(ot_queue* q, ot_int offset) {
+OT_INLINE ot_qcur q_offset(ot_queue* q, ot_int offset) {
     return offset;
 }
 
@@ -85,14 +106,14 @@ ot_qcur q_cursor_val(ot_queue* q, ot_int offset) {
 /** Queue Info functions
   * ====================
   */
-  
+
 ot_int q_length(ot_queue* q) {
-    return (q->putcursor - q->front);
+    return (ot_int)q->putcursor;
 }
 
 
 ot_int q_span(ot_queue* q) {
-    return (q->putcursor - q->getcursor);
+    return (ot_int)(q->putcursor - q->getcursor);
 }
 
 
@@ -131,15 +152,12 @@ void q_unlock(ot_queue* q) {
 
 
 
-
 void q_empty(ot_queue* q) {
     q->options.ushort   = 0;
     q->back             = q->alloc;
     q->putcursor        = 0;
     q->getcursor        = 0;
 }
-
-
 
 
 void q_rewind(ot_queue* q) {
@@ -156,61 +174,32 @@ void q_rewind(ot_queue* q) {
 }
 
 
-
-///@todo make sure q_start() doesn't do anything critical with options
-///      parameter in libotfs.
 void* q_start(ot_queue* q, ot_uint offset, ot_u16 options) {
     q_empty(q);
 
     if (offset >= q->alloc)
         return NULL;
     
-    q->options.ushort  = (offset & 1) ? 3 : 0;
-    offset           >>= 1;
+    q->options.ushort  = options;
     q->putcursor      += offset;
     q->getcursor      += offset;
     
-    return q->getcursor;
+    return q->front + (offset>>1);
 }
 
 
-
-ot_qptr q_markbyte(ot_queue* q, ot_int shift) {
-    ot_u8* output;
-    
-    // Truth table for aligment, shift
-    //0 0 --> 0, >> 1
-    //0 1 --> 1, >> 1
-    //1 0 --> 1, >> 1
-    //1 1 --> 0, +1 >> 1
-    
-    if (shift & 1) {
-        shift              += (q->options.ushort & 1);
-        q->options.ushort  ^= 1;
-    }
-
+ot_qcur q_markbyte(ot_queue* q, ot_int shift) {
+    ot_qcur output;
     output          = q->getcursor;
-    q->getcursor   += shift >> 1;
-    
+    q->getcursor   += shift;
     return output;
 }
 
 
-
 void q_writebyte(ot_queue* q, ot_u8 byte_in) {
-    ot_int shift;
-    shift = (q->options.ushort & 2) << 2;   // will yield 0 or 8
-    
-    // Use Byte intrinsics
-    
-    if (shift) {
-           
-    }
-    
-    *q->putcursor++ = byte_in;
+    __byte(q->front, q->putcursor) = byte_in;
+    q->putcursor++;
 }
-
-
 
 
 void q_writeshort(ot_queue* q, ot_uint short_in) {
@@ -225,6 +214,7 @@ void q_writeshort_be(ot_queue* q, ot_uint short_in) {
 }
 
 
+
 void q_writelong(ot_queue* q, ot_ulong long_in) {
     q_writebyte(q, (long_in >> 24));
     q_writebyte(q, (long_in >> 16) & 0xff);
@@ -232,24 +222,19 @@ void q_writelong(ot_queue* q, ot_ulong long_in) {
     q_writebyte(q, (long_in >> 0) & 0xff);
 }
 
-
-ot_u8 q_readbyte(ot_queue* q) {
-    ot_u8 output;
-    ot_u16 alignment;
-    
-    alignment = q->options.ushort & 1;
-    
-    /// Use Byte Intrinsic (C2000) to get byte output
-    output = __byte(q->getcursor, alignment);
-    
-    /// Update getcursor and/or q->options flag
-    q->getcursor       += alignment;
-    q->options.ushort  ^= 1;
-    
-    return output;
+void q_writelong_be(ot_queue* q, ot_ulong long_in) {
+    q_writebyte(q, (long_in >> 0) & 0xff);
+    q_writebyte(q, (long_in >> 8) & 0xff);
+    q_writebyte(q, (long_in >> 16) & 0xff);
+    q_writebyte(q, (long_in >> 24));
 }
 
 
+ot_u8 q_readbyte(ot_queue* q) {
+    ot_u8 retval;
+    retval = __byte(q->front, q->getcursor);
+    q->getcursor++;
+}
 
 ot_u16 q_readshort(ot_queue* q) {
     ot_u16 output;
@@ -259,8 +244,6 @@ ot_u16 q_readshort(ot_queue* q) {
     return output;
 }
 
-
-
 ot_u16 q_readshort_be(ot_queue* q) {
     ot_u16 output;
     output  = (ot_u16)q_readbyte(q);
@@ -268,9 +251,6 @@ ot_u16 q_readshort_be(ot_queue* q) {
     
     return output;
 }
-
-
-
 
 ot_u32 q_readlong(ot_queue* q)  {
     ot_u32 output;
@@ -282,62 +262,86 @@ ot_u32 q_readlong(ot_queue* q)  {
     return output;
 }
 
+ot_u32 q_readlong_be(ot_queue* q)  {
+    ot_u32 output;
+    output  = (ot_u32)q_readbyte(q);
+    output |= (ot_u32)q_readbyte(q) << 8;
+    output |= (ot_u32)q_readbyte(q) << 16;
+    output |= (ot_u32)q_readbyte(q) << 24;
+    
+    return output;
+}
 
 
 
-void q_movedata(ot_queue* qdst, ot_queue* qsrc, ot_int length) {
-    while (length > 0) {
-        length--;
+
+
+ot_int q_writestring(ot_queue* q, ot_u8* string, ot_int length) {
+///@note this implementation writes a packed string
+    ot_int i;
+    
+    if (length <= 0) {
+        return 0;
+    }
+    
+    i = q_writespace(q);
+    if (i < length) {
+        length = i;
+    } 
+    
+    for (i=0; i<length; i++) {
+        q_writebyte( q, __byte((int*)string, i) );
+    }
+    
+    return length;
+}
+
+
+
+ot_int q_readstring(ot_queue* q, ot_u8* string, ot_int length) {
+///@note this implementation reads-out a packed string
+    ot_int i;
+    
+    if (length <= 0) {
+        return 0;
+    }
+    
+    i = q_readspace(q);
+    if (i < length) {
+        length = i;
+    } 
+    
+    for (i=0; i<length; i++) {
+        __byte((int*)string, i) = q_readbyte(q);
+    }
+    
+    return length;
+}
+
+
+
+ot_int q_movedata(ot_queue* qdst, ot_queue* qsrc, ot_int length) {
+    ot_int writespace, readspace, limit;
+
+    if (length <= 0) {
+        return 0;
+    }
+    
+    writespace  = q_writespace(qdst);
+    readspace   = q_readspace(qsrc);
+    limit       = (writespace < readspace) ? writespace : readspace;
+    if (limit < length) {
+        return length - limit;
+    }
+    
+    limit = length;
+    while (limit > 0) {
+        limit--;
         q_writebyte(qdst, q_readbyte(qsrc));
     }
+    
+    return length;
 }
-
-
-
-
-
-
-
-void q_writestring(ot_queue* q, ot_u8* string, ot_int length) {
-    ot_int limit;
-    
-    limit = q_writespace(q);
-    if (length > limit) {
-        length = limit;
-    }
-    
-    ///@note For C2000, ot_u8* is the same as ot_u16*
-    while (length > 1) {
-        length -= 2;
-        q_writeshort(*string++);
-    }
-    
-    ///@todo make sure this write is aligned properly
-    if (length > 0) {
-        q_writebyte(*string);
-    }
-}
-
-
-
-void q_readstring(ot_queue* q, ot_u8* string, ot_int length) {
-    ot_int limit;
-    
-    limit = q_span(q);
-    if (length > limit) {
-        length = limit;
-    }
-    
-    ///@note For C2000, ot_u8* is the same as ot_u16*
-    while (length > 1) {
-        length     -= 2;
-        *string++   = q_readshort(q);
-    }
-    if (length > 0) {
-        *string++ = q_readbyte(q);
-    }
-}
-
 
 
 #if (defined(__STDC__) || defined (__POSIX__))
