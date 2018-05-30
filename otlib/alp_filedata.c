@@ -132,8 +132,8 @@ OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, const id_tmpl* user_id) {
           &sub_return
     };
 
-    ot_int  data_in     = alp->INREC(PLEN);
-    ot_u8   cmd_in      = alp->INREC(CMD);
+    ot_int  data_in     = INREC(alp, PLEN);     //alp->INREC(PLEN);
+    ot_u8   cmd_in      = INREC(alp, CMD);      //alp->INREC(CMD);
     //ot_int  data_in     = (ot_u8)alp->inq->getcursor[1];
     //ot_u8   cmd_in      = alp->inq->getcursor[3];
     //alp->inq->getcursor+= 4;
@@ -224,7 +224,6 @@ ot_int sub_fileperms( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u
     }
 
     /// return number of bytes put onto the output (always x2)
-    //alp->BOOKMARK_IN = (void*)sub_testchunk(data_in);
     return data_out;
 }
 
@@ -252,8 +251,6 @@ ot_int sub_fileheaders( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot
                 data_out += 6;
             }
         }
-
-        //alp->BOOKMARK_IN = (void*)sub_testchunk(data_in);
     }
 
     return data_out;
@@ -262,7 +259,7 @@ ot_int sub_fileheaders( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot
 
 
 
-ot_int sub_filedata( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
+ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
     ot_u16  offset;
     ot_u16  span;
     ot_int  data_out    = 0;
@@ -397,17 +394,13 @@ ot_int sub_filedata( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8
         vl_close(fp);
     }
 
-
     // Total Completion:
-    // Set bookmark to NULL, because the record was completely processed
-    //alp->BOOKMARK_IN = NULL;
     return data_out;
-
 
     // Partial or Non Completion:
     // Reconfigure last ALP operation, because it was not completely processed
 
-    ///@todo Bookmarking is obsolete, because the way Chunking is done has
+    ///@note Bookmarking is obsolete, because the way Chunking is done has
     /// been revised.  Chunked records must be contiguous.  ALP-Main will not
     /// call this app, and thus not call this function, until the message-end
     /// bit is detected, therefore meaning that all data is received and
@@ -417,7 +410,6 @@ ot_int sub_filedata( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8
     vl_close(fp);
 
     ///@todo alp_next_chunk(alp);
-
     return data_out;
 }
 
@@ -445,7 +437,6 @@ ot_int sub_filedelete( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_
         }
     }
 
-    //alp->BOOKMARK_IN = (void*)sub_testchunk(data_in);
     return data_out;
 }
 
@@ -479,7 +470,6 @@ ot_int sub_filecreate(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u
         vl_close(fp);
     }
 
-    //alp->BOOKMARK_IN = (void*)sub_testchunk(data_in);
     return data_out;
 }
 
@@ -503,7 +493,6 @@ ot_int sub_filerestore(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_
         }
     }
 
-    //alp->BOOKMARK_IN = (void*)sub_testchunk(data_in);
     return data_out;
 }
 

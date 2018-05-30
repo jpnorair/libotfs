@@ -202,24 +202,24 @@ ot_bool alp_proc(alp_tmpl* alp, const id_tmpl* user_id) {
     alp->OUTREC(PLEN) = 0;
 
     /// Get the processing element based on the input record ID
-    proc_elem = sub_get_elem(alp->INREC(ID));
+    proc_elem = sub_get_elem(INREC(alp, ID)); //sub_get_elem(alp->INREC(ID));
 
     /// If an application queue exists:
     /// <LI>Empty it on Message-Begin set</LI>
     /// <LI>Store payload to it in any case</LI>
     if (proc_elem->appq != NULL) {
-        if (alp->INREC(FLAGS) & ALP_FLAG_MB) {
+        if (INREC(alp, FLAGS) & ALP_FLAG_MB) {
         //if (alp->inq->getcursor[0] & ALP_FLAG_MB) {
             q_empty(proc_elem->appq);
         }
         
-        q_movedata(proc_elem->appq, alp->inq, alp->INREC(PLEN));
+        q_movedata(proc_elem->appq, alp->inq, INREC(alp, PLEN));
         //q_writestring(proc_elem->appq, alp->inq->getcursor, alp->INREC(PLEN));        // attempt 1
         //q_writestring(proc_elem->appq, alp->inq->getcursor, alp->inq->getcursor[1]);  // attempt 0
     }
     
     /// If the Message-End flag is set, then run the processor callback
-    if (alp->INREC(FLAGS) & ALP_FLAG_ME) {
+    if (INREC(alp, FLAGS) & ALP_FLAG_ME) {
     //if (alp->inq->getcursor[0] & ALP_FLAG_ME) {
         output_code = proc_elem->callback(alp, user_id);
     }

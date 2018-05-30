@@ -178,8 +178,8 @@ OT_WEAK ot_bool alp_proc_sec(alp_tmpl* alp, id_tmpl* user_id) {
     // Include id and key data conditionally
     alp_proc_sec_RESPONSE:
     if (cmd_in & ALP_SEC_RESPOND) {
-        alp->OUTREC(_CMD)    &= 0x3F;
-        alp->OUTREC(_CMD)    |= ALP_SEC_STATUS;
+        alp->OUTREC(CMD)    &= 0x3F;
+        alp->OUTREC(CMD)    |= ALP_SEC_STATUS;
         q_writebyte(alp->outq, errcode);
         
         if (errcode == 0) {

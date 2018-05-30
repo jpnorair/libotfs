@@ -74,10 +74,8 @@
 #define _I_PLEN         -3
 #define _I_FLAGS        -4
 
-#define INREC(X)        q_getcursor_val(inq, _I_##X)    /* inq->getcursor[_I_##X] */
+#define INREC(ALP, X)   q_getcursor_val(ALP->inq, _I_##X)    /* inq->getcursor[_I_##X] */
 #define OUTREC(X)       outrec._O_##X
-#define BOOKMARK_IN     bookmark_in
-#define BOOKMARK_OUT    outrec.bookmark
 
 
 typedef struct {
@@ -102,21 +100,18 @@ typedef struct {
     ot_u8   plength;            // Payload Length
     ot_u8   id;                 // ALP ID (Similar to Destination Port)
     ot_u8   cmd;                // ALP CMD (ID-specific Command)
-//    void*   bookmark;           // Internal use only (private)
 } alp_record;
 
 
-///@note The alp_tmpl structure is under redesign.  inrec and outrec will be
+///@note The alp_tmpl structure is under redesign.  outrec will be
 ///      removed, and the application processors will be responsible to manage
 ///      their own record headers, with functional assitance from ALP module.
 typedef struct {
     ot_u16      purge_id;       // Internal use only: for garbage collection
 
-//    alp_record  inrec;        // Legacy: but using Macros [above] as bridge
     alp_record  outrec;         // Legacy: to be removed soon
     ot_queue*   inq;
     ot_queue*   outq;
-
     void*       sstack;         // Use NULL if the ALP is on an interface with no session stack
 } alp_tmpl;
 
