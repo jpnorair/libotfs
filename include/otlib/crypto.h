@@ -114,9 +114,9 @@ ot_int EAX_decrypt(void* dst, void* src, ot_uint srclen, void* nonce, void* key)
   */
 
 ot_int EAXdrv_init(void* key, void* context);
-ot_int EAXdrv_clear(EAXdrv_t* context);
-ot_int EAXdrv_encrypt(void* nonce, void* data, ot_uint datalen, EAXdrv_t* context);
-ot_int EAXdrv_decrypt(void* nonce, void* data, ot_uint datalen, EAXdrv_t* context);
+ot_int EAXdrv_clear(void* context);
+ot_int EAXdrv_encrypt(void* nonce, void* data, ot_uint datalen, void* context);
+ot_int EAXdrv_decrypt(void* nonce, void* data, ot_uint datalen, void* context);
 
 
 #endif

@@ -45,7 +45,7 @@
 // largely symmetric.
 
 ot_int __EAX_crypt( ot_u8* dst, ot_u8* src, ot_uint srclen, ot_u8* nonce, ot_u8* key,
-                    ot_int (*__crypt)(ot_u8*, ot_u8*, ot_uint, EAXdrv_t*)  ) {
+                    ot_int (*__crypt)(void*, void*, ot_uint, void*)  ) {
     
     EAXdrv_t    context;        // Might benefit by putting this outside the stack
     ot_int      retval;
@@ -67,11 +67,11 @@ ot_int __EAX_crypt( ot_u8* dst, ot_u8* src, ot_uint srclen, ot_u8* nonce, ot_u8*
 }
 
 
-OT_INLINE ot_int EAX_encrypt(ot_u8* dst, ot_u8* src, ot_uint srclen, ot_u8* nonce, ot_u8* key) {
+ot_int EAX_encrypt(void* dst, void* src, ot_uint srclen, void* nonce, void* key) {
     return __EAX_crypt(dst, src, srclen, nonce, key, &EAXdrv_encrypt);
 }
 
-OT_INLINE ot_int EAX_decrypt(ot_u8* dst, ot_u8* src, ot_uint srclen, ot_u8* nonce, ot_u8* key) {
+ot_int EAX_decrypt(void* dst, void* src, ot_uint srclen, void* nonce, void* key) {
     return __EAX_crypt(dst, src, srclen, nonce, key, &EAXdrv_decrypt);
 }
 
@@ -84,20 +84,20 @@ OT_INLINE ot_int EAX_decrypt(ot_u8* dst, ot_u8* src, ot_uint srclen, ot_u8* nonc
   */
 #include <oteax.h>
 
-OT_WEAK ot_int EAXdrv_init(ot_u8* key, EAXdrv_t* context) {
-    return (ot_int)eax_init_and_key((const unsigned char*)key, context);
+OT_WEAK ot_int EAXdrv_init(void* key, void* context) {
+    return (ot_int)eax_init_and_key(key, (EAXdrv_t*)context);
 }
 
-OT_WEAK ot_int EAXdrv_clear(EAXdrv_t* context) {
-    return (ot_int)eax_end(context);
+OT_WEAK ot_int EAXdrv_clear(void* context) {
+    return (ot_int)eax_end((EAXdrv_t*)context);
 }
 
-OT_WEAK ot_int EAXdrv_encrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, EAXdrv_t* context) {
-    return (ot_int)eax_encrypt_message(nonce, data, datalen, context);
+OT_WEAK ot_int EAXdrv_encrypt(void* nonce, void* data, ot_uint datalen, void* context) {
+    return (ot_int)eax_encrypt_message(nonce, data, datalen, (EAXdrv_t*)context);
 }
 
-OT_WEAK ot_int EAXdrv_decrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, EAXdrv_t* context) {
-    return (ot_int)eax_decrypt_message(nonce, data, datalen, context);
+OT_WEAK ot_int EAXdrv_decrypt(void* nonce, void* data, ot_uint datalen, void* context) {
+    return (ot_int)eax_decrypt_message(nonce, data, datalen, (EAXdrv_t*)context);
 }
 
 
@@ -108,10 +108,10 @@ OT_WEAK ot_int EAXdrv_decrypt(ot_u8* nonce, ot_u8* data, ot_uint datalen, EAXdrv
 
 // AES not supported in the build/platform
 #else
-ot_int EAX_encrypt(ot_u8* dst, ot_u8* src, ot_uint srclen, ot_u8* nonce, ot_u8* key) {
+ot_int EAX_encrypt(void* dst, void* src, ot_uint srclen, void* nonce, void* key) {
     return -1;
 }
-ot_int EAX_decrypt(ot_u8* dst, ot_u8* src, ot_uint srclen, ot_u8* nonce, ot_u8* key) {
+ot_int EAX_decrypt(void* dst, void* src, ot_uint srclen, void* nonce, void* key) {
     return -1;
 }
 

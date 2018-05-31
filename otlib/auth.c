@@ -142,7 +142,7 @@ void sub_expand_key(void* rawkey, eax_ctx_t* ctx) {
 ///@todo Bring this into OT Utils?
 ot_bool sub_idcmp(const id_tmpl* user_id, uint64_t id) {
     ot_int length;
-    length = (dlls_info[index].id < 65536) ? 2 : 8;
+    length = (id < 65536) ? 2 : 8;
     return (ot_bool)((length == user_id->length) && (*(uint64_t*)user_id->value == id));
 }
 
@@ -227,7 +227,6 @@ void auth_init(void) {
 #ifndef EXTF_auth_deinit
 void auth_deinit(void) {
 /// clear all memory used for key storage, and free it if necessary.
-
 #   if (AUTH_NUM_ELEMENTS > 0)
     // Clear memory elements.  They are statically allocated in this case,
     // so no freeing is required.
@@ -258,6 +257,7 @@ void auth_putnonce(void* dst, ot_uint total_size) {
     ot_int      pad_bytes;
     ot_int      write_bytes;
     uint32_t    output_nonce;
+    ot_u8*      dst_u8 = (ot_u8*)dst;
     
     /// If total_size is > 4 (size of nonce in bytes), we advance dst accordingly (Thus it is
     /// padded with its existing contents).
@@ -265,7 +265,7 @@ void auth_putnonce(void* dst, ot_uint total_size) {
     write_bytes = 4;
     pad_bytes   = total_size - 4;
     if (pad_bytes > 0) {
-        (ot_u8*)dst += pad_bytes;
+        dst_u8 += pad_bytes;
     }
     else {
         write_bytes += pad_bytes;
@@ -277,7 +277,7 @@ void auth_putnonce(void* dst, ot_uint total_size) {
     /// conveyed congruently.
     output_nonce = dlls_nonce++;
     
-    ot_memcpy(dst, &output_nonce, write_bytes);
+    ot_memcpy(dst_u8, &output_nonce, write_bytes);
 #endif
 }
 #endif
@@ -387,8 +387,8 @@ ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
 ot_int auth_get_enckey(void** key, ot_uint index) {
 ///@todo not sure if this function should be removed
 #if (_SEC_ANY)
-    if ((key != NULL) && (key_index < dlls_size)) {
-        *((ot_u32*)key) = dlls_ctx[index].ctx.ks;
+    if ((key != NULL) && (index < dlls_size)) {
+        *((ot_u32**)key) = dlls_ctx[index].ctx.ks;
         return sizeof(dlls_ctx[index].ctx.ks);
     }
 #endif
@@ -440,9 +440,9 @@ ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
     ///@todo Current implementation is linear search.  In the future maybe
     ///      implement binary search, although for small tables typical for
     ///      this static allocation, it might be faster with linear search.
-    id_u64 = (user_id.length == 2) ? \
-                (uint64_t)*(ot_u16*)user_id.value : \
-                *(uint64_t*)user_id.value;
+    id_u64 = (user_id->length == 2) ? \
+                (uint64_t)*(ot_u16*)user_id->value : \
+                *(uint64_t*)user_id->value;
     
     // mask-out the don't-care bits
     req_mod &= 0x3f;
@@ -452,10 +452,10 @@ ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
     // - If key timeout is enabled (EOL != 0), then make sure key isn't expired
     // - If key is expired, delete it.
     for (i=0; i<dlls_size; i++) {
-        if (id_u64 == dlls_info.id) {
-            if ((req_mod & dlls_info.flags) == dlls_info.flags) {
-                if (dlls_info.EOL != 0) {
-                    if (dlls_info.EOL <= time_get_utc()) {
+        if (id_u64 == dlls_info[i].id) {
+            if ((req_mod & dlls_info[i].flags) == dlls_info[i].flags) {
+                if (dlls_info[i].EOL != 0) {
+                    if (dlls_info[i].EOL <= time_get_utc()) {
                         auth_delete_key(i);
                         i--;
                         continue;
@@ -491,7 +491,7 @@ ot_int auth_get_user(const id_tmpl* user_id, ot_u16 index) {
     if ((user_id != NULL) && (index < dlls_size)) {
         ot_int length;
         length = (dlls_info[index].id < 65536) ? 2 : 8;
-        ot_memcpy(user_id.value, dlls_info[index].id, length);
+        ot_memcpy(user_id->value, &dlls_info[index].id, length);
         return length;
     }
 #   endif

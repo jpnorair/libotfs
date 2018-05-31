@@ -76,9 +76,9 @@ int otfs_new(void* handle, const otfs_t* fs) {
     int rc;
 
     user_id.length  = 8;
-    user_id.value   = fs->uid.u8;
+    user_id.value   = (uint8_t*)fs->uid.u8;
     
-    rc = vl_multifs_add(handle, (void*)fs->base, &user_id);
+    rc = vl_multifs_add(handle, (void*)fs->base, (const id_tmpl*)&user_id);
     if (rc != 0) {
         return -rc;
     }
@@ -114,8 +114,8 @@ int otfs_del(void* handle, const otfs_t* fs, bool unload) {
     }
     
     user_id.length  = 8;
-    user_id.value   = fs->uid.u8;
-    rc              = vl_multifs_del(handle, &user_id);
+    user_id.value   = (uint8_t*)fs->uid.u8;
+    rc              = vl_multifs_del(handle, (const id_tmpl*)&user_id);
     if (rc == 0) {
         if ((unload == true) && (fs->base != NULL)) {
             free(fs->base);
@@ -132,9 +132,9 @@ int otfs_setfs(void* handle, const uint8_t* eui64_bytes) {
     void* getfs;
     
     user_id.length  = 8;
-    user_id.value   = eui64_bytes;
+    user_id.value   = (uint8_t*)eui64_bytes;
     
-    return vl_multifs_switch(handle, &getfs, &user_id);
+    return vl_multifs_switch(handle, &getfs, (const id_tmpl*)&user_id);
 }
 
 
