@@ -50,11 +50,27 @@ typedef struct {
     ot_u32 clocks;
 } ot_time;
 
+
+/** @brief Initializes Time system using UTC Epoch seconds
+  * @param utc      (ot_u32) UTC Epoch seconds
+  * @retval None    
+  * @sa time_set_utc
+  *
+  * This function should be run at system startup, even if time isn't resolved 
+  * at that point.  time_set_utc() can be used at any point to update the time
+  * value.
+  */
 void time_init_utc(ot_u32 utc);
 
+
+/** @brief Set Time system using UTC Epoch seconds
+  * @param utc      (ot_u32) UTC Epoch seconds
+  * @retval None    
+  *
+  * Used to set the system time to a UTC Epoch seconds value during runtime.
+  */
 void time_set_utc(ot_u32 utc);
 
-void time_add(ot_u32 clocks);
 
 //void time_add_ti(ot_u32 ticks);
 
@@ -63,6 +79,58 @@ ot_u32 time_get_utc(void);
 ot_u32 time_uptime_secs(void);
 
 ot_u32 time_uptime(void);
+
+
+
+
+/** @brief Add clocks to the system timer
+  * @param clocks   (ot_u32) System clocks to add to system time.
+  * @retval None    
+  * @sa time_load_now
+  * @sa time_add_ti
+  *
+  * Clocks are usually 1/1024 seconds, but they can be any time value that 
+  * is 1/(2^x) seconds.
+  *
+  * Certain platforms may also implement only time_load_now()
+  */
+void time_add(ot_u32 clocks);
+
+
+/** @brief Add ticks to the system timer
+  * @param ticks   (ot_u32) System ticks to add to system time.
+  * @retval None    
+  * @sa time_add
+  *
+  * This function is just like time_add() except that the time units
+  * are always ticks (1/1024).
+  */
+void time_add_ti(ot_u32 ticks);
+
+
+
+
+/** Driver functions 
+  * The following functions are sometimes implemented in the platform driver.
+  * They do the low-level work for the system time module.
+  */
+
+
+/** @brief Load system time into a supplied ot_time variable
+  * @param now      (ot_time*) system time output
+  * @retval None    
+  *
+  * This is the only driver function that MUST be implemented.  It must
+  * pull the current time and load it into the output ("now").
+  *
+  * The default variant of this function is implemented in otsys/time.c,
+  * and it requires that time_add() is called regularly in a scheduler loop.
+  * A platform specific variant may be implemented which pulls the time
+  * information from a system-level time API.  In this latter case, the 
+  * time_add() function is not used.
+  */
+void time_load_now(ot_time* now);
+
 
 
 #endif

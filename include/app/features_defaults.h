@@ -145,6 +145,9 @@
 #ifndef OT_FEATURE_NL_SECURITY
 #   define OT_FEATURE_NL_SECURITY       NOT_AVAILABLE                       // Network Layer Security & key exchange
 #endif
+#ifndef OT_FEATURE_TIME
+#   define OT_FEATURE_TIME              (DISABLED || OT_FEATURE_DLL_SECURITY || OT_FEATURE_NL_SECURITY)
+#endif
 #ifndef OT_FEATURE_SENSORS
 #   define OT_FEATURE_SENSORS           NOT_AVAILABLE                       // (formal, spec-based sensor config)
 #endif

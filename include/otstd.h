@@ -28,6 +28,7 @@
 
 #include <otsys/config.h>
 #include <otsys/support.h>
+#include <otsys/time.h>
 #include <otsys/types.h>
 #include <otsys/version.h>
 
