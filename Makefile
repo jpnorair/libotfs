@@ -53,7 +53,7 @@ export OTFS_INC
 export OTFS_LIB
 
 # Derived Parameters
-SUBMODULES  := main otlib $(PLATFORM)
+SUBMODULES  := main otlib otsys $(PLATFORM)
 INCDEP      := -I$(DEFAULT_INC)
 
 # Global vars that get exported to sub-makefiles
