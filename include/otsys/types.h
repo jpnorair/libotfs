@@ -88,7 +88,7 @@
     typedef int16_t     ot_s16;
     typedef uint16_t    ot_u16;
     typedef int32_t     ot_s32;
-    typedef int32_t     ot_u32;
+    typedef uint32_t    ot_u32;
 
 #else
     typedef enum { False = 0, True = !False } ot_bool;
