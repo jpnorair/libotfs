@@ -102,7 +102,7 @@
 
 
 #ifndef EXTF_alp_proc_sec
-OT_WEAK ot_bool alp_proc_sec(alp_tmpl* alp, id_tmpl* user_id) {
+OT_WEAK ot_bool alp_proc_sec(alp_tmpl* alp, const id_tmpl* user_id) {
 /// At present, only DLLS features are supported, no NLS
     key_tmpl    key_data;
     id_tmpl     id_data;
@@ -197,7 +197,7 @@ OT_WEAK ot_bool alp_proc_sec(alp_tmpl* alp, id_tmpl* user_id) {
 
 
 #if (OT_FEATURE(CLIENT) && !defined(EXTF_alp_push_sec))
-OT_WEAK void alp_push_sec(alp_tmpl* alp, id_tmpl* user_id) {
+OT_WEAK void alp_push_sec(alp_tmpl* alp, const id_tmpl* user_id) {
 /// Client function, simply pushes the response data to some upper layer.
 /// You'll want to write this yourself.  This one here is an empty function
 /// that does nothing, and it only exists to present this warning and prevent

@@ -36,7 +36,7 @@ int test_veelite_maxopen(void);
 
 
 #if (OT_FEATURE(ALPEXT) == ENABLED)
-ot_bool alp_ext_proc(alp_tmpl* alp, id_tmpl* user_id) {
+ot_bool alp_ext_proc(alp_tmpl* alp, const id_tmpl* user_id) {
     return 0;
 }
 #endif

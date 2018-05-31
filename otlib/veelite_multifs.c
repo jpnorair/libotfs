@@ -75,7 +75,7 @@ ot_u8 vl_multifs_deinit(void* handle) {
 }
 
 
-ot_u8 vl_multifs_add(void* handle, void* newfsbase, id_tmpl* fsid) {
+ot_u8 vl_multifs_add(void* handle, void* newfsbase, const id_tmpl* fsid) {
     void* obj;
     MCU_TYPE_UINT* new_value;
     
@@ -112,7 +112,7 @@ ot_u8 vl_multifs_add(void* handle, void* newfsbase, id_tmpl* fsid) {
 }
 
 
-ot_u8 vl_multifs_del(void* handle, id_tmpl* fsid) {
+ot_u8 vl_multifs_del(void* handle, const id_tmpl* fsid) {
     void* obj;
     MCU_TYPE_UINT* val;
     ot_u8 rc;
@@ -134,7 +134,7 @@ ot_u8 vl_multifs_del(void* handle, id_tmpl* fsid) {
 }
 
 
-ot_u8 vl_multifs_switch(void* handle, void** getfsbase, id_tmpl* fsid) {
+ot_u8 vl_multifs_switch(void* handle, void** getfsbase, const id_tmpl* fsid) {
     void* obj;
     MCU_TYPE_UINT* val;
     ot_u8 rc;

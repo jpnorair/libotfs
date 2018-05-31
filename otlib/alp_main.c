@@ -138,7 +138,7 @@ OT_WEAK ot_bool alp_proc_null(alp_tmpl* a0, const id_tmpl* a1) {
 }
 
 #if (OT_FEATURE(ALPEXT) != ENABLED)
-OT_WEAK ot_bool alp_ext_proc(alp_tmpl* alp, id_tmpl* user_id) { return True; }
+OT_WEAK ot_bool alp_ext_proc(alp_tmpl* alp, const id_tmpl* user_id) { return True; }
 #endif
 
 

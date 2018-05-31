@@ -140,14 +140,14 @@ void sub_expand_key(void* rawkey, eax_ctx_t* ctx) {
 
 
 ///@todo Bring this into OT Utils?
-ot_bool sub_idcmp(id_tmpl* user_id, uint64_t id) {
+ot_bool sub_idcmp(const id_tmpl* user_id, uint64_t id) {
     ot_int length;
     length = (dlls_info[index].id < 65536) ? 2 : 8;
     return (ot_bool)((length == user_id->length) && (*(uint64_t*)user_id->value == id));
 }
 
 
-ot_bool sub_authcmp(id_tmpl* user_id, id_tmpl* comp_id, ot_u8 mod_flags) {
+ot_bool sub_authcmp(const id_tmpl* user_id, const id_tmpl* comp_id, ot_u8 mod_flags) {
     if ((user_id == NULL) || (user_id == comp_id))
         return True;
 
@@ -234,7 +234,7 @@ void auth_deinit(void) {
     memset(dlls_info, 0, sizeof(dlls_info));
     memset(dlls_ctx, 0, sizeof(dlls_ctx));
     
-#   else
+#   elif (AUTH_NUM_ELEMENTS < 0)
     // Clear memory elements and free them.
     if (dlls_info != NULL) {
         memset(dlls_info, 0, sizeof(authinfo_t) * dlls_size);
@@ -254,6 +254,7 @@ void auth_deinit(void) {
 
 #ifndef EXTF_auth_putnonce
 void auth_putnonce(void* dst, ot_uint total_size) {
+#if (_SEC_ANY)
     ot_int      pad_bytes;
     ot_int      write_bytes;
     uint32_t    output_nonce;
@@ -277,6 +278,7 @@ void auth_putnonce(void* dst, ot_uint total_size) {
     output_nonce = dlls_nonce++;
     
     ot_memcpy(dst, &output_nonce, write_bytes);
+#endif
 }
 #endif
 
@@ -284,6 +286,7 @@ void auth_putnonce(void* dst, ot_uint total_size) {
 
 #ifndef EXTF_auth_putnonce_q
 void auth_putnonce_q(ot_queue* q, ot_uint total_size) {
+#if (_SEC_ANY)
     ot_int      pad_bytes;
     ot_int      write_bytes;
     uint32_t    output_nonce;
@@ -299,6 +302,7 @@ void auth_putnonce_q(ot_queue* q, ot_uint total_size) {
     
     output_nonce = dlls_nonce++;
     q_writelong_be(q, output_nonce);
+#endif
 }
 #endif
 
@@ -306,9 +310,13 @@ void auth_putnonce_q(ot_queue* q, ot_uint total_size) {
 
 #ifndef EXTF_auth_getnonce
 ot_u32 auth_getnonce(void) {
+#if (_SEC_ANY)
     /// Increment the internal nonce integer each time a nonce is got.
     dlls_nonce++;
     return dlls_nonce;
+#else
+    return 0;
+#endif
 }
 #endif
 
@@ -419,7 +427,7 @@ ot_int auth_get_deckey(void** key, ot_uint index) {
   * Specifically, the Auth-Sec ALP should have hooks into these functions.
   */
   
-ot_int auth_search_user(id_tmpl* user_id, ot_u8 req_mod) {
+ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
 /// Compare user-id and mod against stored keys.
 /// The req_mod input is a bitfield with the structure: --rwrwrw
 /// The first rw is for root, second for user, third for guest.
@@ -478,7 +486,7 @@ ot_int auth_search_user(id_tmpl* user_id, ot_u8 req_mod) {
 
 
 
-ot_int auth_get_user(id_tmpl* user_id, ot_u16 index) {
+ot_int auth_get_user(const id_tmpl* user_id, ot_u16 index) {
 #   if (_SEC_ANY)
     if ((user_id != NULL) && (index < dlls_size)) {
         ot_int length;
@@ -491,7 +499,7 @@ ot_int auth_get_user(id_tmpl* user_id, ot_u16 index) {
 }
 
 
-ot_bool auth_isroot(id_tmpl* user_id) {
+ot_bool auth_isroot(const id_tmpl* user_id) {
 /// Here's the trick: 
 /// - Using NULL for user_id is ok for root calls from internal firmware.  Check this first.
 /// - An external root key may be somewhere else in the list.  Check this last.
@@ -512,7 +520,7 @@ ot_bool auth_isroot(id_tmpl* user_id) {
 }
 
 
-ot_bool auth_isuser(id_tmpl* user_id) {
+ot_bool auth_isuser(const id_tmpl* user_id) {
 /// Here's the trick:
 /// - Null is the root key, which is always OK to use for user calls.
 /// - An external root/user key may be somewhere else in the list.  Check this last.
@@ -532,7 +540,7 @@ ot_bool auth_isuser(id_tmpl* user_id) {
 
 
 
-ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, id_tmpl* user_id) {
+ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, const id_tmpl* user_id) {
 #if (_SEC_ANY)
 /// Find the ID in the table, then mask the user's mod with the file's mod
 /// and the mod from the request (i.e. read, write).
@@ -562,19 +570,19 @@ ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, id_tmpl* user_id) {
   * @todo implement!
   */
 
-ot_u8 auth_find_keyindex(auth_handle* handle, id_tmpl* user_id) {
+ot_u8 auth_find_keyindex(ot_uint* key_index, const id_tmpl* user_id) {
     return 255;
 }
 
-ot_u8 auth_read_key(auth_handle* handle, ot_uint key_index) {
+ot_u8 auth_read_key(void* handle, ot_uint key_index) {
     return 255;
 }
 
-ot_u8 auth_update_key(auth_handle* handle, ot_uint key_index) {
+ot_u8 auth_update_key(void* handle, ot_uint key_index) {
     return 255;
 }
 
-ot_u8 auth_create_key(ot_uint* key_index, auth_handle* handle) {
+ot_u8 auth_create_key(ot_uint* key_index, void* handle) {
     return 255;
 }
 

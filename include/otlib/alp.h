@@ -141,7 +141,7 @@ typedef ot_bool (*alp_fn)(alp_tmpl*, const id_tmpl*);
   * implement this function somewhere.  Any ALP ID's that get processed by ALP
   * which do not match known ID's will get dumped into this function.
   */
-ot_bool alp_ext_proc(alp_tmpl* alp, id_tmpl* user_id);
+ot_bool alp_ext_proc(alp_tmpl* alp, const id_tmpl* user_id);
 #endif
 
 
@@ -354,7 +354,7 @@ ot_bool alp_proc_filedata(alp_tmpl* alp, const id_tmpl* user_id);
   * @retval ot_bool     True if atomic, False if this ALP needs delayed processing
   * @ingroup ALP
   */
-ot_bool alp_proc_sensor(alp_tmpl* alp, id_tmpl* user_id);
+ot_bool alp_proc_sensor(alp_tmpl* alp, const id_tmpl* user_id);
 #endif
 
 
@@ -371,7 +371,7 @@ ot_bool alp_proc_sensor(alp_tmpl* alp, id_tmpl* user_id);
   * @retval ot_bool     True if atomic, False if this ALP needs delayed processing
   * @ingroup ALP
   */
-ot_bool alp_proc_dashforth(alp_tmpl* alp, id_tmpl* user_id);
+ot_bool alp_proc_dashforth(alp_tmpl* alp, const id_tmpl* user_id);
 #endif
 
 
@@ -386,7 +386,7 @@ ot_bool alp_proc_dashforth(alp_tmpl* alp, id_tmpl* user_id);
   * @retval ot_bool     True if atomic, False if this ALP needs delayed processing
   * @ingroup ALP
   */
-ot_bool alp_proc_logger(alp_tmpl* alp, id_tmpl* user_id);
+ot_bool alp_proc_logger(alp_tmpl* alp, const id_tmpl* user_id);
 #endif
 
 
@@ -401,7 +401,7 @@ ot_bool alp_proc_logger(alp_tmpl* alp, id_tmpl* user_id);
   * @retval ot_bool     True if atomic, False if this ALP needs delayed processing
   * @ingroup ALP
   */
-ot_bool alp_proc_sec(alp_tmpl* alp, id_tmpl* user_id);
+ot_bool alp_proc_sec(alp_tmpl* alp, const id_tmpl* user_id);
 #endif
 
 

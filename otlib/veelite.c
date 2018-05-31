@@ -409,7 +409,7 @@ OT_WEAK ot_int vl_get_fd(vlFILE* fp) {
 
 
 #ifndef EXTF_vl_new
-OT_WEAK ot_u8 vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, ot_uint max_length, id_tmpl* user_id) {
+OT_WEAK ot_u8 vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, ot_uint max_length, const id_tmpl* user_id) {
 #if (OT_FEATURE(VLNEW) == ENABLED)
     vaddr header;
     sub_vaddr search_fn;
@@ -474,7 +474,7 @@ OT_WEAK ot_u8 vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod
 
 
 #ifndef EXTF_vl_delete
-OT_WEAK ot_u8 vl_delete(vlBLOCK block_id, ot_u8 data_id, id_tmpl* user_id) {
+OT_WEAK ot_u8 vl_delete(vlBLOCK block_id, ot_u8 data_id, const id_tmpl* user_id) {
 #if (OT_FEATURE(VLNEW) == ENABLED)
     vaddr header = NULL_vaddr;
     sub_vaddr   search_fn;
@@ -543,7 +543,7 @@ OT_WEAK ot_u8 vl_delete(vlBLOCK block_id, ot_u8 data_id, id_tmpl* user_id) {
 
 
 #ifndef EXTF_vl_getheader
-OT_WEAK ot_u8 vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id) {
+OT_WEAK ot_u8 vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id) {
 
     /// 1. Get the header from the supplied Block ID & Data ID
     switch (block_id) {
@@ -585,7 +585,7 @@ OT_WEAK ot_u8 vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id,
 
 
 #ifndef EXTF_vl_getheader
-OT_WEAK ot_u8 vl_getheader(vl_header_t* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id) {
+OT_WEAK ot_u8 vl_getheader(vl_header_t* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id) {
     vaddr   header_vaddr = NULL_vaddr;
     ot_u8   output;
 
@@ -635,7 +635,7 @@ OT_WEAK vlFILE* vl_open_file(vaddr header) {
 
 
 #ifndef EXTF_vl_open
-OT_WEAK vlFILE* vl_open(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id) {
+OT_WEAK vlFILE* vl_open(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id) {
     vaddr header = NULL_vaddr;
 
     if (vl_getheader_vaddr(&header, block_id, data_id, mod, user_id) == 0) {
@@ -648,7 +648,7 @@ OT_WEAK vlFILE* vl_open(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* use
 
 ///@todo [header]
 #ifndef EXTF_vl_chmod
-OT_WEAK ot_u8 vl_chmod(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id) {
+OT_WEAK ot_u8 vl_chmod(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id) {
     vaddr header = NULL_vaddr;
     ot_u8 output;
 
@@ -908,7 +908,7 @@ OT_WEAK vlFILE* ISF_open_su( ot_u8 id ) {
 }
 
 
-OT_WEAK vlFILE* GFB_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id ) {
+OT_WEAK vlFILE* GFB_open( ot_u8 id, ot_u8 mod, const id_tmpl* user_id ) {
 #   if ( GFB_HEAP_BYTES > 0 )
         return vl_open(VL_GFB_BLOCKID, id, mod, user_id);
 #   else
@@ -917,7 +917,7 @@ OT_WEAK vlFILE* GFB_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id ) {
 }
 
 
-OT_WEAK vlFILE* ISF_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id ) {
+OT_WEAK vlFILE* ISF_open( ot_u8 id, ot_u8 mod, const id_tmpl* user_id ) {
     return vl_open(VL_ISF_BLOCKID, id, mod, user_id);
 }
 

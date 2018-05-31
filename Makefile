@@ -1,6 +1,6 @@
 # Default Configuration
 TARGET      ?= $(shell uname -srm | sed -e 's/ /-/g')
-EXT_DEF     ?= -DOT_FEATURE_DLL_SECURITY=0
+EXT_DEF     ?= 
 EXT_INC     ?= 
 EXT_LIBS    ?= 
 VERSION     ?= "0.1.0"

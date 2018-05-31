@@ -263,7 +263,7 @@ ot_int auth_get_enckey(void** key, ot_uint index);
   * @retval ot_bool     True when ID is root
   * @ingroup Authentication
   */
-ot_bool auth_isroot(id_tmpl* user_id);
+ot_bool auth_isroot(const id_tmpl* user_id);
 
 
 
@@ -272,7 +272,7 @@ ot_bool auth_isroot(id_tmpl* user_id);
   * @retval ot_bool     True when ID is user or root
   * @ingroup Authentication
   */
-ot_bool auth_isuser(id_tmpl* user_id);
+ot_bool auth_isuser(const id_tmpl* user_id);
 
 
 
@@ -283,7 +283,7 @@ ot_bool auth_isuser(id_tmpl* user_id);
   * @retval ot_u8       Non-zero when authentication is OK
   * @ingroup Authentication
   */
-ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, id_tmpl* user_id);
+ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, const id_tmpl* user_id);
 
 
 
@@ -306,7 +306,7 @@ ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, id_tmpl* user_id);
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
   */
-ot_u8 auth_find_keyindex(ot_uint* key_index, id_tmpl* user_id);
+ot_u8 auth_find_keyindex(ot_uint* key_index, const id_tmpl* user_id);
 
 
 /** @brief Finds an Auth Handle, given a User ID
@@ -315,7 +315,7 @@ ot_u8 auth_find_keyindex(ot_uint* key_index, id_tmpl* user_id);
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
   */
-ot_u8 auth_find_key(void* handle, id_tmpl* user_id);
+ot_u8 auth_find_key(void* handle, const id_tmpl* user_id);
 
 
 /** @brief Reads an Auth/Sec Key Element, given key index
@@ -384,9 +384,9 @@ ot_u8 auth_new_nlsuser(void* handle, id_tmpl* new_user, auth_info* new_info, ot_
   * @ingroup Authentication
 */
 //ot_u8 auth_search_user(void* handle, id_tmpl* user_id, ot_u8 mod_flags);
-ot_int auth_search_user(id_tmpl* user_id, ot_u8 mod_flags);
+ot_int auth_search_user(const id_tmpl* user_id, ot_u8 mod_flags);
 
-const id_tmpl* auth_get_user(ot_uint user_index);
+ot_int auth_get_user(const id_tmpl* user_id, ot_u16 index);
 
 
 #endif

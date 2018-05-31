@@ -196,9 +196,9 @@ ot_u8 vl_multifs_init(void** handle);
 
 ot_u8 vl_multifs_deinit(void* handle);
 
-ot_u8 vl_multifs_add(void* handle, void* newfsbase, id_tmpl* fsid);
+ot_u8 vl_multifs_add(void* handle, void* newfsbase, const id_tmpl* fsid);
 
-ot_u8 vl_multifs_del(void* handle, id_tmpl* fsid);
+ot_u8 vl_multifs_del(void* handle, const id_tmpl* fsid);
 
 
 
@@ -219,7 +219,7 @@ ot_u8 vl_multifs_del(void* handle, id_tmpl* fsid);
   * of devices they interact with.  Multi-FS usage on endpoints is possible but 
   * this is not the intent of it.
   */
-ot_u8 vl_multifs_switch(void* handle, void** getfsbase, id_tmpl* fsid);
+ot_u8 vl_multifs_switch(void* handle, void** getfsbase, const id_tmpl* fsid);
 
 #endif
 
@@ -247,7 +247,7 @@ ot_u8 vl_multifs_switch(void* handle, void** getfsbase, id_tmpl* fsid);
   * the FSHeader may or may not have any effect, and you shouldn't do it anyway
   * unless you know exactly what you're doing.
   */
-const vlFSHEADER* vl_get_fsheader(id_tmpl* fsid);
+const vlFSHEADER* vl_get_fsheader(const id_tmpl* fsid);
 
 
 
@@ -296,7 +296,7 @@ ot_int  vl_get_fd(vlFILE* fp);
   * <LI>   6: Not enough room for a new file                    </LI> 
   * <LI> 255: Miscellaneous Error                               </LI>
   */
-ot_u8   vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, ot_uint max_length, id_tmpl* user_id);
+ot_u8   vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, ot_uint max_length, const id_tmpl* user_id);
 
 
 /** @brief  Deletes a file
@@ -322,7 +322,7 @@ ot_u8   vl_new(vlFILE** fp_new, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, ot_u
   * <LI>   4: User does not have access to create a new file    </LI>
   * <LI> 255: Miscellaneous Error                               </LI>
   */
-ot_u8   vl_delete(vlBLOCK block_id, ot_u8 data_id, id_tmpl* user_id);
+ot_u8   vl_delete(vlBLOCK block_id, ot_u8 data_id, const id_tmpl* user_id);
 
 
 /** @brief  Returns a file header as the vaddr of the header
@@ -347,7 +347,7 @@ ot_u8   vl_delete(vlBLOCK block_id, ot_u8 data_id, id_tmpl* user_id);
   * <LI>   4: User does not have sufficient access to this file </LI>
   * <LI> 255: Miscellaneous Error                               </LI>
   */
-ot_u8   vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id);
+ot_u8   vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id);
 
 
 /** @brief  Returns file header as a vl_header_t datastruct
@@ -365,7 +365,7 @@ ot_u8   vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id, ot_u8
   *
   * This function is intended for use with File ALP protocols.
   */
-ot_u8   vl_getheader(vl_header_t* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id);
+ot_u8   vl_getheader(vl_header_t* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id);
 
 
 /** @brief  Opens a file from the virtual address of its header
@@ -397,11 +397,11 @@ vlFILE* vl_open_file(vaddr header);
   * only be used internally (not in protocol routines).  The function aliases 
   * that contain "_su" at the end are super-user (root) calls.
   */
-vlFILE* vl_open(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id);
+vlFILE* vl_open(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id);
 vlFILE* GFB_open_su( ot_u8 id );
 vlFILE* ISF_open_su( ot_u8 id );
-vlFILE* GFB_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id );
-vlFILE* ISF_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id );
+vlFILE* GFB_open( ot_u8 id, ot_u8 mod, const id_tmpl* user_id );
+vlFILE* ISF_open( ot_u8 id, ot_u8 mod, const id_tmpl* user_id );
 
 
 /** @brief  File Change Mods (like chmod on POSIX)
@@ -432,7 +432,7 @@ vlFILE* ISF_open( ot_u8 id, ot_u8 mod, id_tmpl* user_id );
   * only be used internally (not in protocol routines).  The function aliases 
   * that contain "_su" at the end are super-user (root) calls.
   */
-ot_u8 vl_chmod(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, id_tmpl* user_id);
+ot_u8 vl_chmod(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id);
 ot_u8 GFB_chmod_su( ot_u8 id, ot_u8 mod );
 ot_u8 ISF_chmod_su( ot_u8 id, ot_u8 mod );
 

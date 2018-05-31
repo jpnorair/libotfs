@@ -34,7 +34,7 @@
 #include <otlib/alp.h>
 
 #if !(OT_FEATURE(ALP) && OT_FEATURE(LOGGER))
-OT_WEAK ot_bool alp_proc_logger(alp_tmpl* alp, id_tmpl* user_id) {
+OT_WEAK ot_bool alp_proc_logger(alp_tmpl* alp, const id_tmpl* user_id) {
     return True;
 }
 
@@ -45,7 +45,7 @@ OT_WEAK ot_bool alp_proc_logger(alp_tmpl* alp, id_tmpl* user_id) {
 
 ///@todo replace INREC calls with direct access from input
 
-OT_WEAK ot_bool alp_proc_logger(alp_tmpl* alp, id_tmpl* user_id) {
+OT_WEAK ot_bool alp_proc_logger(alp_tmpl* alp, const id_tmpl* user_id) {
 /// Logger ALP is like ECHO.  The input is copied to the output.
 
     // Only root can log directly (this is an important security firewall)
