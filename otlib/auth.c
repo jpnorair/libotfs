@@ -41,7 +41,6 @@
 
 
 
-
 /// User aliases for sandboxed processes only
 const id_tmpl*   auth_root;
 const id_tmpl*   auth_user;
@@ -54,12 +53,13 @@ typedef struct OT_PACKED {
     ot_u32      EOL;
 } authinfo_t;
 
+///@note keyfile_t must match the structure of the "root & user authentication
+///      key" files stored in the filesystem.
 typedef struct OT_PACKED {
     ot_u16  flags;
     ot_u32  EOL;
     ot_u32  key[4];
 } keyfile_t;
-
 
 ///@note the context data element should mirror the one from OTEAX.
 typedef struct {   
@@ -202,11 +202,11 @@ void auth_init(void) {
     for (i=0; i<2; i++) {
         fp = ISF_open_su(i+ISF_ID(root_authentication_key));
         if (fp != NULL) {
-            vl_load(fp, _KFILE_BYTES, &kfile);
+            vl_load(fp, _KFILE_BYTES, (ot_u8*)&kfile);
             dlls_info[i].id     = i;
             dlls_info[i].flags  = kfile.flags;
             dlls_info[i].EOL    = kfile.EOL;
-            sub_expand_key((void*)kfile.key, &dlls_ctx[i]);
+            sub_expand_key((void*)kfile.key, &dlls_ctx[i].ctx);
             vl_close(fp);
         }
     }
@@ -323,7 +323,7 @@ ot_u32 auth_getnonce(void) {
 
 
 ot_int sub_do_crypto(void* nonce, void* data, ot_uint datalen, ot_uint key_index,
-                        ot_int (*EAXdrv_fn)(void*, void*, ot_uint, EAXdrv_t*) ) {
+                        ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*) ) {
 #if (_SEC_ANY)
     /// Nonce input is 7 bytes.
     /// on Devices without byte access (C2000), nonce will be 8 bytes with last byte 0.
@@ -342,9 +342,9 @@ ot_int sub_do_crypto(void* nonce, void* data, ot_uint datalen, ot_uint key_index
     iv[0]   = ((ot_u32*)nonce)[0];
     iv[1]   = ((ot_u32*)nonce)[1];
     iv[1]  &= 0x00FFFFFF;
-    retval  = EAXdrv_fn(nonce, data, datalen, &dlls_ctx[key_index].ctx);
+    retval  = EAXdrv_fn(nonce, data, datalen, (EAXdrv_t*)&dlls_ctx[key_index].ctx);
 #   else
-    retval  = EAXdrv_fn(nonce, data, datalen, &dlls_ctx[key_index].ctx);
+    retval  = EAXdrv_fn(nonce, data, datalen, (EAXdrv_t*)&dlls_ctx[key_index].ctx);
 #   endif
 
     return (retval != 0) ? -2 : 4;
