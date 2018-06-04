@@ -429,40 +429,56 @@ ot_int auth_get_deckey(void** key, ot_uint index) {
   
 ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
 /// Compare user-id and mod against stored keys.
-/// The req_mod input is a bitfield with the structure: --rwrwrw
-/// The first rw is for root, second for user, third for guest.
+/// The req_mod input is a bitfield with the structure: --rwxrwx, which is
+/// defined by the veelite FS as follows:
+/// --rwx--- = file perms for User
+/// -----rwx = file perms for Guest
+/// --000000 = file only accessible by root
+/// 
+/// The Authentication system doesn't work with Guests (just User and Root).
+/// We need to convert req_mod into a form that works for Auth, which is 
+/// below:
+/// --rwx--- = key is suitable for Root read/write/exec access.
+/// -----rwx = key is suitable for User read/write/exec access.
+///
 #if (_SEC_ANY)
 #   if (AUTH_NUM_ELEMENTS > 0)
     ot_int i; 
     uint64_t id_u64;
     
-    // Static allocation 
     ///@todo Current implementation is linear search.  In the future maybe
     ///      implement binary search, although for small tables typical for
     ///      this static allocation, it might be faster with linear search.
-    id_u64 = (user_id->length == 2) ? \
-                (uint64_t)*(ot_u16*)user_id->value : \
-                *(uint64_t*)user_id->value;
     
-    // mask-out the don't-care bits
-    req_mod &= 0x3f;
+    // Mask-out unused bits in 64 bit ID. Auth system always uses 64 bit ID.
+    id_u64  = ((uint64_t)1 << (user_id->length * 8)) - 1; 
+    id_u64 &= *(uint64_t*)user_id->value;
     
-    // Linear Search
-    // - Compare id, also compare mod bits against stored flags
-    // - If key timeout is enabled (EOL != 0), then make sure key isn't expired
-    // - If key is expired, delete it.
-    for (i=0; i<dlls_size; i++) {
-        if (id_u64 == dlls_info[i].id) {
-            if ((req_mod & dlls_info[i].flags) == dlls_info[i].flags) {
-                if (dlls_info[i].EOL != 0) {
-                    if (dlls_info[i].EOL <= time_get_utc()) {
-                        auth_delete_key(i);
-                        i--;
-                        continue;
+    // handle root case (req_mod == 0)
+    // else, mask-out the don't care bits
+    req_mod = (req_mod == 0) ? (7 << 3) : (req_mod >> 3) & 7;
+    
+    // If adjusted req_mod is zero, there is no auth to do, return Guest.
+    // If adjusted req_mod is non-zero, then we need to search through keys.
+    if (req_mod != 0)
+        // Linear Search
+        // - Compare id, also compare mod bits against stored flags
+        // - If key timeout is enabled (EOL != 0), then make sure key isn't expired
+        // - If key is expired, set flags to the INACTIVE and wipe context.
+        // - Do NOT actually delete the key,  That is the job of the app.
+        for (i=0; i<dlls_size; i++) {
+            if (id_u64 == dlls_info[i].id) {
+                if ((req_mod & dlls_info[i].flags) == dlls_info[i].flags) {
+                    if (dlls_info[i].EOL != 0) {
+                        if (dlls_info[i].EOL <= time_get_utc()) {
+                            memset((void*)dlls_ctx[i], 0, sizeof(authctx_t));
+                            dlls_info[i].flags = AUTH_KEYFLAGS_INACTIVE;
+                            continue;
+                        }
                     }
+                    // Key is found, and valid
+                    return i;
                 }
-                // Key is found, and valid
-                return i;
             }
         }
     }
@@ -587,6 +603,43 @@ ot_u8 auth_create_key(ot_uint* key_index, void* handle) {
 }
 
 ot_u8 auth_delete_key(ot_uint key_index) {
+/// This will delete a key from the table of keys.  It is up to the application
+/// to maintain keys, and thus to use this function.
+/// 
+/// Static Allocation: Typically used with small key tables (e.g. for endpoints)
+/// - wipe old key context and
+/// - if key index is 0 or 1, these are special keys, don't displace them.
+/// - else, shift table contents over deleted key
+///
+/// Dynamic Allocation: Typically used with large key tables (e.g. gateways)
+/// - Wipe, delete, and free the key context & info
+/// - reduce size and pointers of table accordingly
+
+#if (AUTH_NUM_ELEMENTS >= 0)
+    // Static allocation:
+    if (key_index < dlls_size) {
+        ot_int i;
+    
+        memset((void*)dlls_ctx[i], 0, sizeof(authctx_t));
+        dlls_info[i].flags = AUTH_KEYFLAGS_INVALID;
+        dlls_size--;
+        
+        if (key_index >= 2) {
+            dlls_size--;
+            for (i=key_index; i<dlls_size; i++) {
+                memcpy(&dlls_info[i], &dlls_info[i+1], sizeof(authinfo_t));
+                memcpy(&dlls_ctx[i], &dlls_ctx[i+1], sizeof(authctx_t));
+            }
+        }
+        
+        return 0;
+    }
+    
+#elif (AUTH_NUM_ELEMENTS < 0)
+    ///@todo implement this
+    
+#endif
+
     return 255;
 }
 
