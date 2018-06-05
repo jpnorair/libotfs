@@ -54,6 +54,34 @@ extern const id_tmpl*   auth_guest;
 
 
 
+typedef struct OT_PACKED {
+    uint64_t    id;
+    ot_u16      flags;
+    ot_u32      EOL;
+} auth__t;
+
+///@note keyfile_t must match the structure of the "root & user authentication
+///      key" files stored in the filesystem.
+typedef struct OT_PACKED {
+    ot_u16  flags;
+    ot_u32  EOL;
+    ot_u32  key[4];
+} keyfile_t;
+
+///@note the context data element should mirror the one from OTEAX.
+typedef struct {   
+    uint32_t    ks[44];
+    uint32_t    inf;
+} eax_ctx_t;
+
+typedef struct {
+    eax_ctx_t   ctx;
+} authctx_t;
+
+
+
+
+
 
 
 /** High Level Cryptographic Interface Functions <BR>

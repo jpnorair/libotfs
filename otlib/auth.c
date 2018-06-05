@@ -47,6 +47,13 @@ const id_tmpl*   auth_user;
 const id_tmpl*   auth_guest;
 
 
+typedef enum {
+    ID_localguest   = -1,
+    ID_localroot    = 0,
+    ID_localuser    = 1,
+    ID_normal       = 2,
+} idtype_t;
+
 typedef struct OT_PACKED {
     uint64_t    id;
     ot_u16      flags;
@@ -131,6 +138,25 @@ void crypto_clean();
   * ========================================================================<BR>
   */
 #if (_SEC_ANY)
+idtype_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {    
+    if ((user_id == NULL) || (user_id == auth_root)) {
+        return ID_localroot;
+    }
+    if (user_id == auth_user) {
+        return ID_localuser;
+    }
+    if (user_id == auth_guest) {
+        return ID_localguest;
+    }
+
+    ///@todo make sure this works.  May be endian dependent.
+    *id64  = ((uint64_t)1 << (user_id->length * 8)) - 1; 
+    *id64 &= *(uint64_t*)user_id->value;
+    
+    return ID_normal;
+}
+
+
 void sub_expand_key(void* rawkey, eax_ctx_t* ctx) {
 /// This routine will expand the key (128 bits) into a much larger key sequence.
 /// The key sequence is what is actually used to do cryptographic operations.
@@ -441,18 +467,20 @@ ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
 /// --rwx--- = key is suitable for Root read/write/exec access.
 /// -----rwx = key is suitable for User read/write/exec access.
 ///
-#if (_SEC_ANY)
-#   if (AUTH_NUM_ELEMENTS > 0)
     ot_int i; 
     uint64_t id_u64;
-    
+    idtype_t idtype;
+
+    idtype = sub_make_id64(&id_u64, user_id);
+    if (status)
+
+#if (_SEC_ANY)
+#   if (AUTH_NUM_ELEMENTS > 0)
     ///@todo Current implementation is linear search.  In the future maybe
     ///      implement binary search, although for small tables typical for
     ///      this static allocation, it might be faster with linear search.
-    
     // Mask-out unused bits in 64 bit ID. Auth system always uses 64 bit ID.
-    id_u64  = ((uint64_t)1 << (user_id->length * 8)) - 1; 
-    id_u64 &= *(uint64_t*)user_id->value;
+    
     
     // handle root case (req_mod == 0)
     // else, mask-out the don't care bits
@@ -598,9 +626,78 @@ ot_u8 auth_update_key(void* handle, ot_uint key_index) {
     return 255;
 }
 
-ot_u8 auth_create_key(ot_uint* key_index, void* handle) {
+
+
+ot_u8 auth_create_key(ot_uint* key_index, keytype_t type, ot_u32 lifetime, void* keydata, const id_tmpl* user_id) {
+    uint64_t id64;
+    idtype_t idtype;
+    ot_int index;
+    
+    ///1. Input Checking
+    if (key_index == NULL) {
+        return 1;
+    }
+    if (type != KEY_AES128) {
+        // Only type supported in this impl is AES128
+        return 2;
+    }
+    if (lifetime < AUTH_MIN_LIFETIME) {
+        return 3;
+    }
+    if (keydata == NULL) {
+        return 4;
+    }
+    
+    ///2. Convert user_id into id64 form.  
+    ///   sub_make_id64 handles user_id == NULL and other special cases.
+    idtype = sub_make_id64(&id64, user_id);
+    
+    ///3. Escape for local ID types, which are handled specially
+    if (idtype != ID_normal) {
+        return 5;
+    }
+
+#if (AUTH_NUM_ELEMENTS >= 0)
+    ///4. Static Allocation 
+    ///   If id64 and idtype already exists, replace that entry.
+    ///   Else, add new key to end of list.
+    
+    index = sub_search_user(user_id, authmod);
+    if (index >= 0) {
+        // do update
+    }
+    else {
+        // do add
+    }
+    
+    //code from delete
+    if (key_index < dlls_size) {
+        ot_int i;
+    
+        memset((void*)dlls_ctx[i], 0, sizeof(authctx_t));
+        dlls_info[i].flags = AUTH_KEYFLAGS_INVALID;
+        dlls_size--;
+        
+        if (key_index >= 2) {
+            dlls_size--;
+            for (i=key_index; i<dlls_size; i++) {
+                memcpy(&dlls_info[i], &dlls_info[i+1], sizeof(authinfo_t));
+                memcpy(&dlls_ctx[i], &dlls_ctx[i+1], sizeof(authctx_t));
+            }
+        }
+        
+        return 0;
+    }
+    
+#elif (AUTH_NUM_ELEMENTS < 0)
+    ///@todo implement this
+    
+#endif
+
     return 255;
 }
+
+
 
 ot_u8 auth_delete_key(ot_uint key_index) {
 /// This will delete a key from the table of keys.  It is up to the application
