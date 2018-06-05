@@ -52,34 +52,16 @@ extern const id_tmpl*   auth_user;      // this is self-user, uses local user ke
 extern const id_tmpl*   auth_guest;
 
 
+typedef enum {
+    AUTHMOD_guest = 0,
+    AUTHMOD_user  = (7<<0),
+    AUTHMOD_root  = (7<<3),
+} authmod_t;
 
-
-typedef struct OT_PACKED {
-    uint64_t    id;
-    ot_u16      flags;
-    ot_u32      EOL;
-} auth__t;
-
-///@note keyfile_t must match the structure of the "root & user authentication
-///      key" files stored in the filesystem.
-typedef struct OT_PACKED {
-    ot_u16  flags;
-    ot_u32  EOL;
-    ot_u32  key[4];
-} keyfile_t;
-
-///@note the context data element should mirror the one from OTEAX.
-typedef struct {   
-    uint32_t    ks[44];
-    uint32_t    inf;
-} eax_ctx_t;
-
-typedef struct {
-    eax_ctx_t   ctx;
-} authctx_t;
-
-
-
+typedef enum {
+    KEYTYPE_none    = 0,
+    KEYTYPE_AES128  = 1,
+} keytype_t;
 
 
 
@@ -283,8 +265,13 @@ ot_int auth_get_enckey(void** key, ot_uint index);
 
 /** User Authentication Routines <BR>
   * ========================================================================<BR>
-  * Specifically, the Auth-Sec ALP should have hooks into these functions.
+  * Intended to be used internally or via a ROOT-authenticated connection to
+  * an Auth-Sec ALP.
   */
+
+
+ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod);
+
 
 /** @brief Returns True if the supplied ID has root access
   * @param user_id      (id_tmpl*) pointer to a UID/VID template
@@ -305,13 +292,13 @@ ot_bool auth_isuser(const id_tmpl* user_id);
 
 
 /** @brief Checks the authentication data per supplied user, and provides yes or no
-  * @param data_mod     (ot_u8) Veelite Mod value of the desired data element
-  * @param req_mod      (ot_u8) Requested Mod for operation (e.g. read or write)
+  * @param req_mod      (ot_u8) Requested Veelite Mod value of the data element
+  * @param rw_mod       (ot_u8) Read/Write Mod-mask for operation
   * @param user_id      (id_tmpl*) pointer to a UID/VID template
   * @retval ot_u8       Non-zero when authentication is OK
   * @ingroup Authentication
   */
-ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, const id_tmpl* user_id);
+ot_u8 auth_check(ot_u8 req_mod, ot_u8 rw_mod, const id_tmpl* user_id)
 
 
 
@@ -323,9 +310,10 @@ ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, const id_tmpl* user_id);
 
 
 
-/** Functions Typically Used with ALP <BR>
+/** Key Management Functions <BR>
   * ========================================================================<BR>
-  * Specifically, the Auth-Sec ALP should have hooks into these functions.
+  * Intended to be used internally or via a ROOT-authenticated connection to
+  * an Auth-Sec ALP.
   */
 
 /** @brief Finds a Key-Index, given a User ID
@@ -333,53 +321,57 @@ ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, const id_tmpl* user_id);
   * @param user_id      (id_tmpl*) input user id
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
+  *
+  * Errors:
+  * 1   : key_index is NULL
+  * 255 : key cannot be found for this ID
   */
 ot_u8 auth_find_keyindex(ot_uint* key_index, const id_tmpl* user_id);
 
 
-/** @brief Finds an Auth Handle, given a User ID
-  * @param handle       (void*) Output handle for key being read
-  * @param user_id      (id_tmpl*) input user id
-  * @retval ot_u8       Zero (0) on success, else an error code
-  * @ingroup Authentication
-  */
-ot_u8 auth_find_key(void* handle, const id_tmpl* user_id);
-
-
-/** @brief Reads an Auth/Sec Key Element, given key index
-  * @param handle       (void*) Output handle for key being read
-  * @param key_index    (ot_uint) input key index to read
-  * @retval ot_u8       Zero (0) on success, else an error code
-  * @ingroup Authentication
-  */
-ot_u8 auth_read_key(void* handle, ot_uint key_index);
-
-
-/** @brief Updates an Auth/Sec Key Element, given
-  * @param handle       (void*) Input Key Information
-  * @param key_index    (ot_uint) Input Key Index
+/** @brief Update Lifetime of an existing key.
+  * @param key_index    (ot_uint*) Output Key Index.
+  * @param new_lifetime (ot_u32) Key lifetime in seconds.
+  * @param user_id      (const id_tmpl*) Pointer to ID that key is associated with.
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
   *
-  * Sub-elements in "handle" that are set to NULL will be skipped during the
-  * update procedure.
+  * Errors: 
+  * 1   : key_index is NULL
+  * 3   : new_lifetime is out of bounds
+  * 255 : key cannot be found for this ID
   */
-ot_u8 auth_update_key(void* handle, ot_uint key_index);
+ot_u8 auth_refresh_key(ot_uint* key_index, ot_u32 new_lifetime, const id_tmpl* user_id);
 
 
 /** @brief Create a Key given Auth/Sec information
   * @param key_index    (ot_uint*) Output Key Index
-  * @param handle       (void*) Input Key & Auth/Sec Information
+  * @param type         (keytype_t) Type of cryptographic key
+  * @param lifetime     (ot_u32) Key lifetime in seconds.
+  * @param keydata      (void*) pointer to key data.  Length is implicit from type param.
+  * @param user_id      (const id_tmpl*) Pointer to ID that key will be associated with.
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
+  *
+  * If one of the inputs is not valid, an error code will be returned corresponding to the 
+  * erroneous input (e.g. "1" means that key_index is NULL, "2" means type is out of range,
+  * etc).
+  *
+  * Other errors:
+  * 254 : cannot create new key because ID is already found in table
+  * 255 : cannot create new key due to full table (or no table).
   */
-ot_u8 auth_create_key(ot_uint* key_index, void* handle);
+ot_u8 auth_create_key(ot_uint* key_index, keytype_t type, ot_u32 lifetime, void* keydata, const id_tmpl* user_id);
 
 
 /** @brief Deletes an Auth/Sec Key Element, given key index
   * @param key_index    (ot_uint) input key index to delete
   * @retval ot_u8       Zero (0) on success, else an error code
   * @ingroup Authentication
+  *
+  * Errors:
+  * 1   : key_index is out of range
+  * 255 : cannot delete key (generally because no auth implementation)
   */
 ot_u8 auth_delete_key(ot_uint key_index);
 
@@ -389,32 +381,14 @@ ot_u8 auth_delete_key(ot_uint key_index);
 
 
 
-/* @brief Adds a new key entry and associated key data to the Crypto_Heap.
-  * @param handle       (void*) Output handle for this new entry
-  * @param new_user     (id_tmpl*) ID information for new user
-  * @param new_info     (auth_info*) Auth/Sec parameters
-  * @param new_key      (ot_u8*) cryptographic key data
-  * @retval ot_u8       Zero (0) on success, else an error code
-  * @ingroup Authentication
-  *
-  * If a new key is added, but there is no room left, the oldest key will be
-  * deleted to make room for this new key.
-
-ot_u8 auth_new_nlsuser(void* handle, id_tmpl* new_user, auth_info* new_info, ot_u8* new_key);
-*/
 
 
-/* @brief Searches and returns a key based on UID or VID (if UID is NULL).
-  * @param handle       (void*) Output handle for this new entry
-  * @param user_id      (id_tmpl*) Device ID of user to find auth/sec data
-  * @param mod_flags    (ot_u8) extra user flags
-  * @retval ot_u8       Zero (0) on success, else an error code
-  * @ingroup Authentication
-*/
-//ot_u8 auth_search_user(void* handle, id_tmpl* user_id, ot_u8 mod_flags);
-ot_int auth_search_user(const id_tmpl* user_id, ot_u8 mod_flags);
 
-ot_int auth_get_user(const id_tmpl* user_id, ot_u16 index);
+
+
+
+
+
 
 
 #endif

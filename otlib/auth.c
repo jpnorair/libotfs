@@ -39,6 +39,13 @@
 
 ///@todo bring this into OT_config.h eventually, when the feature gets supported
 
+/// Default minimum key lifetime is one hour (3600 seconds).  
+/// This can be changed, but it's nonetheless far too short to exploit by force.
+#if defined(OT_PARAM_KEYLIFE_MIN)
+#   define AUTH_MIN_LIFETIME    OT_PARAM_KEYLIFE_MIN
+#else
+#   define AUTH_MIN_LIFETIME    3600
+#endif 
 
 
 /// User aliases for sandboxed processes only
@@ -48,11 +55,11 @@ const id_tmpl*   auth_guest;
 
 
 typedef enum {
-    ID_localguest   = -1,
+    ID_localguest   = -1,       //must be -1
     ID_localroot    = 0,
     ID_localuser    = 1,
-    ID_normal       = 2,
-} idtype_t;
+    ID_normal       = 2
+} idclass_t;
 
 typedef struct OT_PACKED {
     uint64_t    id;
@@ -77,6 +84,7 @@ typedef struct {
 typedef struct {
     eax_ctx_t   ctx;
 } authctx_t;
+
 
 #if (_SEC_ANY)
 #   undef   AUTH_NUM_ELEMENTS
@@ -110,26 +118,6 @@ typedef struct {
 
 
 
-// internal stuff
-
-/** @brief Sorts key table based in order of which key is closest to expiration.
-  * @param none
-  * @retval none
-  */
-void crypto_sort();
-
-/** @brief Wipes out expired keys
-  * @param none
-  * @retval none
-  */
-void crypto_cull();
-
-/** @brief Reorganizes (cleans) the Key Heap & table
-  * @param none
-  * @retval none
-  */
-void crypto_clean();
-
 
 
 
@@ -138,7 +126,7 @@ void crypto_clean();
   * ========================================================================<BR>
   */
 #if (_SEC_ANY)
-idtype_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {    
+idclass_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {    
     if ((user_id == NULL) || (user_id == auth_root)) {
         return ID_localroot;
     }
@@ -450,8 +438,43 @@ ot_int auth_get_deckey(void** key, ot_uint index) {
 
 /** User Authentication Routines <BR>
   * ========================================================================<BR>
-  * Specifically, the Auth-Sec ALP should have hooks into these functions.
+  * Intended to be used internally or via a ROOT-authenticated connection to
+  * an Auth-Sec ALP.
   */
+  
+ot_int sub_search_user(uint64_t id64, authmod_t reqmod) {
+#if (AUTH_NUM_ELEMENTS > 0)
+///@todo Current implementation is linear search.  In the future maybe
+///      implement binary search, although for small tables typical for
+///      this static allocation, it might be faster with linear search.
+    ot_int i; 
+
+    // Linear Search
+    // - Compare id: ID's must be unique.
+    // - Inspect mod: ID's mod must be greater than the requested mod
+    // - If key timeout is enabled (EOL != 0), then make sure key isn't expired
+    // - If key is expired, wipe the context for security. (Do not actually delete key though)
+    for (i=2; i<dlls_size; i++) {
+        if ((id64 == dlls_info[i].id) && ((dlls_info[i].flags & 0x3F) >= reqmod)) {
+            if ((dlls_info[i].EOL != 0) && (dlls_info[i].EOL <= time_get_utc())) {
+                memset((void*)&dlls_ctx[i], 0, sizeof(authctx_t));
+                dlls_info[i].flags = 0;
+                continue;
+            }
+            // Key is found, and valid
+            return i;
+        }
+    }
+    
+#elif (AUTH_NUM_ELEMENTS < 0)
+    ///@todo Dynamic Allocation: uses libjudy
+    return -1;
+    
+#endif
+    // returns guest by default
+    return -1;
+}
+
   
 ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
 /// Compare user-id and mod against stored keys.
@@ -467,60 +490,39 @@ ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
 /// --rwx--- = key is suitable for Root read/write/exec access.
 /// -----rwx = key is suitable for User read/write/exec access.
 ///
-    ot_int i; 
-    uint64_t id_u64;
-    idtype_t idtype;
-
-    idtype = sub_make_id64(&id_u64, user_id);
-    if (status)
-
 #if (_SEC_ANY)
-#   if (AUTH_NUM_ELEMENTS > 0)
-    ///@todo Current implementation is linear search.  In the future maybe
-    ///      implement binary search, although for small tables typical for
-    ///      this static allocation, it might be faster with linear search.
-    // Mask-out unused bits in 64 bit ID. Auth system always uses 64 bit ID.
-    
-    
-    // handle root case (req_mod == 0)
-    // else, mask-out the don't care bits
+    uint64_t id_u64;
+    idclass_t idtype;
+
+    ///1. Check req_mod first, it could be asking for guest access.
+    ///   req_mod is converted from Veelite format (OpenTag API is this) into
+    ///   internal auth format.
     req_mod = (req_mod == 0) ? (7 << 3) : (req_mod >> 3) & 7;
-    
-    // If adjusted req_mod is zero, there is no auth to do, return Guest.
-    // If adjusted req_mod is non-zero, then we need to search through keys.
-    if (req_mod != 0)
-        // Linear Search
-        // - Compare id, also compare mod bits against stored flags
-        // - If key timeout is enabled (EOL != 0), then make sure key isn't expired
-        // - If key is expired, set flags to the INACTIVE and wipe context.
-        // - Do NOT actually delete the key,  That is the job of the app.
-        for (i=0; i<dlls_size; i++) {
-            if (id_u64 == dlls_info[i].id) {
-                if ((req_mod & dlls_info[i].flags) == dlls_info[i].flags) {
-                    if (dlls_info[i].EOL != 0) {
-                        if (dlls_info[i].EOL <= time_get_utc()) {
-                            memset((void*)dlls_ctx[i], 0, sizeof(authctx_t));
-                            dlls_info[i].flags = AUTH_KEYFLAGS_INACTIVE;
-                            continue;
-                        }
-                    }
-                    // Key is found, and valid
-                    return i;
-                }
-            }
-        }
+    if (req_mod == AUTHMOD_guest) {
+        return (ot_int)ID_localguest;
     }
     
-    return -1;
-    
-#   elif (AUTH_NUM_ELEMENTS < 0)
-    ///@todo Dynamic Allocation: uses libjudy
-    return -1;
-    
-#   else
-    return -1;
-    
-#   endif
+    ///2. Convert the ID from id_tmpl to 64 bit unsigned, which is used
+    ///   internally for auth management.
+    ///   If the user id is for a local user, we make sure it matches the
+    ///   supplied mod value, and return the local user.
+    ///   - root has all access.
+    ///   - user has access to user
+    ///   - guest has no authenticated access
+    idtype = sub_make_id64(&id_u64, user_id);
+    if (idtype != ID_normal) {
+        if (  ((req_mod == AUTHMOD_root) && (idtype != ID_localroot)) 
+           || ((req_mod == AUTHMOD_user) && (idtype < ID_localuser)) ) {
+            return (ot_int)ID_localguest;
+        }
+        return (ot_int)idtype;
+    }
+
+    ///3. Preliminary input checks are done.
+    ///   At this point, we need to search for a non-local user in the 
+    ///   authentication table.  The implementation is slightly different
+    ///   between static and dynamic configurations, via subroutine.
+    return sub_search_user(id_u64, req_mod);
 
 #else
     return -1;
@@ -530,16 +532,24 @@ ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
 
 
 
-ot_int auth_get_user(const id_tmpl* user_id, ot_u16 index) {
-#   if (_SEC_ANY)
-    if ((user_id != NULL) && (index < dlls_size)) {
-        ot_int length;
-        length = (dlls_info[index].id < 65536) ? 2 : 8;
-        ot_memcpy(user_id->value, &dlls_info[index].id, length);
-        return length;
+ot_u8 auth_get_user(id_tmpl* user_id, ot_uint key_index) {
+#if (_SEC_ANY)
+    if (user_id == NULL) {
+        return 1;
     }
-#   endif
+    if (key_index <= dlls_size) {
+        return 2;
+    }
+
+    user_id->length = (dlls_info[key_index].id < 65536) ? 2 : 8;
+    ot_memcpy(user_id->value, &dlls_info[key_index].id, user_id->length);
+    
+    return 0;
+
+#else
     return -1;
+    
+#endif
 }
 
 
@@ -549,7 +559,6 @@ ot_bool auth_isroot(const id_tmpl* user_id) {
 /// - An external root key may be somewhere else in the list.  Check this last.
 
 #if (_SEC_ANY)
-    ot_int length;
     if (user_id == NULL) {
         return true;
     }
@@ -569,7 +578,6 @@ ot_bool auth_isuser(const id_tmpl* user_id) {
 /// - Null is the root key, which is always OK to use for user calls.
 /// - An external root/user key may be somewhere else in the list.  Check this last.
 #if (_SEC_ANY)
-    ot_int length;
     if (user_id == NULL) {
         return true;
     }
@@ -584,60 +592,105 @@ ot_bool auth_isuser(const id_tmpl* user_id) {
 
 
 
-ot_u8 auth_check(ot_u8 data_mod, ot_u8 req_mod, const id_tmpl* user_id) {
-#if (_SEC_ANY)
+ot_u8 auth_check(ot_u8 req_mod, ot_u8 rw_mod, const id_tmpl* user_id) {
 /// Find the ID in the table, then mask the user's mod with the file's mod
 /// and the mod from the request (i.e. read, write).
+#if (_SEC_ANY)
+    ot_u8 test = 
+    if (auth_search_user(user_id, req_mod) >= 0) {
+        return (req_mod & rw_mod);
+    }
+#endif
 
-    return (ot_u8)auth_search_user(user_id, (data_mod & req_mod));
+    // Try guest access
+    return (0x07 & req_mod & rw_mod);
+}
 
-#else
-/// If the code gets here then there was not a user match, or the device is not
-/// implementing user authentication.  Try guest access.
-    return (0x07 & data_mod & req_mod);
+
+
+
+
+
+
+
+
+
+/** Key Management Functions <BR>
+  * ========================================================================<BR>
+  * Intended to be used internally or via a ROOT-authenticated connection to
+  * an Auth-Sec ALP.
+  */
+  
+ot_u8 sub_add_key(ot_uint* key_index, keytype_t type, ot_u32 lifetime, void* keydata, uint64_t id64) {
+#if (AUTH_NUM_ELEMENTS >= 0)
+    /// Static allocation
+    /// - Make sure there is space to add.
+    /// - Add it to end of table, and return key_index.
+    if (dlls_size < AUTH_NUM_ELEMENTS) {
+        *key_index = dlls_size++;
+        
+        dlls_info[*key_index].id     = id64;
+        dlls_info[*key_index].flags  = type;
+        dlls_info[*key_index].EOL    = time_get_utc() + lifetime;
+        sub_expand_key(keydata, &dlls_ctx[*key_index].ctx);
+        
+        return 0;
+    }
+
+#elif (AUTH_NUM_ELEMENTS < 0)
+    ///@todo implement this
     
 #endif
+
+    return 255;
 }
 
-
-
-
-
-
-
-
-
-
-/** Functions Typically Used with ALP <BR>
-  * ========================================================================<BR>
-  * Specifically, the Auth-Sec ALP should have hooks into these functions.
-  * @todo implement!
-  */
 
 ot_u8 auth_find_keyindex(ot_uint* key_index, const id_tmpl* user_id) {
-    return 255;
+    ot_uint index;
+    
+    if (key_index == NULL) {
+        return 1;
+    }
+    
+    index = auth_search_user(user_id, AUTHMOD_user);
+    if (index < 0) {
+        return 255;
+    }
+    
+    *key_index = index;
+    return 0;
 }
 
-ot_u8 auth_read_key(void* handle, ot_uint key_index) {
-    return 255;
-}
 
-ot_u8 auth_update_key(void* handle, ot_uint key_index) {
-    return 255;
+
+ot_u8 auth_refresh_key(ot_uint* key_index, ot_u32 new_lifetime, const id_tmpl* user_id) {
+    ot_u8 status;
+    
+    if (new_lifetime < AUTH_MIN_LIFETIME) {
+        return 3;
+    }
+    
+    status = auth_find_keyindex(key_index, user_id);
+    if (status == 0) {
+        dlls_info[*key_index].EOL = time_get_utc() + new_lifetime;
+    }
+    
+    return status;
 }
 
 
 
 ot_u8 auth_create_key(ot_uint* key_index, keytype_t type, ot_u32 lifetime, void* keydata, const id_tmpl* user_id) {
     uint64_t id64;
-    idtype_t idtype;
+    idclass_t idtype;
     ot_int index;
     
     ///1. Input Checking
     if (key_index == NULL) {
         return 1;
     }
-    if (type != KEY_AES128) {
+    if (type != KEYTYPE_AES128) {
         // Only type supported in this impl is AES128
         return 2;
     }
@@ -650,51 +703,21 @@ ot_u8 auth_create_key(ot_uint* key_index, keytype_t type, ot_u32 lifetime, void*
     
     ///2. Convert user_id into id64 form.  
     ///   sub_make_id64 handles user_id == NULL and other special cases.
+    ///   Escape for local ID types, which are handled specially
     idtype = sub_make_id64(&id64, user_id);
-    
-    ///3. Escape for local ID types, which are handled specially
     if (idtype != ID_normal) {
         return 5;
     }
 
-#if (AUTH_NUM_ELEMENTS >= 0)
-    ///4. Static Allocation 
-    ///   If id64 and idtype already exists, replace that entry.
-    ///   Else, add new key to end of list.
-    
-    index = sub_search_user(user_id, authmod);
+    ///3. Check if ID already exists.
+    ///   - only one key per ID
+    ///   - if ID already exists, return error
+    index = sub_search_user(id64, AUTHMOD_user);
     if (index >= 0) {
-        // do update
+        return 254;
     }
-    else {
-        // do add
-    }
-    
-    //code from delete
-    if (key_index < dlls_size) {
-        ot_int i;
-    
-        memset((void*)dlls_ctx[i], 0, sizeof(authctx_t));
-        dlls_info[i].flags = AUTH_KEYFLAGS_INVALID;
-        dlls_size--;
-        
-        if (key_index >= 2) {
-            dlls_size--;
-            for (i=key_index; i<dlls_size; i++) {
-                memcpy(&dlls_info[i], &dlls_info[i+1], sizeof(authinfo_t));
-                memcpy(&dlls_ctx[i], &dlls_ctx[i+1], sizeof(authctx_t));
-            }
-        }
-        
-        return 0;
-    }
-    
-#elif (AUTH_NUM_ELEMENTS < 0)
-    ///@todo implement this
-    
-#endif
 
-    return 255;
+    return sub_add_key(key_index, type, lifetime, keydata, id64);
 }
 
 
@@ -712,30 +735,29 @@ ot_u8 auth_delete_key(ot_uint key_index) {
 /// - Wipe, delete, and free the key context & info
 /// - reduce size and pointers of table accordingly
 
-#if (AUTH_NUM_ELEMENTS >= 0)
-    // Static allocation:
-    if (key_index < dlls_size) {
-        ot_int i;
+    if ((key_index < 2) || (key_index >= dlls_size)) {
+        return 1;
+    }
     
-        memset((void*)dlls_ctx[i], 0, sizeof(authctx_t));
-        dlls_info[i].flags = AUTH_KEYFLAGS_INVALID;
+#   if (AUTH_NUM_ELEMENTS >= 0)
+    {   ot_int i;
+    
+        memset((void*)&dlls_ctx[key_index], 0, sizeof(authctx_t));
+        dlls_info[key_index].flags = (1<<7);    //AUTH_KEYFLAGS_INVALID;
         dlls_size--;
         
-        if (key_index >= 2) {
-            dlls_size--;
-            for (i=key_index; i<dlls_size; i++) {
-                memcpy(&dlls_info[i], &dlls_info[i+1], sizeof(authinfo_t));
-                memcpy(&dlls_ctx[i], &dlls_ctx[i+1], sizeof(authctx_t));
-            }
+        for (i=key_index; i<dlls_size; i++) {
+            memcpy(&dlls_info[i], &dlls_info[i+1], sizeof(authinfo_t));
+            memcpy(&dlls_ctx[i], &dlls_ctx[i+1], sizeof(authctx_t));
         }
         
         return 0;
     }
     
-#elif (AUTH_NUM_ELEMENTS < 0)
+#   elif (AUTH_NUM_ELEMENTS < 0)
     ///@todo implement this
     
-#endif
+#   endif
 
     return 255;
 }
