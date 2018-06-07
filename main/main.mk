@@ -11,8 +11,8 @@ TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
 OBJEXT      := o
-LIB         := -Wl,-Bstatic -lJudy -L/usr/local/lib $(OTFS_LIB) 
-INC         := -I/usr/local/include $(patsubst -I./%, -I./../%, $(OTFS_INC)) 
+LIB         := $(OTFS_LIB) 
+INC         := $(patsubst -I./%, -I./../%, $(OTFS_INC)) 
 INCDEP      := $(INC)
 
 SOURCES     := $(shell find . -type f -name "*.$(SRCEXT)")

@@ -23,7 +23,7 @@ ifeq ($(TARGET),$(THISMACHINE))
 	OTFS_CFLAGS := -std=gnu99 -O3 -pthread
 	OTFS_DEF    := $(EXT_DEF)
 	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbpkg/$(TARGET)/libjudy -I./../_hbpkg/$(TARGET)/liboteax $(EXT_INC)
-	OTFS_LIB    := -Wl,-Bstatic -ljudy -loteax $(patsubst -I%,-L%,$(OTFS_INC)) $(EXT_LIBS)
+	OTFS_LIB    := $(patsubst -I%,-L%,$(OTFS_INC)) -ljudy -loteax $(EXT_LIBS)
 	PLATFORM    := ./platform/posix_c
 
 else ifeq ($(TARGET),c2000)

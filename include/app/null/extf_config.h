@@ -78,6 +78,9 @@
 /// Veelite Module EXTFs
 
 
+/// Time
+#define EXTF_time_load_now
+
 
 
 #endif 

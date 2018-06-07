@@ -17,7 +17,7 @@
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       31 Oct 2017
-  * @brief      Functional Tests for low level veelite functions.
+  * @brief      Unit Tests for low level veelite functions.
   *
   ******************************************************************************
   */

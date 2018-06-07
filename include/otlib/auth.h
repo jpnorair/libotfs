@@ -269,17 +269,12 @@ ot_int auth_get_enckey(void** key, ot_uint index);
   * an Auth-Sec ALP.
   */
 
-
-ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod);
-
-
 /** @brief Returns True if the supplied ID has root access
   * @param user_id      (id_tmpl*) pointer to a UID/VID template
   * @retval ot_bool     True when ID is root
   * @ingroup Authentication
   */
 ot_bool auth_isroot(const id_tmpl* user_id);
-
 
 
 /** @brief Returns True if the supplied ID has user access (root passes this)
@@ -290,7 +285,6 @@ ot_bool auth_isroot(const id_tmpl* user_id);
 ot_bool auth_isuser(const id_tmpl* user_id);
 
 
-
 /** @brief Checks the authentication data per supplied user, and provides yes or no
   * @param req_mod      (ot_u8) Requested Veelite Mod value of the data element
   * @param rw_mod       (ot_u8) Read/Write Mod-mask for operation
@@ -298,9 +292,31 @@ ot_bool auth_isuser(const id_tmpl* user_id);
   * @retval ot_u8       Non-zero when authentication is OK
   * @ingroup Authentication
   */
-ot_u8 auth_check(ot_u8 req_mod, ot_u8 rw_mod, const id_tmpl* user_id)
+ot_u8 auth_check(ot_u8 req_mod, ot_u8 rw_mod, const id_tmpl* user_id);
 
 
+/** @brief Searches authentication tables for a key that qualifies ID and Mods
+  * @param user_id      (id_tmpl*) pointer to a ID template for search
+  * @param req_mod      (ot_u8) requested Mods for the key
+  * @retval ot_int      Negative on error, or the index of the matching key.
+  * @ingroup Authentication
+  *
+  * auth_search_user is intended for internal use.  It is exposed simply because
+  * there's little value in hiding functions in open-source software.  For the
+  * same functionality in a way that fits the Auth-Sec ALP API, use auth_check.
+  */
+ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod);
+
+
+/** @brief Loads a User ID from the user ID store at an index in key table.
+  * @param user_id      (id_tmpl*) pointer to a ID template to load into
+  * @param key_index    (ot_uint) key_index for load
+  * @retval ot_u8       Non-zero on error
+  * @ingroup Authentication
+  *
+  * Like auth_search_user(), this is a bonus function intended for internal use.
+  */
+ot_u8 auth_get_user(id_tmpl* user_id, ot_uint key_index);
 
 
 

@@ -475,7 +475,7 @@ ot_int sub_search_user(uint64_t id64, authmod_t reqmod) {
     return -1;
 }
 
-  
+
 ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
 /// Compare user-id and mod against stored keys.
 /// The req_mod input is a bitfield with the structure: --rwxrwx, which is
@@ -553,41 +553,26 @@ ot_u8 auth_get_user(id_tmpl* user_id, ot_uint key_index) {
 }
 
 
-ot_bool auth_isroot(const id_tmpl* user_id) {
-/// Here's the trick: 
-/// - Using NULL for user_id is ok for root calls from internal firmware.  Check this first.
-/// - An external root key may be somewhere else in the list.  Check this last.
 
+ot_bool sub_ismask(const id_tmpl* user_id, authmod_t authmask) {
 #if (_SEC_ANY)
     if (user_id == NULL) {
         return true;
     }
-    ///@todo change 0x30 into a #define
-    return (ot_bool)(auth_search_user(user_id, 0x30) >= 0);
+    return (ot_bool)(auth_search_user(user_id, (ot_u8)authmask) >= 0);
     
 #else
-    /// When security/auth features are not compiled-in, just check against NULL.
     return (ot_bool)(user_id == NULL);
     
 #endif
 }
 
+ot_bool auth_isroot(const id_tmpl* user_id) {
+    return sub_ismask(user_id, AUTHMOD_root);
+}
 
 ot_bool auth_isuser(const id_tmpl* user_id) {
-/// Here's the trick:
-/// - Null is the root key, which is always OK to use for user calls.
-/// - An external root/user key may be somewhere else in the list.  Check this last.
-#if (_SEC_ANY)
-    if (user_id == NULL) {
-        return true;
-    }
-    ///@todo change 0x0C into a #define
-    return (ot_bool)(auth_search_user(user_id, 0x0C) >= 0);
-
-#else
-    return (ot_bool)(user_id == NULL);
-    
-#endif
+return sub_ismask(user_id, AUTHMOD_user);
 }
 
 
@@ -596,14 +581,21 @@ ot_u8 auth_check(ot_u8 req_mod, ot_u8 rw_mod, const id_tmpl* user_id) {
 /// Find the ID in the table, then mask the user's mod with the file's mod
 /// and the mod from the request (i.e. read, write).
 #if (_SEC_ANY)
-    ot_u8 test = 
-    if (auth_search_user(user_id, req_mod) >= 0) {
-        return (req_mod & rw_mod);
+    ot_u8 test          = (req_mod & rw_mod);
+    ot_u8 guest_test    = test & 0x07;
+
+    if (guest_test) {
+        return guest_test;
     }
-#endif
+    if (auth_search_user(user_id, req_mod) >= 0) {
+        return test;
+    }
+    return 0;
+#else
 
     // Try guest access
     return (0x07 & req_mod & rw_mod);
+#endif
 }
 
 

@@ -51,6 +51,19 @@ typedef struct {
 } ot_time;
 
 
+
+/** @brief Initializes Time system using ot_time field
+  * @param init_time    (ot_time) Initialization time as ot_time type
+  * @retval None    
+  * @sa time_set_utc
+  *
+  * This function should be run at system startup, even if time isn't resolved 
+  * at that point.  time_set(), time_set_utc(), or time_set_utcprecise() can be 
+  * used at any point to update the time value.
+  */
+void time_init(ot_time init_time);
+
+
 /** @brief Initializes Time system using UTC Epoch seconds
   * @param utc      (ot_u32) UTC Epoch seconds
   * @retval None    
@@ -63,6 +76,10 @@ typedef struct {
 void time_init_utc(ot_u32 utc);
 
 
+
+void time_set(ot_time set_time);
+
+
 /** @brief Set Time system using UTC Epoch seconds
   * @param utc      (ot_u32) UTC Epoch seconds
   * @retval None    
@@ -70,9 +87,12 @@ void time_init_utc(ot_u32 utc);
   * Used to set the system time to a UTC Epoch seconds value during runtime.
   */
 void time_set_utc(ot_u32 utc);
+void time_set_utcprecise(ot_u32 utc, ot_u32 subseconds);
 
 
 //void time_add_ti(ot_u32 ticks);
+
+void time_get(ot_time* get_time);
 
 ot_u32 time_get_utc(void);
 

@@ -11,8 +11,8 @@ TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
 OBJEXT      := o
-LIB         := -lJudy -lotfs -L/usr/local/lib -L./../pkg
-INC         := -I/usr/local/include -I./../pkg 
+LIB         := -L./../pkg -lotfs $(patsubst -L./%, -L./../%, $(OTFS_LIB)) 
+INC         := -I./../pkg $(patsubst -I./%, -I./../%, $(OTFS_INC)) 
 INCDEP      := $(INC)
 
 SOURCES     := $(shell find . -type f -name "*.$(SRCEXT)")

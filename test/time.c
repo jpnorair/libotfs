@@ -17,7 +17,7 @@
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       20 April 2018
-  * @brief      Functional Tests for MultiFS CRUD
+  * @brief      Functional Tests for Time Module (otsys/time.h)
   *
   ******************************************************************************
   */
@@ -29,6 +29,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include <math.h>
+#include <unistd.h>
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -45,100 +48,76 @@
 
 
 
+char* sub_yesno(int exp) {
+    static char* yes = "Yes";
+    static char* no = "No";
+    return (exp) ? yes : no;
+}
 
+
+
+void sub_uptime_loop(int iters, int period_us) {
+	uint32_t last_check;
+	uint32_t this_check;
+	int ti_target = round((double)period_us / 976.5625);
+	
+	
+	last_check = time_uptime();
+	printf("Starting Uptime: %u\n", last_check);
+	printf("--------------------------------------------------------\n");
+	
+	for (; iters>0; iters--) {
+		usleep(period_us);
+		this_check = time_uptime();
+		printf("Uptime: %u ti   -- period/target: %d/%d\n", time_uptime(), (this_check-last_check), ti_target);
+		last_check = this_check;
+	}
+	
+	printf("--------------------------------------------------------\n\n");
+}
 
 
 int main(void) {
     otfs_t* fs;
     int rc;
+    ot_time timeval;
+    ot_u32 utcval;
     
     printf("Time features test\n");
     printf("===============================================================================\n");
     printf("Name of app in use with libotfs: %s\n", LIBOTFS_APP_NAME);
-    printf("Time Enabled?                    %s\n", sub_yesno(OT_FEATURE_TIME == ENABLED));
-    printf("size of vl_header_t:             %zu\n", sizeof(vl_header_t));
+    printf("Time Enabled?                    %s\n\n", sub_yesno(OT_FEATURE_TIME == ENABLED));
     
     srand(time(NULL));
     
-    // Allocate fs bundle
-    fs = malloc(sizeof(otfs_t) * DEF_INSTANCES_FS);
-    if (fs == NULL) {
-        fprintf(stderr, "%sError: malloc returned NULL (LINE %d)\n", KRED, __LINE__-2);
-        return -1;
-    }
+    // Initialize Time Module with present time in seconds from epoch
+    time_init_utc(time(NULL));
     
-    otfs_init(NULL);
-    
-    // Add the UIDs to the Filesystems.  This should be done first.
-    // They are random numbers that are backchecked against the previous ones.
-    for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        arc4random_buf(&fs[i].uid.u64, 8);
-        for (int j=0; j<i; j++) {
-            if (fs[i].uid.u64 == fs[j].uid.u64) {
-                i--;
-                break;
-            }
-        }
-    }
-    
-    // Add filesystems to OTFS
-    for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        rc = otfs_load_defaults(NULL, &fs[i], DEF_FS_ALLOC);
-        if (rc < 0) {
-            fprintf(stderr, "%sError: otfs_defaults() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
-        }
-        else {
-            rc = otfs_new(NULL, &fs[i]);
-            if (rc != 0) {
-                fprintf(stderr, "%sError: otfs_new() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
-            }
-            else {
-                printf("Device FS [%016llX] Added, %d bytes (%d/%d)\n", fs[i].uid.u64, fs[i].alloc, i, DEF_INSTANCES_FS);
-            }
-        }
-    }
-    
-    /// Test 1: select different filesystem, do a write
-    ///         The low level features are tested elsewhere, so this test doesn't
-    ///         go into extreme depths of fuzzing the low level Veelite calls.
-    for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        rc = otfs_setfs(NULL, &fs[i].uid.u8[0]);
-        if (rc != 0) {
-            fprintf(stderr, "%sError: otfs_setfs() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
-        }
-        else {
-            uint8_t testwrite[32];
-            printf("Device FS [%016llX] Activated\n", fs[i].uid.u64);
-
-            arc4random_buf(testwrite, 32);
-            rc = sub_store(0x11, testwrite, 32);
-            if (rc == 0) {
-                printf("Wrote 32 bytes to File %d\n", 0x11);
-                sub_hexdump(testwrite, 32, 16);
-            }
-            
-            printf("\n");
-        }
-
-    }
-    
-    
-    // End: free memory cell by cell
-    for (int i=0; i<DEF_INSTANCES_FS; i++) {
-        rc = otfs_del(NULL, &fs[i], true);
-        if (rc != 0) {
-            fprintf(stderr, "%sError: otfs_del() returned %d (LINE %d)\n", KRED, rc, __LINE__-2);
-        }
-        else {
-            printf("FS instance %d deleted\n", i);
-        }
-    }
-    
-    
-    // Final Deallocation
-    otfs_deinit(NULL);
-    printf("\nJudy array totally deallocated\n");
-    
+    // Print uptime several times, in one second intervals
+    sub_uptime_loop(8, 1000000);
+   	
+   	// Print raw values from ot_time
+   	printf("Time Values\n");
+	printf("--------------------------------------------------------\n");
+   	time_get(&timeval);
+   	printf("time.upper  = %08X\n", timeval.upper);
+   	printf("time.clocks = %08X\n", timeval.clocks);
+   	utcval = time_get_utc();
+   	printf("time-utc    = %08X (%u)\n", utcval, utcval);
+   	printf("--------------------------------------------------------\n\n");
+   	
+   	// Now set the time precisely, make sure uptime is monotonic, print-out again the values
+   	printf("Re-set the time precisely, make sure uptime consistent\n");
+	printf("--------------------------------------------------------\n");
+   	printf("Uptime (0): %u ti\n", time_uptime());
+   	time_get(&timeval);
+   	printf("time (0):   %08X %08X\n", timeval.upper, timeval.clocks);
+	time_load_now(&timeval);
+	time_set(timeval);
+	printf("time (1):   %08X %08X\n", timeval.upper, timeval.clocks);
+   	printf("Uptime (1): %u ti\n", time_uptime());
+   	printf("--------------------------------------------------------\n\n");
+   	
     return 0;
 }
 

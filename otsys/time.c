@@ -21,6 +21,9 @@
   * @brief      System Time Implementation
   * @ingroup    Time
   *
+  * The implementation concept, here, is that *getting* the time happens a lot
+  * more than *setting* the time.  Therefore, getting is optimized at the cost
+  * of setting.
   ******************************************************************************
   */
 
@@ -28,6 +31,8 @@
 #include <otsys/time.h>
 #include <platform/config.h>
 #include <platform/timers.h>
+
+#include <assert.h>
 
 #if OT_FEATURE(TIME)
 
@@ -48,46 +53,69 @@ ot_time  time_start;
 
 
 
+#ifndef EXTF_time_init
+OT_WEAK void time_init(ot_time init_time) {
+    time_sys    = init_time;
+    time_start  = init_time;
+}
+#endif
+
 
 #ifndef EXTF_time_init_utc
 OT_WEAK void time_init_utc(ot_u32 utc) {
     time_sys.upper   = (utc >> _UPPER_SHIFT);
     time_sys.clocks  = (utc << _LOWER_SHIFT);
-    time_start 		= time_sys;
+    time_start 		 = time_sys;
 }
 #endif
 
 
-#ifndef EXTF_time_set_precise
-OT_WEAK void time_set_precise(ot_u32 utc, ot_u32 subseconds) {
-	ot_time delta;
+#ifndef EXTF_time_set
+OT_WEAK void time_set(ot_time set_time) {
+    ot_time delta;
     time_load_now(&delta);
     
     /// 1. Set time_sys to new value.
-    ///@todo scale subseconds
-    time_sys.upper   = (utc >> _UPPER_SHIFT);
-    time_sys.clocks  = (utc << _LOWER_SHIFT);
-    time_sys.clocks |= subseconds;
+    time_sys = set_time;
     
     /// 2. determine delta between previous time and new time
-    delta.upper	    = (time_sys.upper - delta.upper) + (time_sys.clocks < delta.clocks);
+    delta.upper     = (time_sys.upper - delta.upper) + (time_sys.clocks < delta.clocks);
     delta.clocks    = (time_sys.clocks - delta.clocks);
-	
-	/// 3. Apply Delta to time_start
-	///    This is necessary to maintain relative uptime figure
-	time_start.clocks   += delta.clocks;
-	time_start.upper    += delta.upper + (time_start.clocks < delta.clocks);
+    
+    /// 3. Apply Delta to time_start
+    ///    This is necessary to maintain relative uptime figure
+    time_start.clocks   += delta.clocks;
+    time_start.upper    += delta.upper + (time_start.clocks < delta.clocks);
+}
+#endif
+
+
+
+#ifndef EXTF_time_set_utcprecise
+OT_WEAK void time_set_utcprecise(ot_u32 utc, ot_u32 subseconds) {
+	ot_time set_time;
+    set_time.upper   = (utc >> _UPPER_SHIFT);
+    set_time.clocks  = (utc << _LOWER_SHIFT);
+    set_time.clocks |= subseconds;
+    
+    time_set(set_time);
 }
 #endif
 
 
 #ifndef EXTF_time_set_utc
 OT_WEAK void time_set_utc(ot_u32 utc) {
-    time_set_precise(utc, 0);
+    time_set_utcprecise(utc, 0);
 }
 #endif
 
 
+#ifndef EXTF_time_get
+OT_WEAK void time_get(ot_time* get_time) {
+    assert(get_time);
+    *get_time = time_sys;
+}
+#endif
 
 #ifndef EXTF_time_get_utc
 OT_WEAK ot_u32 time_get_utc(void) {
