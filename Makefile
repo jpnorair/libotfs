@@ -29,7 +29,7 @@ ifeq ($(TARGET),$(THISMACHINE))
 	PACKAGEDIR  ?= ./../_hbpkg/$(THISMACHINE)/libotfs.$(VERSION)
 	OTFS_CC	    := gcc
 	OTFS_LIBTOOL:= libtool
-	OTFS_CFLAGS := -std=gnu99 -O3 -pthread
+	OTFS_CFLAGS := -std=gnu99 -O3 -pthread -fPIC
 	OTFS_DEF    := $(EXT_DEF)
 	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbpkg/$(TARGET)/libjudy -I./../_hbpkg/$(TARGET)/liboteax $(EXT_INC)
 	OTFS_LIB    := $(patsubst -I%,-L%,$(OTFS_INC)) -ljudy -loteax $(EXT_LIBS)

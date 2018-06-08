@@ -11,7 +11,7 @@ TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
 OBJEXT      := o
-LIB         := -L./../$(OTFS_PRODUCTDIR) -lotfs $(patsubst -L./%, -L./../%, $(OTFS_LIB)) 
+LIB         := -L./../$(OTFS_PRODUCTDIR) -lotfs $(patsubst -L./%, -L./../%, $(OTFS_LIB)) -lc -lm -lbsd
 INC         := -I./../$(OTFS_PRODUCTDIR) $(patsubst -I./%, -I./../%, $(OTFS_INC)) 
 INCDEP      := $(INC)
 
@@ -59,7 +59,7 @@ $(TARGET): $(OBJECTS)
 $(BUILDDIR)/%.$(OBJEXT): ./%.$(SRCEXT)
 	@mkdir -p $(dir $@)
 ifeq ($(OTFS_CC),gcc)
-	$(OTFS_CC) $(OTFS_CFLAGS) $(OTFS_DEF) $(INC) $(LIB) -o $(basename $@) $<
+	$(OTFS_CC) $(OTFS_CFLAGS) $(OTFS_DEF) $(INC) -o $(basename $@) $< $(LIB)
 else
 	$(OTFS_CC) $(OTFS_CFLAGS) $(OTFS_DEF) $(INC) -c $(CCOUT)$@ $<
 endif

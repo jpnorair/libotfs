@@ -6,7 +6,7 @@ OTFS_INC    ?=
 OTFS_LIB    ?= 
 
 #CFLAGS      := -std=gnu99 -O -g -Wall
-CFLAGS      := -std=gnu99 -O3
+CFLAGS      := -std=gnu99 -O3 -fPIC
 
 BUILDDIR    := ../../$(OTFS_BUILDDIR)/$(TARGET)
 TARGETDIR   := .
