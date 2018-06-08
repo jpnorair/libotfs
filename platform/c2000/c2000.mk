@@ -7,7 +7,7 @@ OTFS_DEF    ?= -DBOARD_c2000 -DOT_FEATURE_DLL_SECURITY=0 -D__C2000__ -D__TI_C__ 
 OTFS_INC    ?= 
 OTFS_LIB    ?= 
 
-BUILDDIR    := ../../build/$(TARGET)
+BUILDDIR    := ../../$(OTFS_BUILDDIR)/$(TARGET)
 TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d

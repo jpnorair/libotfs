@@ -6,7 +6,7 @@ OTFS_DEF    ?=
 OTFS_INC    ?= 
 OTFS_LIB    ?= 
 
-BUILDDIR    := ../build/$(TARGET)
+BUILDDIR    := ../$(OTFS_BUILDDIR)/$(TARGET)
 TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d

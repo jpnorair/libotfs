@@ -11,8 +11,8 @@ TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
 OBJEXT      := o
-LIB         := -L./../pkg -lotfs $(patsubst -L./%, -L./../%, $(OTFS_LIB)) 
-INC         := -I./../pkg $(patsubst -I./%, -I./../%, $(OTFS_INC)) 
+LIB         := -L./../$(OTFS_PRODUCTDIR) -lotfs $(patsubst -L./%, -L./../%, $(OTFS_LIB)) 
+INC         := -I./../$(OTFS_PRODUCTDIR) $(patsubst -I./%, -I./../%, $(OTFS_INC)) 
 INCDEP      := $(INC)
 
 SOURCES     := $(shell find . -type f -name "*.$(SRCEXT)")

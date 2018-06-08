@@ -8,7 +8,7 @@ OTFS_LIB    ?=
 #CFLAGS      := -std=gnu99 -O -g -Wall
 CFLAGS      := -std=gnu99 -O3
 
-BUILDDIR    := ../../build/$(TARGET)
+BUILDDIR    := ../../$(OTFS_BUILDDIR)/$(TARGET)
 TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
