@@ -14,7 +14,7 @@
   *
   */
 /**
-  * @file       /app/config.h
+  * @file       /app/fs_defaults.h
   * @author     JP Norair (jpnorair@indigresso.com)
   * @version    R101
   * @date       31 Oct 2017
@@ -28,8 +28,8 @@
   ******************************************************************************
   */
 
-#ifndef __PARENT_FS_CONFIG_H
-#define __PARENT_FS_CONFIG_H
+#ifndef __PARENT_FS_DEFAULTS_H
+#define __PARENT_FS_DEFAULTS_H
 
 
 #if defined(APP_modbus_master)

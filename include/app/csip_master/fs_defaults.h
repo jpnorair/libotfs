@@ -23,8 +23,8 @@
   ******************************************************************************
   */
 
-#ifndef __DEFAULT_FS_STARTUP_C
-#define __DEFAULT_FS_STARTUP_C
+#ifndef __DEFAULT_FS_STARTUP_H
+#define __DEFAULT_FS_STARTUP_H
 
 #include <otstd.h>
 #include <board.h>
@@ -280,21 +280,21 @@ const ot_u8 overhead_files[] = {
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(fault_message), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(fault_message)),
-    ISF_ID(fault_message),
-    ISF_MOD(fault_message),
-    SPLIT_SHORT_LE(ISF_BASE(fault_message)),
-    SPLIT_SHORT_LE(ISF_MIRROR(fault_message)),
+    ISF_LEN(pv_config), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(pv_config)),
+    ISF_ID(pv_config),
+    ISF_MOD(pv_config),
+    SPLIT_SHORT_LE(ISF_BASE(pv_config)),
+    SPLIT_SHORT_LE(ISF_MIRROR(pv_config)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(monitoring_data ), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(monitoring_data )),
-    ISF_ID(monitoring_data ),
-    ISF_MOD(monitoring_data ),
-    SPLIT_SHORT_LE(ISF_BASE(monitoring_data )),
-    SPLIT_SHORT_LE(ISF_MIRROR(monitoring_data )),
+    ISF_LEN(pv_fault_config ), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(pv_fault_config )),
+    ISF_ID(pv_fault_config ),
+    ISF_MOD(pv_fault_config ),
+    SPLIT_SHORT_LE(ISF_BASE(pv_fault_config )),
+    SPLIT_SHORT_LE(ISF_MIRROR(pv_fault_config )),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
@@ -480,13 +480,13 @@ const ot_u8 isf_stock_files[] = {
 
     /* Sensor Alarms: id=0x0D, len=0, alloc=0 */
 
-    /* root auth key:       id=0x0E, len=0, alloc=18 */
-    _ERS, _ERS,
+    /* root auth key:       id=0x0E, len=0, alloc=22 */
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     
-    /* Admin auth key:      id=0x0F, len=0, alloc=18 */
-    _ERS, _ERS,
+    /* Admin auth key:      id=0x0F, len=0, alloc=22 */
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
 
