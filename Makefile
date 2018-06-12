@@ -16,9 +16,9 @@ THISSYSTEM	:= $(shell uname -s)
 # Conditional Settings per Target
 ifeq ($(TARGET),$(THISMACHINE))
 	ifeq ($(THISSYSTEM),Darwin)
-	# Mac can't do conditional selection of static and dynamic libs at link time.
-	#	PRODUCT_LIBS := libotfs.$(THISSYSTEM).dylib libotfs.$(THISSYSTEM).a
-	PRODUCT_LIBS := libotfs.$(THISSYSTEM).a
+	    # Mac can't do conditional selection of static and dynamic libs at link time.
+	    #	PRODUCT_LIBS := libotfs.$(THISSYSTEM).dylib libotfs.$(THISSYSTEM).a
+	    PRODUCT_LIBS := libotfs.$(THISSYSTEM).a
 	else ifeq ($(THISSYSTEM),Linux)
 		PRODUCT_LIBS := libotfs.$(THISSYSTEM).so libotfs.$(THISSYSTEM).a
 	else
