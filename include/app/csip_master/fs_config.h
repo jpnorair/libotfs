@@ -23,6 +23,21 @@
   ******************************************************************************
   */
 
+/** @todo harmonize with Vlad
+#define ISF_MAX_bms_fault_config                28  // 7x float
+#define ISF_MAX_bms_config                      16  // 2x uint16, 3x float
+#define ISF_MAX_pv_config                       20  // 5x float
+#define ISF_MAX_pv_fault_config                 24  // 6x float
+#define ISF_MAX_inv_config                      46  // 10x float + 3x bool
+#define ISF_MAX_inv_measurements                88  // 22x float
+
+#define ISF_MAX_nameplate_ratings               64  ///@todo confirm
+#define ISF_MAX_adjusted_settings               64  ///@todo confirm
+#define ISF_MAX_alarms                          4
+#define ISF_MAX_opcurve_voltvar                 208 ///@todo confirm
+#define ISF_MAX_opcurve_freqwatt                208 ///@todo confirm
+*/
+
 #ifndef __DEFAULT_FS_CONFIG_H
 #define __DEFAULT_FS_CONFIG_H
 
@@ -111,6 +126,7 @@
 #define ISF_ID_sensor_alarms                    0x0D    // Std File, but not used
 #define ISF_ID_root_authentication_key          0x0E
 #define ISF_ID_user_authentication_key          0x0F
+// OTFS CSIP FILES -----------------------------------------------------
 #define ISF_ID_pv_config                        0x10
 #define ISF_ID_pv_fault_config                  0x11
 #define ISF_ID_nameplate_ratings                0x12
@@ -143,7 +159,7 @@
 #define ISF_ENMIRROR_sensor_alarms              __SET_MIRROR(0)
 #define ISF_ENMIRROR_root_authentication_key    __SET_MIRROR(1)
 #define ISF_ENMIRROR_user_authentication_key    __SET_MIRROR(1)
-#define ISF_ENMIRROR_pv_config              __SET_MIRROR(1)
+#define ISF_ENMIRROR_pv_config                  __SET_MIRROR(1)
 #define ISF_ENMIRROR_pv_fault_config            __SET_MIRROR(1)
 #define ISF_ENMIRROR_nameplate_ratings          __SET_MIRROR(1)
 #define ISF_ENMIRROR_adjusted_settings          __SET_MIRROR(1)
@@ -205,18 +221,10 @@
 #define ISF_MAX_ipv6_addresses                  48
 #define ISF_MAX_sensor_list                     0
 #define ISF_MAX_sensor_alarms                   0
-#define ISF_MAX_root_authentication_key         18
-#define ISF_MAX_user_authentication_key         18
-
-///@todo harmonize with Vlad
-#define ISF_MAX_bms_fault_config                28  // 7x float
-#define ISF_MAX_bms_config                      16  // 2x uint16, 3x float
-#define ISF_MAX_pv_config                       20  // 5x float
-#define ISF_MAX_pv_fault_config                 24  // 6x float
-#define ISF_MAX_inv_config                      46  // 10x float + 3x bool
-#define ISF_MAX_inv_measurements                88  // 22x float
-
-
+#define ISF_MAX_root_authentication_key         22
+#define ISF_MAX_user_authentication_key         22
+#define ISF_MAX_pv_config                   	64
+#define ISF_MAX_pv_fault_config                 64
 #define ISF_MAX_nameplate_ratings               64  ///@todo confirm
 #define ISF_MAX_adjusted_settings               64  ///@todo confirm
 #define ISF_MAX_alarms                          4
@@ -284,8 +292,8 @@
     ISF_ALLOC(sensor_alarms) + \
     ISF_ALLOC(root_authentication_key) + \
     ISF_ALLOC(user_authentication_key) + \
-    ISF_ALLOC(fault_message) + \
-    ISF_ALLOC(monitoring_data) + \
+    ISF_ALLOC(pv_config) + \
+    ISF_ALLOC(pv_fault_config) + \
     ISF_ALLOC(nameplate_ratings) + \
     ISF_ALLOC(adjusted_settings) + \
     ISF_ALLOC(alarms) + \

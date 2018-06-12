@@ -109,9 +109,9 @@
 #define ISF_ID_sensor_alarms                    0x0D    // Std File, but not used
 #define ISF_ID_root_authentication_key          0x0E
 #define ISF_ID_user_authentication_key          0x0F
-// COMMON SMART INVERTER PROFILE FILES --------------------------------------
-#define ISF_ID_fault_message                    0x10
-#define ISF_ID_monitoring_data                  0x11
+// OTFS CSIP FILES -----------------------------------------------------
+#define ISF_ID_pv_config                        0x10
+#define ISF_ID_pv_fault_config                  0x11
 #define ISF_ID_nameplate_ratings                0x12
 #define ISF_ID_adjusted_settings                0x13
 #define ISF_ID_alarms                           0x14
@@ -142,13 +142,15 @@
 #define ISF_ENMIRROR_sensor_alarms              __SET_MIRROR(0)
 #define ISF_ENMIRROR_root_authentication_key    __SET_MIRROR(1)
 #define ISF_ENMIRROR_user_authentication_key    __SET_MIRROR(1)
-#define ISF_ENMIRROR_fault_message              __SET_MIRROR(1)
-#define ISF_ENMIRROR_monitoring_data            __SET_MIRROR(1)
+// OTFS CSIP FILES -----------------------------------------------------
+#define ISF_ENMIRROR_pv_config                  __SET_MIRROR(1)
+#define ISF_ENMIRROR_pv_fault_config            __SET_MIRROR(1)
 #define ISF_ENMIRROR_nameplate_ratings          __SET_MIRROR(1)
 #define ISF_ENMIRROR_adjusted_settings          __SET_MIRROR(1)
 #define ISF_ENMIRROR_alarms                     __SET_MIRROR(1)
 #define ISF_ENMIRROR_opcurve_voltvar            __SET_MIRROR(1)
 #define ISF_ENMIRROR_opcurve_freqwatt           __SET_MIRROR(1)
+// OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_ENMIRROR_application_extension      __SET_MIRROR(1)
 
 
@@ -177,13 +179,15 @@
 #define ISF_MOD_sensor_alarms                   ISF_MOD_file_standard
 #define ISF_MOD_root_authentication_key         b00000000
 #define ISF_MOD_user_authentication_key         b00110000
-#define ISF_MOD_fault_message                   b00100100
-#define ISF_MOD_monitoring_data                 b00100100
+// OTFS CSIP FILES -----------------------------------------------------
+#define ISF_MOD_pv_config                   	b00100100
+#define ISF_MOD_pv_fault_config                 b00100100
 #define ISF_MOD_nameplate_ratings               b00100100
 #define ISF_MOD_adjusted_settings               b00100100
 #define ISF_MOD_alarms                          b00100100
 #define ISF_MOD_opcurve_voltvar                 b00110100
 #define ISF_MOD_opcurve_freqwatt                b00110100
+// OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_MOD_application_extension           b00100100
 
 
@@ -204,10 +208,10 @@
 #define ISF_MAX_ipv6_addresses                  48
 #define ISF_MAX_sensor_list                     0
 #define ISF_MAX_sensor_alarms                   0
-#define ISF_MAX_root_authentication_key         18
-#define ISF_MAX_user_authentication_key         18
-#define ISF_MAX_fault_message                   64
-#define ISF_MAX_monitoring_data                 64
+#define ISF_MAX_root_authentication_key         22
+#define ISF_MAX_user_authentication_key         22
+#define ISF_MAX_pv_config                   	64
+#define ISF_MAX_pv_fault_config                 64
 #define ISF_MAX_nameplate_ratings               64  ///@todo confirm
 #define ISF_MAX_adjusted_settings               64  ///@todo confirm
 #define ISF_MAX_alarms                          4
@@ -235,8 +239,8 @@
 #define ISF_LEN_sensor_alarms                   0
 #define ISF_LEN_root_authentication_key         0
 #define ISF_LEN_user_authentication_key         0
-#define ISF_LEN_fault_message                   0
-#define ISF_LEN_monitoring_data                 0
+#define ISF_LEN_pv_config                   0
+#define ISF_LEN_pv_fault_config                 0
 #define ISF_LEN_nameplate_ratings               0
 #define ISF_LEN_adjusted_settings               0
 #define ISF_LEN_alarms                          0
@@ -275,8 +279,8 @@
     ISF_ALLOC(sensor_alarms) + \
     ISF_ALLOC(root_authentication_key) + \
     ISF_ALLOC(user_authentication_key) + \
-    ISF_ALLOC(fault_message) + \
-    ISF_ALLOC(monitoring_data) + \
+    ISF_ALLOC(pv_config) + \
+    ISF_ALLOC(pv_fault_config) + \
     ISF_ALLOC(nameplate_ratings) + \
     ISF_ALLOC(adjusted_settings) + \
     ISF_ALLOC(alarms) + \
@@ -411,9 +415,9 @@
 #   define ISF_BASE_sensor_alarms               (ISF_BASE_sensor_list+ISF_ALLOC(sensor_list))
 #   define ISF_BASE_root_authentication_key     (ISF_BASE_sensor_alarms+ISF_ALLOC(sensor_alarms))
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
-#   define ISF_BASE_fault_message               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
-#   define ISF_BASE_monitoring_data             (ISF_BASE_fault_message+ISF_ALLOC(fault_message))
-#   define ISF_BASE_nameplate_ratings           (ISF_BASE_monitoring_data+ISF_ALLOC(monitoring_data))
+#   define ISF_BASE_pv_config               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
+#   define ISF_BASE_pv_fault_config             (ISF_BASE_pv_config+ISF_ALLOC(pv_config))
+#   define ISF_BASE_nameplate_ratings           (ISF_BASE_pv_fault_config+ISF_ALLOC(pv_fault_config))
 #   define ISF_BASE_adjusted_settings           (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))
 #   define ISF_BASE_alarms                      (ISF_BASE_adjusted_settings+ISF_ALLOC(adjusted_settings))
 #   define ISF_BASE_opcurve_voltvar             (ISF_BASE_alarms+ISF_ALLOC(alarms))
@@ -438,9 +442,9 @@
 #   define ISF_BASE_sensor_alarms               (ISF_BASE_sensor_list+ISF_ALLOC(sensor_list))
 #   define ISF_BASE_root_authentication_key     (ISF_BASE_sensor_alarms+ISF_ALLOC(sensor_alarms))
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
-#   define ISF_BASE_fault_message               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
-#   define ISF_BASE_monitoring_data             (ISF_BASE_fault_message+ISF_ALLOC(fault_message))
-#   define ISF_BASE_nameplate_ratings           (ISF_BASE_monitoring_data+ISF_ALLOC(monitoring_data))
+#   define ISF_BASE_pv_config               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
+#   define ISF_BASE_pv_fault_config             (ISF_BASE_pv_config+ISF_ALLOC(pv_config))
+#   define ISF_BASE_nameplate_ratings           (ISF_BASE_pv_fault_config+ISF_ALLOC(pv_fault_config))
 #   define ISF_BASE_adjusted_settings           (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))
 #   define ISF_BASE_alarms                      (ISF_BASE_adjusted_settings+ISF_ALLOC(adjusted_settings))
 #   define ISF_BASE_opcurve_voltvar             (ISF_BASE_alarms+ISF_ALLOC(alarms))
@@ -467,9 +471,9 @@
 #define ISF_MIRROR_sensor_alarms                (ISF_MIRROR_sensor_list+ISF_MIRALLOC(sensor_list))
 #define ISF_MIRROR_root_authentication_key      (ISF_MIRROR_sensor_alarms+ISF_MIRALLOC(sensor_alarms))
 #define ISF_MIRROR_user_authentication_key      (ISF_MIRROR_root_authentication_key+ISF_MIRALLOC(root_authentication_key))
-#define ISF_MIRROR_fault_message                (ISF_MIRROR_user_authentication_key+ISF_MIRALLOC(user_authentication_key))
-#define ISF_MIRROR_monitoring_data              (ISF_MIRROR_fault_message+ISF_MIRALLOC(fault_message))
-#define ISF_MIRROR_nameplate_ratings            (ISF_MIRROR_monitoring_data+ISF_MIRALLOC(monitoring_data))
+#define ISF_MIRROR_pv_config                (ISF_MIRROR_user_authentication_key+ISF_MIRALLOC(user_authentication_key))
+#define ISF_MIRROR_pv_fault_config              (ISF_MIRROR_pv_config+ISF_MIRALLOC(pv_config))
+#define ISF_MIRROR_nameplate_ratings            (ISF_MIRROR_pv_fault_config+ISF_MIRALLOC(pv_fault_config))
 #define ISF_MIRROR_adjusted_settings            (ISF_MIRROR_nameplate_ratings+ISF_MIRALLOC(nameplate_ratings))
 #define ISF_MIRROR_alarms                       (ISF_MIRROR_adjusted_settings+ISF_MIRALLOC(adjusted_settings))
 #define ISF_MIRROR_opcurve_voltvar              (ISF_MIRROR_alarms+ISF_MIRALLOC(alarms))

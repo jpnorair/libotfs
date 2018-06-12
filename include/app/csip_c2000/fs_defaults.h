@@ -23,8 +23,8 @@
   ******************************************************************************
   */
 
-//#ifndef __DEFAULT_FS_STARTUP_H
-//#define __DEFAULT_FS_STARTUP_H
+#ifndef __DEFAULT_FS_STARTUP_H
+#define __DEFAULT_FS_STARTUP_H
 
 #include <otstd.h>
 #include <board.h>
@@ -256,19 +256,19 @@ const ot_u16 overhead_files[] = {
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    JOIN_2BYTES(ISF_LEN(fault_message), 0x00),
-    (ISF_ALLOC(fault_message)),
-    JOIN_2BYTES(ISF_ID(fault_message), ISF_MOD(fault_message)),
-    (ISF_BASE(fault_message)),
-    (ISF_MIRROR(fault_message)),
+    JOIN_2BYTES(ISF_LEN(pv_config), 0x00),
+    (ISF_ALLOC(pv_config)),
+    JOIN_2BYTES(ISF_ID(pv_config), ISF_MOD(pv_config)),
+    (ISF_BASE(pv_config)),
+    (ISF_MIRROR(pv_config)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    JOIN_2BYTES(ISF_LEN(monitoring_data), 0x00),
-    (ISF_ALLOC(monitoring_data)),
-    JOIN_2BYTES(ISF_ID(monitoring_data), ISF_MOD(monitoring_data)),
-    (ISF_BASE(monitoring_data)),
-    (ISF_MIRROR(monitoring_data)),
+    JOIN_2BYTES(ISF_LEN(pv_fault_config), 0x00),
+    (ISF_ALLOC(pv_fault_config)),monitoring_data
+    JOIN_2BYTES(ISF_ID(pv_fault_config), ISF_MOD(pv_fault_config)),
+    (ISF_BASE(pv_fault_config)),
+    (ISF_MIRROR(pv_fault_config)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
@@ -449,12 +449,12 @@ const ot_u16 isf_stock_files[] = {
 
     /* Sensor Alarms: id=0x0D, len=0, alloc=0 */
 
-    /* root auth key:       id=0x0E, len=0, alloc=16 */
-    _ERS16,
+    /* root auth key:       id=0x0E, len=0, alloc=22 */
+    _ERS16, _ERS16, _ERS16, 
     _ERS16, _ERS16, _ERS16, _ERS16, 
     _ERS16, _ERS16, _ERS16, _ERS16, 
     
-    /* Admin auth key:      id=0x0F, len=0, alloc=16 */
+    /* Admin auth key:      id=0x0F, len=0, alloc=22 */
     _ERS16,
     _ERS16, _ERS16, _ERS16, _ERS16, 
     _ERS16, _ERS16, _ERS16, _ERS16, 
@@ -571,5 +571,5 @@ const ot_u16 isf_stock_files[] = {
 
 
 
-//#endif
+#endif
 
