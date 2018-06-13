@@ -66,7 +66,7 @@
                             (ot_u8)(((ot_u32)(VAL) >> 16) & 0xFF), (ot_u8)((ot_u32)(VAL) >> 24)
 
 #if (OT_FEATURE(VLACTIONS) == ENABLED)
-#   define FILE_ACTIONCODE(COND,ID) JOIN_2BYTES(COND, ID)
+#   define FILE_ACTIONCODE(COND,ID) COND, ID
 #else
 #   define FILE_ACTIONCODE(COND,ID), 
 #endif
@@ -208,12 +208,12 @@ const ot_u8 overhead_files[] = {
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(isfs_list), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(isfs_list)),
-    ISF_ID(isfs_list),
-    ISF_MOD(isfs_list),
-    SPLIT_SHORT_LE(ISF_BASE(isfs_list)),
-    SPLIT_SHORT_LE(ISF_MIRROR(isfs_list)),
+    ISF_LEN(iss_list), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(iss_list)),
+    ISF_ID(iss_list),
+    ISF_MOD(iss_list),
+    SPLIT_SHORT_LE(ISF_BASE(iss_list)),
+    SPLIT_SHORT_LE(ISF_MIRROR(iss_list)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 

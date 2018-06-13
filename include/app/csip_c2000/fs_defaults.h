@@ -192,11 +192,11 @@ const ot_u16 overhead_files[] = {
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    JOIN_2BYTES(ISF_LEN(isfs_list), 0x00),
-    (ISF_ALLOC(isfs_list)),
-    JOIN_2BYTES(ISF_ID(isfs_list), ISF_MOD(isfs_list)),
-    (ISF_BASE(isfs_list)),
-    (ISF_MIRROR(isfs_list)),
+    JOIN_2BYTES(ISF_LEN(iss_list), 0x00),
+    (ISF_ALLOC(iss_list)),
+    JOIN_2BYTES(ISF_ID(iss_list), ISF_MOD(iss_list)),
+    (ISF_BASE(iss_list)),
+    (ISF_MIRROR(iss_list)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 

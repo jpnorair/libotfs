@@ -32,14 +32,14 @@
 #define __PARENT_FS_DEFAULTS_H
 
 
-#if defined(APP_modbus_master)
-#   include <app/modbus_master/fs_defaults.h>
+#if defined(APP_csip_master)
+#   include <app/csip_master/fs_defaults.h>
 
-#elif defined(APP_modbus_slave)
-#   include <app/modbus_slave/fs_defaults.h>
+#elif defined(APP_csip_slave)
+#   include <app/csip_slave/fs_defaults.h>
 
-#elif defined(APP_modbus_slave_c2000)
-#   include <app/modbus_slave_c2000/fs_defaults.h>
+#elif defined(APP_csip_c2000)
+#   include <app/csip_c2000/fs_defaults.h>
 
 // Default APP is NULL
 #else
