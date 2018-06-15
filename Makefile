@@ -25,19 +25,21 @@ ifeq ($(TARGET),$(THISMACHINE))
 		error "THISSYSTEM set to unknown value: $(THISSYSTEM)"
 	endif
 	BUILDDIR    := build/$(THISMACHINE)
-	PRODUCTDIR  := pkg/$(THISMACHINE)
+	PRODUCTDIR  := bin/$(THISMACHINE)
 	PACKAGEDIR  ?= ./../_hbpkg/$(THISMACHINE)/libotfs.$(VERSION)
 	OTFS_CC	    := gcc
 	OTFS_LIBTOOL:= libtool
 	OTFS_CFLAGS := -std=gnu99 -O3 -pthread -fPIC
 	OTFS_DEF    := $(EXT_DEF)
-	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbpkg/$(TARGET)/libjudy -I./../_hbpkg/$(TARGET)/liboteax $(EXT_INC)
-	OTFS_LIB    := $(patsubst -I%,-L%,$(OTFS_INC)) -ljudy -loteax $(EXT_LIBS)
+#	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbpkg/$(TARGET)/libjudy -I./../_hbpkg/$(TARGET)/liboteax $(EXT_INC)
+#	OTFS_LIB    := $(patsubst -I%,-L%,$(OTFS_INC)) -ljudy -loteax $(EXT_LIBS)
+	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbsys/$(TARGET)/include $(EXT_INC)
+	OTFS_LIB    := -L./../_hbsys/$(TARGET)/lib -ljudy -loteax $(EXT_LIBS)
 	PLATFORM    := ./platform/posix_c
 
 else ifeq ($(TARGET),c2000)
 	BUILDDIR    := build/$(TARGET)
-	PRODUCTDIR  := pkg/$(TARGET)
+	PRODUCTDIR  := bin/$(TARGET)
 	PRODUCT_LIBS:= libotfs.c2000
 	PACKAGEDIR  ?= ./../_hbpkg/$(TARGET)/libotfs.$(VERSION)
 	C2000_WARE  ?= /Applications/ti/c2000/C2000Ware_1_00_02_00
@@ -70,8 +72,9 @@ SUBMODULES  := main otlib otsys $(PLATFORM)
 INCDEP      := -I$(DEFAULT_INC)
 
 # Global vars that get exported to sub-makefiles
-all: $(PRODUCT_LIBS) test
+deps: $(LIBMODULES)
 lib: $(PRODUCT_LIBS)
+all: $(PRODUCT_LIBS) test
 remake: cleaner all
 
 install: 
@@ -80,6 +83,7 @@ install:
 	@cp -R ./$(PRODUCTDIR)/* ./$(PACKAGEDIR)/
 	@rm -f $(PACKAGEDIR)/../libotfs
 	@ln -s libotfs.$(VERSION) ./$(PACKAGEDIR)/../libotfs
+	cd ../_hbsys && $(MAKE) sys_install INS_MACHINE=$(THISMACHINE) INS_PKGNAME=libotfs
 	
 directories:
 	@mkdir -p $(PRODUCTDIR)
@@ -94,7 +98,7 @@ clean:
 
 #Full Clean, Objects and Binaries
 cleaner: clean
-	@$(RM) -rf pkg
+	@$(RM) -rf bin
 
 # Test
 test: $(PRODUCT_LIBS)
@@ -103,27 +107,27 @@ test: $(PRODUCT_LIBS)
 
 #Build the static library
 #There are several supported variants.
-libotfs.Darwin.a: $(SUBMODULES) $(LIBMODULES)
+libotfs.Darwin.a: $(SUBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
 	$(OTFS_LIBTOOL) -static -o libotfs.a ./../_hbpkg/$(TARGET)/libjudy/libjudy.a $(LIBTOOL_OBJ)
 	@mv libotfs.a $(PRODUCTDIR)/
 
-libotfs.Linux.a: $(SUBMODULES) $(LIBMODULES)
+libotfs.Linux.a: $(SUBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
 	ar -rcs $(PRODUCTDIR)/libotfs.a $(LIBTOOL_OBJ)
 	ranlib $(PRODUCTDIR)/libotfs.a
 #	$(OTFS_LIBTOOL) --tag=CC --mode=link $(OTFS_CC) -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o libotfs.a $(LIBTOOL_OBJ)
 #	@mv libotfs.a $(PRODUCTDIR)/
 
-libotfs.c2000.a: $(SUBMODULES) $(LIBMODULES)
+libotfs.c2000.a: $(SUBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
 	ar2000 -a libotfs.a $(LIBTOOL_OBJ)
 	@mv libotfs.a $(PRODUCTDIR)/
 
 #Build Shared Library
-libotfs.Linux.so: $(SUBMODULES) $(LIBMODULES)
+libotfs.Linux.so: $(SUBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
-	$(OTFS_CC) -shared -fPIC -Wl,-soname,libotfs.so.1 -o $(PRODUCTDIR)/libotfs.so.$(VERSION) $(LIBTOOL_OBJ) -lc
+	$(OTFS_CC) -shared -fPIC -Wl,-soname,libotfs.so.1 $(OTFS_INC) -o $(PRODUCTDIR)/libotfs.so.$(VERSION) $(LIBTOOL_OBJ) $(OTFS_LIB) -lc 
 	
 	
 #Library dependencies (not in otfs sources)
@@ -131,7 +135,7 @@ $(LIBMODULES): %:
 	cd ./../$@ && $(MAKE) all && $(MAKE) install
 
 #libotfs submodules
-$(SUBMODULES): %: $(LIBMODULES) directories
+$(SUBMODULES): %: directories
 	$(eval MKFILE := $(notdir $@))
 	cd ./$@ && $(MAKE) -f $(MKFILE).mk obj
 
