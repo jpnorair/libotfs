@@ -1,6 +1,6 @@
 CC=gcc
 
-TARGET      := posix_c
+MODNAME      := posix_c
 OTFS_DEF    ?= 
 OTFS_INC    ?=
 OTFS_LIB    ?= 
@@ -8,7 +8,7 @@ OTFS_LIB    ?=
 #CFLAGS      := -std=gnu99 -O -g -Wall
 CFLAGS      := -std=gnu99 -O3 -fPIC
 
-BUILDDIR    := ../../$(OTFS_BUILDDIR)/$(TARGET)
+BUILDDIR    := ../../$(OTFS_BUILDDIR)/$(MODNAME)
 TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
@@ -21,7 +21,7 @@ SOURCES     := $(shell find . -type f -name "*.$(SRCEXT)")
 OBJECTS     := $(patsubst ./%, $(BUILDDIR)/%, $(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
 
 
-all: resources $(TARGET)
+all: resources $(MODNAME)
 obj: $(OBJECTS)
 remake: cleaner all
 
@@ -46,8 +46,8 @@ cleaner: clean
 -include $(OBJECTS:.$(OBJEXT)=.$(DEPEXT))
 
 #Direct build of the test app with objects
-$(TARGET): $(OBJECTS)
-	$(CC) -o $(TARGETDIR)/$(TARGET) $^ $(LIB)
+$(MODNAME): $(OBJECTS)
+	$(CC) -o $(TARGETDIR)/$(MODNAME) $^ $(LIB)
 
 #Compile Stages
 $(BUILDDIR)/%.$(OBJEXT): ./%.$(SRCEXT)

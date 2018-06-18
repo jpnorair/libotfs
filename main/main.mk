@@ -1,4 +1,4 @@
-TARGET      := main
+MODNAME      := main
 
 OTFS_CC	    ?= gcc
 OTFS_CFLAGS ?= -std=gnu99 -O3
@@ -6,7 +6,7 @@ OTFS_DEF    ?=
 OTFS_INC    ?= 
 OTFS_LIB    ?= 
 
-BUILDDIR    := ../$(OTFS_BUILDDIR)/$(TARGET)
+BUILDDIR    := ../$(OTFS_BUILDDIR)/$(MODNAME)
 TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
@@ -27,7 +27,7 @@ endif
 
 
 
-all: resources $(TARGET)
+all: resources $(MODNAME)
 obj: $(OBJECTS)
 remake: cleaner all
 
@@ -52,8 +52,8 @@ cleaner: clean
 -include $(OBJECTS:.$(OBJEXT)=.$(DEPEXT))
 
 #Direct build of the test app with objects
-$(TARGET): $(OBJECTS)
-	$(OTFS_CC) -o $(TARGETDIR)/$(TARGET) $^ $(LIB)
+$(MODNAME): $(OBJECTS)
+	$(OTFS_CC) -o $(TARGETDIR)/$(MODNAME) $^ $(LIB)
 
 #Compile Stages
 $(BUILDDIR)/%.$(OBJEXT): ./%.$(SRCEXT)

@@ -36,11 +36,19 @@
 
 
 int otfs_init(void** handle) {
+#if (OT_FEATURE_MULTIFS == ENABLED)
     return vl_multifs_init(handle);
+#else
+	return 0;
+#endif
 }
 
 int otfs_deinit(void* handle) {
+#if (OT_FEATURE_MULTIFS == ENABLED)
     return vl_multifs_deinit(handle);
+#else
+    return 0;
+#endif
 }
 
 
@@ -54,6 +62,7 @@ int otfs_load_defaults(void* handle, otfs_t* fs, size_t maxalloc) {
     //Section between these comments could be refactored
     vworm_fsheader_defload(&header);
     
+#	if (OT_FEATURE_MULTIFS == ENABLED)
     fs->alloc = vworm_fsalloc((const vlFSHEADER*)&header);
     if (fs->alloc >= maxalloc) {
         return -2;
@@ -64,6 +73,7 @@ int otfs_load_defaults(void* handle, otfs_t* fs, size_t maxalloc) {
     if (fs->base == NULL) {
         return -3;
     }
+#	endif
     
     return vworm_fsdata_defload(fs->base, (const vlFSHEADER*)&header);
 }
@@ -106,6 +116,7 @@ int otfs_new(void* handle, const otfs_t* fs) {
 
 
 int otfs_del(void* handle, const otfs_t* fs, bool unload) {
+#if (OT_FEATURE_MULTIFS == ENABLED)
     id_tmpl user_id;
     int rc;
     
@@ -123,11 +134,15 @@ int otfs_del(void* handle, const otfs_t* fs, bool unload) {
     }
     
     return rc;
+#else
+	return 0;
+#endif
 }
 
 
 
 int otfs_setfs(void* handle, const uint8_t* eui64_bytes) {
+#if (OT_FEATURE_MULTIFS == ENABLED)
     id_tmpl user_id;
     void* getfs;
     
@@ -135,6 +150,9 @@ int otfs_setfs(void* handle, const uint8_t* eui64_bytes) {
     user_id.value   = (uint8_t*)eui64_bytes;
     
     return vl_multifs_switch(handle, &getfs, (const id_tmpl*)&user_id);
+#else
+	return 0;
+#endif
 }
 
 

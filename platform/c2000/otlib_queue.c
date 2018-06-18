@@ -89,11 +89,11 @@ void q_copy(ot_queue* q1, ot_queue* q2) {
   */
 
 OT_INLINE ot_u8 q_getcursor_val(ot_queue* q, ot_int offset) {
-    return __byte(q->front, q->getcursor + offset);
+    return __byte((int*)q->front, q->getcursor + offset);
 }
 
 OT_INLINE ot_u8 q_putcursor_val(ot_queue* q, ot_int offset) {
-    return __byte(q->front, q->getcursor + offset);
+    return __byte((int*)q->front, q->getcursor + offset);
 }
 
 OT_INLINE ot_qcur q_offset(ot_queue* q, ot_int offset) {
@@ -138,6 +138,7 @@ ot_int q_readspace(ot_queue* q) {
   */
 
 OT_INLINE ot_uint q_blocktime(ot_queue* q) {
+	return 0;
 }
 
 OT_INLINE void q_blockwrite(ot_queue* q, ot_uint blocktime) {
@@ -166,7 +167,7 @@ void q_rewind(ot_queue* q) {
     if (span > 0) {
         q->putcursor = 0;
         while (span > 0) {
-            length--;
+            span--;
             q_writebyte(q, q_readbyte(q));
         }
         q->getcursor = 0;
@@ -184,7 +185,7 @@ void* q_start(ot_queue* q, ot_uint offset, ot_u16 options) {
     q->putcursor      += offset;
     q->getcursor      += offset;
     
-    return q->front + (offset>>1);
+    return &((int*)q->front)[(offset>>1)];
 }
 
 
@@ -197,7 +198,7 @@ ot_qcur q_markbyte(ot_queue* q, ot_int shift) {
 
 
 void q_writebyte(ot_queue* q, ot_u8 byte_in) {
-    __byte(q->front, q->putcursor) = byte_in;
+    __byte((int*)q->front, q->putcursor) = byte_in;
     q->putcursor++;
 }
 
@@ -232,8 +233,9 @@ void q_writelong_be(ot_queue* q, ot_ulong long_in) {
 
 ot_u8 q_readbyte(ot_queue* q) {
     ot_u8 retval;
-    retval = __byte(q->front, q->getcursor);
+    retval = __byte((int*)q->front, q->getcursor);
     q->getcursor++;
+    return retval;
 }
 
 ot_u16 q_readshort(ot_queue* q) {
@@ -342,32 +344,4 @@ ot_int q_movedata(ot_queue* qdst, ot_queue* qsrc, ot_int length) {
     
     return length;
 }
-
-
-#if (defined(__STDC__) || defined (__POSIX__))
-#include <stdio.h>
-
-void q_print(ot_queue* q) {
-    int length;
-    int i;
-    int row;
-    length = q_length(q);
-
-    printf("ot_queue Length/Alloc: %d/%d\n", length, q->alloc);
-    printf("ot_queue Getcursor:    %d\n", (int)(q->getcursor-q->front));
-    printf("ot_queue Putcursor:    %d\n", (int)(q->putcursor-q->front));
-
-    for (i=0, row=0; length>0; ) {
-        length -= 8;
-        row    += (length>0) ? 8 : 8+length;
-        printf("%04X: ", i);
-        for (; i<row; i++) {
-            printf("%02X ", q->front[i]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-
-#endif
 

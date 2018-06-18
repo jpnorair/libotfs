@@ -60,8 +60,8 @@
 // LSB = 0
 #define JOIN_2BYTES(B0, B1) (ot_u16)((((ot_u16)(B1))<<8)|((ot_u16)(B0)))
 
-//#define SPLIT_SHORT(VAL)    (ot_u8)((ot_u16)(VAL) >> 8), (ot_u8)((ot_u16)(VAL) & 0x00FF)
-//#define SPLIT_SHORT_LE(VAL) (ot_u8)((ot_u16)(VAL) & 0x00FF), (ot_u8)((ot_u16)(VAL) >> 8)
+#define SPLIT_SHORT(VAL)    (((ot_u16)(VAL) >> 8) | ((ot_u16)(VAL) << 8))
+#define SPLIT_SHORT_LE(VAL) (VAL)
 
 #define SPLIT_LONG(VAL)     (ot_u16)(((ot_u32)(VAL) >> 16) & 0xFFFF), (ot_u16)((ot_u32)(VAL) & 0xFFFF)
 #define SPLIT_LONG_LE(VAL)  (ot_u16)((ot_u32)(VAL) & 0xFFFF), (ot_u16)(((ot_u32)(VAL) >> 16) & 0xFFFF)
@@ -125,7 +125,9 @@ const ot_u16 overhead_files[] = {
     JOIN_2BYTES(0x00, GFB_MOD_standard),
     JOIN_2BYTES(0x00, 0x14), JOIN_2BYTES(0xFF, 0xFF),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
     
     /* Mode 2 ISFs, written as little endian */
     JOIN_2BYTES(ISF_LEN(network_settings), 0x00),                       /* Length, little endian */
@@ -134,7 +136,9 @@ const ot_u16 overhead_files[] = {
     ISF_BASE(network_settings),
     ISF_MIRROR(network_settings),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(device_features), 0x00),
     (ISF_ALLOC(device_features)),
@@ -142,7 +146,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(device_features)),
     (ISF_MIRROR(device_features)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(channel_configuration), 0x00),
     (ISF_ALLOC(channel_configuration)),
@@ -150,7 +156,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(channel_configuration)),
     (ISF_MIRROR(channel_configuration)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(real_time_scheduler), 0x00),
     (ISF_ALLOC(real_time_scheduler)),
@@ -158,7 +166,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(real_time_scheduler)),
     (ISF_MIRROR(real_time_scheduler)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(hold_scan_sequence), 0x00),
     (ISF_ALLOC(hold_scan_sequence)),
@@ -166,7 +176,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(hold_scan_sequence)),
     (ISF_MIRROR(hold_scan_sequence)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(sleep_scan_sequence), 0x00),
     (ISF_ALLOC(sleep_scan_sequence)),
@@ -174,7 +186,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(sleep_scan_sequence)),
     (ISF_MIRROR(sleep_scan_sequence)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(beacon_transmit_sequence), 0x00),
     (ISF_ALLOC(beacon_transmit_sequence)),
@@ -182,7 +196,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(beacon_transmit_sequence)),
     (ISF_MIRROR(beacon_transmit_sequence)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(isf_list), 0x00),
     (ISF_ALLOC(isf_list)),
@@ -190,7 +206,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(isf_list)),
     (ISF_MIRROR(isf_list)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(iss_list), 0x00),
     (ISF_ALLOC(iss_list)),
@@ -198,7 +216,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(iss_list)),
     (ISF_MIRROR(iss_list)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(gfb_file_list), 0x00),
     (ISF_ALLOC(gfb_file_list)),
@@ -206,7 +226,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(gfb_file_list)),
     (ISF_MIRROR(gfb_file_list)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(location_data_list), 0x00),
     (ISF_ALLOC(location_data_list)),
@@ -214,7 +236,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(location_data_list)),
     (ISF_MIRROR(location_data_list)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(ipv6_addresses), 0x00),
     (ISF_ALLOC(ipv6_addresses)),
@@ -222,7 +246,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(ipv6_addresses)),
     (ISF_MIRROR(ipv6_addresses)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(sensor_list), 0x00),
     (ISF_ALLOC(sensor_list)),
@@ -230,7 +256,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(sensor_list)),
     (ISF_MIRROR(sensor_list)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(sensor_alarms), 0x00),
     (ISF_ALLOC(sensor_alarms)),
@@ -238,7 +266,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(sensor_alarms)),
     (ISF_MIRROR(sensor_alarms)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(root_authentication_key), 0x00),
     (ISF_ALLOC(root_authentication_key)),
@@ -246,7 +276,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(root_authentication_key)),
     (ISF_MIRROR(root_authentication_key)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(user_authentication_key), 0x00),
     (ISF_ALLOC(user_authentication_key)),
@@ -254,7 +286,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(user_authentication_key)),
     (ISF_MIRROR(user_authentication_key)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(pv_config), 0x00),
     (ISF_ALLOC(pv_config)),
@@ -262,15 +296,19 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(pv_config)),
     (ISF_MIRROR(pv_config)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(pv_fault_config), 0x00),
-    (ISF_ALLOC(pv_fault_config)),monitoring_data
+    (ISF_ALLOC(pv_fault_config)),
     JOIN_2BYTES(ISF_ID(pv_fault_config), ISF_MOD(pv_fault_config)),
     (ISF_BASE(pv_fault_config)),
     (ISF_MIRROR(pv_fault_config)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(nameplate_ratings), 0x00),
     (ISF_ALLOC(nameplate_ratings)),
@@ -278,7 +316,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(nameplate_ratings)),
     (ISF_MIRROR(nameplate_ratings)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(adjusted_settings), 0x00),
     (ISF_ALLOC(adjusted_settings)),
@@ -286,7 +326,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(adjusted_settings)),
     (ISF_MIRROR(adjusted_settings)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(alarms), 0x00),
     (ISF_ALLOC(alarms)),
@@ -294,7 +336,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(alarms)),
     (ISF_MIRROR(alarms)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(opcurve_voltvar), 0x00),
     (ISF_ALLOC(opcurve_voltvar)),
@@ -302,7 +346,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(opcurve_voltvar)),
     (ISF_MIRROR(opcurve_voltvar)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(opcurve_freqwatt), 0x00),
     (ISF_ALLOC(opcurve_freqwatt)),
@@ -310,7 +356,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(opcurve_freqwatt)),
     (ISF_MIRROR(opcurve_freqwatt)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 
     JOIN_2BYTES(ISF_LEN(application_extension), 0x00),
     (ISF_ALLOC(application_extension)),
@@ -318,7 +366,9 @@ const ot_u16 overhead_files[] = {
     (ISF_BASE(application_extension)),
     (ISF_MIRROR(application_extension)),
     FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#	endif
 };
 
 

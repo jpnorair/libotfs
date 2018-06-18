@@ -83,12 +83,12 @@
 #   define True     true
 #   define False    false
 
-    typedef int8_t      ot_s8;
-    typedef uint8_t     ot_u8;
-    typedef int16_t     ot_s16;
-    typedef uint16_t    ot_u16;
-    typedef int32_t     ot_s32;
-    typedef uint32_t    ot_u32;
+	typedef signed char     ot_s8;
+    typedef unsigned char	ot_u8;
+    typedef int16_t     	ot_s16;
+    typedef uint16_t    	ot_u16;
+    typedef int32_t     	ot_s32;
+    typedef uint32_t    	ot_u32;
 
 #else
     typedef enum { False = 0, True = !False } ot_bool;

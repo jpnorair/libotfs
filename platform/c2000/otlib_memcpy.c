@@ -26,7 +26,7 @@
 
 #include <otstd.h>
 #include <otplatform.h>
-//#include <platform/memcpy.h>
+#include <otlib/memcpy.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -59,32 +59,32 @@
 
 
 
-void ot_memcpy(ot_u8* dst, ot_u8* src, ot_uint length) {
+void ot_memcpy(void* dst, void* src, ot_uint length) {
     length = (length+1) >> 1;
-    ot_memcpy_2( (ot_u16*)dst, (ot_u16*)src, length);
+    ot_memcpy_2(dst, src, length);
 }
 
-void ot_memcpy_2(ot_u16* dst, ot_u16* src, ot_uint length) {
+void ot_memcpy_2(void* dst, void* src, ot_uint length) {
     memcpy(dst, src, (size_t)length);
 }
 
-void ot_memcpy_4(ot_u32* dst, ot_u32* src, ot_uint length) {
+void ot_memcpy_4(void* dst, void* src, ot_uint length) {
     ot_memcpy_2(dst, src, (size_t)length<<1);
 }
 
 
-void ot_memset(ot_u8* dst, ot_u8 value, ot_uint length) {
+void ot_memset(void* dst, ot_u8 value, ot_uint length) {
     length  = (length+1) >> 1;
     value   = (value << 8) | value;
-    ot_memset_2( (ot_u16*)dst, (ot_u16)value, (ot_uint)length );
+    ot_memset_2(dst, (ot_u16)value, (ot_uint)length );
 }
 
-void ot_memset_2(ot_u16* dst, ot_u16 value, ot_uint length) {
+void ot_memset_2(void* dst, ot_u16 value, ot_uint length) {
     memset(dst, value, length);
 }
 
-void ot_memset_4(ot_u32* dst, ot_u32 value, ot_uint length) {
-    ot_memset_2( (ot_16*)dst, (ot_u16)value, length<<1 );
+void ot_memset_4(void* dst, ot_u32 value, ot_uint length) {
+    ot_memset_2(dst, (ot_u16)value, length<<1 );
 }
 
 

@@ -459,7 +459,7 @@ ot_int q_movedata(ot_queue* qdst, ot_queue* qsrc, ot_int length) {
 
 
 
-#if (defined(__STDC__) || defined (__POSIX__))
+#if (!defined(__C2000__) && (defined(__STDC__) || defined (__POSIX__)) )
 #include <stdio.h>
 
 void q_print(ot_queue* q) {

@@ -1,4 +1,4 @@
-TARGET      := c2000
+MODNAME      := c2000
 
 # Global vars that get exported from primary makefile
 OTFS_CC	    ?= cl2000
@@ -7,7 +7,7 @@ OTFS_DEF    ?= -DBOARD_c2000 -DOT_FEATURE_DLL_SECURITY=0 -D__C2000__ -D__TI_C__ 
 OTFS_INC    ?= 
 OTFS_LIB    ?= 
 
-BUILDDIR    := ../../$(OTFS_BUILDDIR)/$(TARGET)
+BUILDDIR    := ../../$(OTFS_BUILDDIR)/$(MODNAME)
 TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
@@ -28,7 +28,7 @@ endif
 
 
 
-all: resources $(TARGET)
+all: resources $(MODNAME)
 obj: $(OBJECTS)
 remake: cleaner all
 
@@ -53,8 +53,8 @@ cleaner: clean
 -include $(OBJECTS:.$(OBJEXT)=.$(DEPEXT))
 
 #Direct build of the test app with objects
-$(TARGET): $(OBJECTS)
-	$(OTFS_CC) -o $(TARGETDIR)/$(TARGET) $^ $(LIB)
+$(MODNAME): $(OBJECTS)
+	$(OTFS_CC) -o $(TARGETDIR)/$(MODNAME) $^ $(LIB)
 
 #Compile Stages
 $(BUILDDIR)/%.$(OBJEXT): ./%.$(SRCEXT)

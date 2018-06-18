@@ -133,7 +133,7 @@ ot_u32 vworm_fsalloc(const vlFSHEADER* fs) {
 
 void vworm_fsheader_defload(vlFSHEADER* fs) {
     if (fs != NULL) {
-        ot_memcpy((void*)fs, (void*)overhead_files, sizeof(vlFSHEADER));
+        memcpy((void*)fs, (void*)overhead_files, sizeof(vlFSHEADER));
     }
 }
 

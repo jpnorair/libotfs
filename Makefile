@@ -6,7 +6,6 @@ EXT_LIBS    ?=
 VERSION     ?= 0.1.0
 
 DEFAULT_INC := ./include
-LIBMODULES  := OTEAX libjudy
 SRCEXT      := c
 DEPEXT      := d
 OBJEXT      := o
@@ -24,6 +23,7 @@ ifeq ($(TARGET),$(THISMACHINE))
 	else
 		error "THISSYSTEM set to unknown value: $(THISSYSTEM)"
 	endif
+	LIBMODULES  := OTEAX libjudy
 	BUILDDIR    := build/$(THISMACHINE)
 	PRODUCTDIR  := bin/$(THISMACHINE)
 	PACKAGEDIR  ?= ./../_hbpkg/$(THISMACHINE)/libotfs.$(VERSION)
@@ -38,9 +38,10 @@ ifeq ($(TARGET),$(THISMACHINE))
 	PLATFORM    := ./platform/posix_c
 
 else ifeq ($(TARGET),c2000)
+	LIBMODULES  := OTEAX
 	BUILDDIR    := build/$(TARGET)
 	PRODUCTDIR  := bin/$(TARGET)
-	PRODUCT_LIBS:= libotfs.c2000
+	PRODUCT_LIBS:= libotfs.c2000.a
 	PACKAGEDIR  ?= ./../_hbpkg/$(TARGET)/libotfs.$(VERSION)
 	C2000_WARE  ?= /Applications/ti/c2000/C2000Ware_1_00_02_00
 	TICC_DIR    ?= /Applications/ti/ccsv7/tools/compiler/ti-cgt-c2000_17.9.0.STS
@@ -48,7 +49,7 @@ else ifeq ($(TARGET),c2000)
 	OTFS_LIBTOOL:= ar2000
 	OTFS_CFLAGS := --c99 -O2 -v28 -ml -mt -g --cla_support=cla0 --float_support=fpu32 --vcu_support=vcu0 
 	OTFS_DEF    := -DAPP_csip_c2000 -DBOARD_C2000_null -D__TMS320F2806x__ -D__C2000__ -D__TI_C__ -D__NO_SECTIONS__ $(EXT_DEF)
-	OTFS_INC    := -I$(TICC_DIR)/include -I$(C2000_WARE) -I$(DEFAULT_INC) $(EXT_INC)
+	OTFS_INC    := -I$(TICC_DIR)/include -I$(C2000_WARE) -I$(DEFAULT_INC) -I./../_hbsys/$(TARGET)/include $(EXT_INC)
 	OTFS_LIB    := -Wl,-Bstatic -L$(TICC_DIR)/lib -L./ $(EXT_LIBS)
 	PLATFORM    := ./platform/c2000
 
@@ -99,6 +100,7 @@ clean:
 #Full Clean, Objects and Binaries
 cleaner: clean
 	@$(RM) -rf bin
+	@$(RM) -rf build
 
 # Test
 test: $(PRODUCT_LIBS)
@@ -128,11 +130,11 @@ libotfs.c2000.a: $(SUBMODULES)
 libotfs.Linux.so: $(SUBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
 	$(OTFS_CC) -shared -fPIC -Wl,-soname,libotfs.so.1 $(OTFS_INC) -o $(PRODUCTDIR)/libotfs.so.$(VERSION) $(LIBTOOL_OBJ) $(OTFS_LIB) -lc 
-	
-	
+
+
 #Library dependencies (not in otfs sources)
 $(LIBMODULES): %: 
-	cd ./../$@ && $(MAKE) all && $(MAKE) install
+	cd ./../$@ && $(MAKE) lib TARGET=$(TARGET) && $(MAKE) install
 
 #libotfs submodules
 $(SUBMODULES): %: directories

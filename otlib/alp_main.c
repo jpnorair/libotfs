@@ -65,7 +65,7 @@
 
 // Subroutines
 ot_u8   sub_get_headerlen(ot_u8 tnf);
-void    sub_insert_header(alp_tmpl* alp, ot_u8* hdr_position, ot_u8 hdr_len);
+void    sub_insert_header(alp_tmpl* alp, ot_qcur hdr_position, ot_u8 hdr_len);
 
 
 
@@ -263,9 +263,9 @@ ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id) {
     ALP_status  exit_code;
     ot_qcur     input_position;
     ot_qcur     hdr_position;
-    ot_u8       hdr_len;
+    //ot_u8       hdr_len;
     ot_int      proc_output;
-    ot_int      bytes;
+    //ot_int      bytes;
 
     /// Lock the ot_queues while ALP is parsing/processing
     //alp->inq->options.ubyte[0]  = 1;

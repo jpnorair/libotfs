@@ -36,12 +36,12 @@
 #include <otstd.h>
 #include <app/config.h>
 
-#if (OS_FEATURE(MEMCPY) == ENABLED)
+#if (OS_FEATURE_MEMCPY == ENABLED)
 #   include <string.h>
 #   define memcpy_2(DST, SRC, LEN)   memcpy(DST, SRC, LEN<<1)
 #   define memcpy_4(DST, SRC, LEN)   memcpy(DST, SRC, LEN<<2)
 #else
-#   include <platform/memcpy.h>
+//#   include <platform/memcpy.h>
 #   define memcpy       ot_memcpy
 #   define memcpy_2     ot_memcpy_2
 #   define memcpy_4     ot_memcpy_4

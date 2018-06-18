@@ -81,7 +81,7 @@ typedef struct {
 typedef ot_u16  ot_qcur;
   
 typedef struct {
-    ot_uint*    front;
+    void*       front;
     ot_u16      alloc;
     ot_uni16    options;
     ot_qcur     getcursor;
