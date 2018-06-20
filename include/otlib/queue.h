@@ -140,6 +140,7 @@ void q_copy(ot_queue* q1, ot_queue* q2);
   * @ingroup Queue
   */
 ot_u8 q_getcursor_val(ot_queue* q, ot_int offset);
+void q_getcursor_insert(ot_queue* q, ot_int offset, ot_u8 val);
 
 /** @brief Returns the value of an offset from putcursor
   * @param q        (ot_queue*) Input Queue
@@ -148,6 +149,7 @@ ot_u8 q_getcursor_val(ot_queue* q, ot_int offset);
   * @ingroup Queue
   */
 ot_u8 q_putcursor_val(ot_queue* q, ot_int offset);
+void q_putcursor_insert(ot_queue* q, ot_int offset, ot_u8 val);
 
 
 /** @brief Returns the cursor of an offset from Queue front

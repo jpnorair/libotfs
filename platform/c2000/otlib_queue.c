@@ -92,8 +92,16 @@ OT_INLINE ot_u8 q_getcursor_val(ot_queue* q, ot_int offset) {
     return __byte((int*)q->front, q->getcursor + offset);
 }
 
+OT_INLINE void q_getcursor_insert(ot_queue* q, ot_int offset, ot_u8 val) {
+    __byte((int*)q->front, q->getcursor + offset) = val;
+}
+
 OT_INLINE ot_u8 q_putcursor_val(ot_queue* q, ot_int offset) {
     return __byte((int*)q->front, q->getcursor + offset);
+}
+
+OT_INLINE void q_putcursor_insert(ot_queue* q, ot_int offset, ot_u8 val) {
+    __byte((int*)q->front, q->putcursor + offset) = val;
 }
 
 OT_INLINE ot_qcur q_offset(ot_queue* q, ot_int offset) {
