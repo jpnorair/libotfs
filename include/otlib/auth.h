@@ -96,48 +96,6 @@ void auth_deinit(void);
 
 
 
-/** @brief Encrypts the data in a ot_queue, in-place
-  * @param q            (ot_queue*) input q containing encrypted data
-  * @param key_index    (ot_uint) Key Index to use for encryption
-  * @param options      (ot_uint) Decryption options specific to type of Crypto
-  * @retval None
-  * @ingroup auth
-  * @sa auth_decrypt_q
-  * @sa auth_decrypt
-  * @sa auth_encrypt
-  *
-  * It is important to align the front of the input queue per specification of
-  * the crypto format to be used.  There are some protections built-into this
-  * function, but if you get it wrong the decrypted output will probably be
-  * wrong as well.
-  *
-  * Encryption is performed on the entire queue, between front and putcursor.
-  */
-//ot_int auth_encrypt_q(ot_queue* q, ot_uint key_index, ot_uint options);
-
-
-/** @brief Decrypts the data in a ot_queue, in-place
-  * @param q            (ot_queue*) input q containing encrypted data
-  * @param key_index    (ot_uint) Key Index to use for decryption
-  * @param options      (ot_uint) Decryption options specific to type of Crypto
-  * @retval None
-  * @ingroup auth
-  * @sa auth_encrypt_q
-  * @sa auth_decrypt
-  * @sa auth_encrypt
-  *
-  * It is important to align the front of the input queue per specification of
-  * the crypto format to be used.  There are some protections built-into this
-  * function, but if you get it wrong the decrypted output will probably be
-  * wrong as well.
-  *
-  * Decryption is performed on the entire queue, between front and putcursor.
-  */
-//ot_int auth_decrypt_q(ot_queue* q, ot_uint key_index, ot_uint options);
-
-
-
-
 /** @brief Writes a 32 bit nonce to destination in memory, and advances nonce.
   * @param dst          (void*) destination in memory to write nonce
   * @param total_size   (ot_uint) total bytes to put to destination
@@ -206,6 +164,20 @@ ot_int auth_encrypt(void* iv, void* data, ot_uint datalen, ot_uint key_index);
 
 
 
+/** @brief Encrypts the data in a ot_queue, in-place
+  * @param q            (ot_queue*) input q containing encrypted data
+  * @param key_index    (ot_uint) Key Index to use for encryption
+  * @retval None
+  * @ingroup auth
+  * @sa auth_decrypt_q
+  * @sa auth_decrypt
+  * @sa auth_encrypt
+  */
+ot_int auth_encrypt_q(ot_queue* q, ot_uint key_index);
+
+
+
+
 /** @brief Decrypts a datastream, in-place
   * @param iv           (void*) A Cryptographic init vector (IV)
   * @param data         (void*) stream for in-place decryption
@@ -222,6 +194,18 @@ ot_int auth_encrypt(void* iv, void* data, ot_uint datalen, ot_uint key_index);
   * whereas encryption adds this footer.
   */
 ot_int auth_decrypt(void* iv, void* data, ot_uint datalen, ot_uint key_index);
+
+
+/** @brief Decrypts the data in a ot_queue, in-place
+  * @param q            (ot_queue*) input q containing encrypted data
+  * @param key_index    (ot_uint) Key Index to use for decryption
+  * @retval None
+  * @ingroup auth
+  * @sa auth_encrypt_q
+  * @sa auth_decrypt
+  * @sa auth_encrypt
+  */
+ot_int auth_decrypt_q(ot_queue* q, ot_uint key_index);
 
 
 

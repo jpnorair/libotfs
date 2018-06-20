@@ -352,11 +352,13 @@ ot_int sub_do_crypto(void* nonce, void* data, ot_uint datalen, ot_uint key_index
     }
     
 #   ifdef __C2000__
+    /// Nonce input is 32 bit aligned, 2 words
+    /// We take the data from the last 7 bytes, shift it forward, and zero-pad
     ot_u32  iv[2];
-    iv[0]   = ((ot_u32*)nonce)[0];
-    iv[1]   = ((ot_u32*)nonce)[1];
-    iv[1]  &= 0x00FFFFFF;
-    retval  = EAXdrv_fn(nonce, data, datalen, (EAXdrv_t*)&dlls_ctx[key_index].ctx);
+    ot_u32* nce = (ot_u32*)nonce;
+    iv[0]   = (nce[0] >> 8) | (nce[1] << 24);
+    iv[1]   = nce[1] >> 8;
+    retval  = EAXdrv_fn(iv, data, datalen, (EAXdrv_t*)&dlls_ctx[key_index].ctx);
 #   else
     retval  = EAXdrv_fn(nonce, data, datalen, (EAXdrv_t*)&dlls_ctx[key_index].ctx);
 #   endif
@@ -394,6 +396,65 @@ ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
 }
 #endif
 
+
+
+ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*)) {
+#ifdef __C2000__
+    ot_qcur mark;
+    ot_u32* nonce;
+    ot_u32* data;
+    ot_uint length;
+    mark    = q_markbyte(q, 7);
+    nonce   = &((ot_u32*)q->front)[mark>>2];
+    length  = q_span(q);
+    mark    = q_markbyte(q, length);
+    data    = &((ot_u32*)q->front)[mark>>2];
+#else
+    ot_u8* nonce;
+    ot_u8* data;
+    ot_uint length;
+    nonce   = q_markbyte(q, 7);
+    length  = q_span(q);
+    data    = q_markbyte(q, length);
+#endif
+    
+    return sub_do_crypto(nonce, data, length, key_index, EAXdrv_fn);
+}
+
+
+#ifndef EXTF_auth_encrypt_q
+ot_int auth_encrypt_q(ot_queue* q, ot_uint key_index) {
+#if (_SEC_ANY)
+    ot_int tag_size;
+    tag_size = sub_crypt_q(q, key_index, &EAXdrv_encrypt);
+    if (tag_size > 0) {
+        q->putcursor += tag_size;
+    }
+    return tag_size;
+#else
+    return -1;
+#endif
+}
+#endif
+
+
+
+#ifndef EXTF_auth_decrypt_q
+///@todo not yet implemented
+ot_int auth_decrypt_q(ot_queue* q, ot_uint key_index) {
+#if (_SEC_ANY)
+    ot_int tag_size;
+    tag_size = sub_crypt_q(q, key_index, &EAXdrv_decrypt);
+    if (tag_size > 0) {
+        q->putcursor   -= tag_size;
+        q->back        -= tag_size;
+    }
+    return tag_size;
+#else
+    return -1;
+#endif
+}
+#endif
 
 
 
@@ -639,7 +700,7 @@ ot_u8 sub_add_key(ot_uint* key_index, keytype_t type, ot_u32 lifetime, void* key
 
 
 ot_u8 auth_find_keyindex(ot_uint* key_index, const id_tmpl* user_id) {
-    ot_uint index;
+    ot_int index;
     
     if (key_index == NULL) {
         return 1;
@@ -748,10 +809,11 @@ ot_u8 auth_delete_key(ot_uint key_index) {
     
 #   elif (AUTH_NUM_ELEMENTS < 0)
     ///@todo implement this
-    
-#   endif
-
     return 255;
+    
+#   else    
+    return 255;
+#   endif
 }
 
 
