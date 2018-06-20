@@ -38,13 +38,24 @@ ifeq ($(TARGET),$(THISMACHINE))
 	PLATFORM    := ./platform/posix_c
 
 else ifeq ($(TARGET),c2000)
+    ifeq ($(THISSYSTEM),Darwin)
+        C2000_WARE  ?= /Applications/ti/c2000/C2000Ware_1_00_02_00
+	    TICC_DIR    ?= /Applications/ti/ccsv7/tools/compiler/ti-cgt-c2000_17.9.0.STS
+	else ifeq ($(THISSYSTEM),Linux)
+		C2000_WARE  ?= /opt/ti/c2000/C2000Ware_1_00_02_00
+	    TICC_DIR    ?= /opt/ti/ccsv7/tools/compiler/ti-cgt-c2000_17.9.0.STS
+	else ifeq ($(THISSYSTEM),CYGWIN_NT-10.0)
+	    C2000_WARE  ?= C:/ti/c2000/C2000Ware_1_00_02_00
+	    TICC_DIR    ?= C:/ti/ccsv7/tools/compiler/ti-cgt-c2000_17.9.0.STS
+	else
+		error "THISSYSTEM set to unknown value: $(THISSYSTEM)"
+	endif
+
 	LIBMODULES  := OTEAX
 	BUILDDIR    := build/$(TARGET)
 	PRODUCTDIR  := bin/$(TARGET)
 	PRODUCT_LIBS:= libotfs.c2000.a
 	PACKAGEDIR  ?= ./../_hbpkg/$(TARGET)/libotfs.$(VERSION)
-	C2000_WARE  ?= /Applications/ti/c2000/C2000Ware_1_00_02_00
-	TICC_DIR    ?= /Applications/ti/ccsv7/tools/compiler/ti-cgt-c2000_17.9.0.STS
 	OTFS_CC	    := cl2000
 	OTFS_LIBTOOL:= ar2000
 	OTFS_CFLAGS := --c99 -O2 -v28 -ml -mt -g --cla_support=cla0 --float_support=fpu32 --vcu_support=vcu0 
@@ -77,6 +88,8 @@ deps: $(LIBMODULES)
 lib: $(PRODUCT_LIBS)
 all: $(PRODUCT_LIBS) test
 remake: cleaner all
+pkg: deps lib install
+
 
 install: 
 	@rm -rf $(PACKAGEDIR)
