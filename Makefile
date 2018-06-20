@@ -84,7 +84,7 @@ install:
 	@cp -R ./$(PRODUCTDIR)/* ./$(PACKAGEDIR)/
 	@rm -f $(PACKAGEDIR)/../libotfs
 	@ln -s libotfs.$(VERSION) ./$(PACKAGEDIR)/../libotfs
-	cd ../_hbsys && $(MAKE) sys_install INS_MACHINE=$(THISMACHINE) INS_PKGNAME=libotfs
+	cd ../_hbsys && $(MAKE) sys_install INS_MACHINE=$(TARGET) INS_PKGNAME=libotfs
 	
 directories:
 	@mkdir -p $(PRODUCTDIR)
