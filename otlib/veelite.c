@@ -37,6 +37,7 @@
 #include <otlib/auth.h>
 #include <otlib/memcpy.h>
 #include <otsys/veelite.h>
+#include <otsys/time.h>
 
 #if defined(__C2000__)
 #   define LSB16(_x)        (_x&0xFF)
@@ -47,10 +48,10 @@
 #endif
 
 ///@todo quick hack to support this function
-#if 1
-#	include <time.h>
-#	define time_get_utc()	(ot_u32)time(NULL)
-#endif
+//#if (OT_FEATURE(VLMODTIME) == ENABLED)
+//#	include <time.h>
+//#	define time_get_utc()	(ot_u32)time(NULL)
+//#endif
 
 
 
