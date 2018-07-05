@@ -505,7 +505,7 @@ const ot_u16 isf_stock_files[] = {
     _ERS16, _ERS16, _ERS16, _ERS16, 
     
     /* Admin auth key:      id=0x0F, len=0, alloc=22 */
-    _ERS16,
+    _ERS16, _ERS16, _ERS16, 
     _ERS16, _ERS16, _ERS16, _ERS16, 
     _ERS16, _ERS16, _ERS16, _ERS16, 
 
