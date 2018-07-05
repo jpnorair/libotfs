@@ -53,9 +53,12 @@ extern const id_tmpl*   auth_guest;
 
 
 typedef enum {
-    AUTHMOD_guest = 0,
+    AUTHMOD_guest = (0),
     AUTHMOD_user  = (7<<0),
-    AUTHMOD_root  = (7<<3),
+    AUTHMOD_root  = (7<<3)
+    //AUTHMOD_guest = (7<<0),
+    //AUTHMOD_user  = (7<<3),
+    //AUTHMOD_root  = (1<<6)
 } authmod_t;
 
 typedef enum {
@@ -303,7 +306,7 @@ ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod);
 ot_u8 auth_get_user(id_tmpl* user_id, ot_uint key_index);
 
 
-
+const id_tmpl* auth_external_user(ot_uint index);
 
 
 
