@@ -306,6 +306,17 @@ ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod);
 ot_u8 auth_get_user(id_tmpl* user_id, ot_uint key_index);
 
 
+
+/** @brief Provides a surrogate user id to a caller that has already authenticated the message
+  * @param index        (ot_uint) Surrogate Key Index: 0=root, 1=user, 2=guest
+  * @retval id_tmpl*    pointer to surrogate user ID
+  * @ingroup Authentication
+  *
+  * This function essentially bypasses authentication.  
+  * Do not use it unless you know exactly what you are doing, otherwise you
+  * might have a security vulnerability.  If you don't use it, there is no 
+  * incidental vuln, because it works on different data than the key data.
+  */
 const id_tmpl* auth_external_user(ot_uint index);
 
 
