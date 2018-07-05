@@ -501,13 +501,17 @@ const ot_u16 isf_stock_files[] = {
 
     /* root auth key:       id=0x0E, len=0, alloc=22 */
     _ERS16, _ERS16, _ERS16, 
-    _ERS16, _ERS16, _ERS16, _ERS16, 
-    _ERS16, _ERS16, _ERS16, _ERS16, 
+    JOIN_2BYTES(0x00,0x11), JOIN_2BYTES(0x22,0x33),
+    JOIN_2BYTES(0x44,0x55), JOIN_2BYTES(0x66,0x77),
+    JOIN_2BYTES(0x88,0x99), JOIN_2BYTES(0xAA,0xBB),
+    JOIN_2BYTES(0xCC,0xDD), JOIN_2BYTES(0xEE,0xFF),
     
     /* Admin auth key:      id=0x0F, len=0, alloc=22 */
-    _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16, 
-    _ERS16, _ERS16, _ERS16, _ERS16, 
+    _ERS16, _ERS16, _ERS16,
+    JOIN_2BYTES(0x00,0x01), JOIN_2BYTES(0x02,0x03),
+    JOIN_2BYTES(0x04,0x05), JOIN_2BYTES(0x06,0x07),
+    JOIN_2BYTES(0x08,0x09), JOIN_2BYTES(0x0A,0x0B),
+    JOIN_2BYTES(0x0C,0x0D), JOIN_2BYTES(0x0E,0x0F),
 
     /* Fault Message: id=0x10, len=0, alloc=64 */
     _ERS16, _ERS16, _ERS16, _ERS16,
