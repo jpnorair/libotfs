@@ -63,14 +63,14 @@ typedef enum {
 
 typedef struct OT_PACKED {
     uint64_t    id;
-    ot_u16      flags;
+    ot_u16      mflags;
     ot_u32      EOL;
 } authinfo_t;
 
 ///@note keyfile_t must match the structure of the "root & user authentication
 ///      key" files stored in the filesystem.
 typedef struct OT_PACKED {
-    ot_u16  flags;
+    ot_u16  ctl;
     ot_u32  EOL;
     ot_u32  key[4];
 } keyfile_t;
@@ -218,7 +218,7 @@ void auth_init(void) {
         if (fp != NULL) {
             vl_load(fp, _KFILE_BYTES, (ot_u8*)&kfile);
             dlls_info[i].id     = i;
-            dlls_info[i].flags  = kfile.flags;
+            dlls_info[i].mflags = (i==0) ? AUTHMOD_root : AUTHMOD_user;
             dlls_info[i].EOL    = kfile.EOL;
             sub_expand_key((void*)kfile.key, &dlls_ctx[i].ctx);
             vl_close(fp);
@@ -400,15 +400,41 @@ ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
 
 ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*)) {
 #ifdef __C2000__
-    ot_qcur mark;
-    ot_u32* nonce;
+    ot_u32  nonce[2] = {0, 0};
     ot_u32* data;
     ot_uint length;
-    mark    = q_markbyte(q, 7);
-    nonce   = &((ot_u32*)q->front)[mark>>2];
+    int rc;
+    int i;
+    
+    // Extract the nonce, and zero-pad it.
+    nonce[0] = ((ot_u32*)q->front)[0];
+    nonce[1] = ((ot_u32*)q->front)[1];
+    __byte((int*)nonce, 7) = 0;
+    
+    // Shift the queue 3 bytes forward.  This makes it 32bit aligned.  It has
+    // the secondary benefit of guaranteeing that the last word is zero padded,
+    // without violating any data boundaries.
     length  = q_span(q);
-    mark    = q_markbyte(q, length);
-    data    = &((ot_u32*)q->front)[mark>>2];
+    data    = &((ot_u32*)q->front)[1];
+    for (i=0; i<length; i++) {
+        __byte((int*)data, i) = __byte((int*)data, i+3);
+    }
+    __byte((int*)data, i)   = 0;
+    __byte((int*)data, i+1) = 0;
+    __byte((int*)data, i+2) = 0;
+    
+    // Run cryptography, then put everything back into original alignment.
+    rc = sub_do_crypto(nonce, data, length, key_index, EAXdrv_fn);
+    
+    for(; length >= 0; length--) {
+        __byte((int*)data, length+3) = __byte((int*)data, length);
+    }
+    __byte((int*)data, 0) = __byte((int*)nonce, 4);
+    __byte((int*)data, 1) = __byte((int*)nonce, 5);
+    __byte((int*)data, 2) = __byte((int*)nonce, 6);
+    
+    return rc;
+    
 #else
     ot_u8* nonce;
     ot_u8* data;
@@ -416,9 +442,9 @@ ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(void*, vo
     nonce   = q_markbyte(q, 7);
     length  = q_span(q);
     data    = q_markbyte(q, length);
-#endif
     
     return sub_do_crypto(nonce, data, length, key_index, EAXdrv_fn);
+#endif
 }
 
 
@@ -516,10 +542,10 @@ ot_int sub_search_user(uint64_t id64, authmod_t reqmod) {
     // - If key timeout is enabled (EOL != 0), then make sure key isn't expired
     // - If key is expired, wipe the context for security. (Do not actually delete key though)
     for (i=2; i<dlls_size; i++) {
-        if ((id64 == dlls_info[i].id) && ((dlls_info[i].flags & 0x3F) >= reqmod)) {
+        if ((id64 == dlls_info[i].id) && ((dlls_info[i].mflags & 0x3F) >= reqmod)) {
             if ((dlls_info[i].EOL != 0) && (dlls_info[i].EOL <= time_get_utc())) {
                 memset((void*)&dlls_ctx[i], 0, sizeof(authctx_t));
-                dlls_info[i].flags = 0;
+                dlls_info[i].mflags = AUTHMOD_guest;
                 continue;
             }
             // Key is found, and valid
@@ -558,7 +584,7 @@ ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
     ///1. Check req_mod first, it could be asking for guest access.
     ///   req_mod is converted from Veelite format (OpenTag API is this) into
     ///   internal auth format.
-    req_mod = (req_mod == 0) ? (7 << 3) : (req_mod >> 3) & 7;
+    req_mod = (req_mod == 0) ? AUTHMOD_root : (req_mod >> 3) & 7;
     if (req_mod == AUTHMOD_guest) {
         return (ot_int)ID_localguest;
     }
@@ -611,6 +637,15 @@ ot_u8 auth_get_user(id_tmpl* user_id, ot_uint key_index) {
     return -1;
     
 #endif
+}
+
+
+const id_tmpl* auth_external_user(ot_uint index) {
+    switch (index) {
+        case 0:     return auth_root;
+        case 1:     return auth_user;
+        default:    return auth_guest;
+    }
 }
 
 
@@ -683,7 +718,7 @@ ot_u8 sub_add_key(ot_uint* key_index, keytype_t type, ot_u32 lifetime, void* key
         *key_index = dlls_size++;
         
         dlls_info[*key_index].id     = id64;
-        dlls_info[*key_index].flags  = type;
+        dlls_info[*key_index].mflags = ///@todo set this to appropriate bits.
         dlls_info[*key_index].EOL    = time_get_utc() + lifetime;
         sub_expand_key(keydata, &dlls_ctx[*key_index].ctx);
         
@@ -796,7 +831,9 @@ ot_u8 auth_delete_key(ot_uint key_index) {
     {   ot_int i;
     
         memset((void*)&dlls_ctx[key_index], 0, sizeof(authctx_t));
-        dlls_info[key_index].flags = (1<<7);    //AUTH_KEYFLAGS_INVALID;
+        
+        ///@todo validate this line
+        dlls_info[key_index].mflags = (1<<7);    //AUTH_KEYFLAGS_INVALID;
         dlls_size--;
         
         for (i=key_index; i<dlls_size; i++) {
