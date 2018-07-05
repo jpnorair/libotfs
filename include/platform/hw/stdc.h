@@ -9,18 +9,27 @@
 /// These parameters are sourced from:
 /// https://sourceforge.net/p/predef/wiki/Architectures/
 
-#define IS_64BIT    (defined(__x86_64__) || defined(__x86_64)) || \
-                    (defined(__amd64__) || defined(__amd64)) || \
-                    (defined(__arm__) && defined(__aarch64__)) || \
-                    (defined(__ia64__) || defined(_IA64) || defined(__IA64__)) || \
-                    (defined(__ppc64__) || defined(ppc64))
+#if (defined(__x86_64__) || defined(__x86_64)) || \
+    (defined(__amd64__) || defined(__amd64)) || \
+    (defined(__arm__) && defined(__aarch64__)) || \
+    (defined(__ia64__) || defined(_IA64) || defined(__IA64__)) || \
+    (defined(__ppc64__) || defined(ppc64))
+#   define IS_64BIT     1
+#else
+#   define IS_64BIT     0
+#endif
 
-#define IS_32BIT    (defined(__i386__) || defined(__i386) || defined(i386)) || \
-                    (defined(__i486__) || defined(__i586__) || defined(__i686__)) || \
-                    (defined(__arm__)) || \
-                    (defined(__m68k__)) || \
-                    (defined(__mips__) || defined(mips)) || \
-                    (defined(__ppc__) || defined(ppc))
+#if (defined(__i386__) || defined(__i386) || defined(i386)) || \
+    (defined(__i486__) || defined(__i586__) || defined(__i686__)) || \
+    (defined(__arm__)) || \
+    (defined(__m68k__)) || \
+    (defined(__mips__) || defined(mips)) || \
+    (defined(__ppc__) || defined(ppc))
+#   define IS_32BIT     1
+#else
+#   define IS_32BIT     0
+#endif
+
 
 #if IS_64BIT
 #   define __64BIT__
