@@ -35,6 +35,8 @@
 // The platform should include the AES Driver, which must specify some data 
 // types and functions
 
+///@todo put EXTF's around these functions
+
 #include <otstd.h>
 #if (OT_FEATURE(DLL_SECURITY) || OT_FEATURE(NL_SECURITY) || OT_FEATURE(VL_SECURITY))
 
