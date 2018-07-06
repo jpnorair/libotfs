@@ -500,14 +500,14 @@ const ot_u16 isf_stock_files[] = {
     /* Sensor Alarms: id=0x0D, len=0, alloc=0 */
 
     /* root auth key:       id=0x0E, len=0, alloc=22 */
-    _ERS16, _ERS16, _ERS16, 
+    _ERS16, SPLIT_LONG(48*3600),
     JOIN_2BYTES(0x00,0x11), JOIN_2BYTES(0x22,0x33),
     JOIN_2BYTES(0x44,0x55), JOIN_2BYTES(0x66,0x77),
     JOIN_2BYTES(0x88,0x99), JOIN_2BYTES(0xAA,0xBB),
     JOIN_2BYTES(0xCC,0xDD), JOIN_2BYTES(0xEE,0xFF),
     
     /* Admin auth key:      id=0x0F, len=0, alloc=22 */
-    _ERS16, _ERS16, _ERS16,
+    _ERS16, SPLIT_LONG(48*3600),
     JOIN_2BYTES(0x00,0x01), JOIN_2BYTES(0x02,0x03),
     JOIN_2BYTES(0x04,0x05), JOIN_2BYTES(0x06,0x07),
     JOIN_2BYTES(0x08,0x09), JOIN_2BYTES(0x0A,0x0B),
