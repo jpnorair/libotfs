@@ -6,12 +6,21 @@ OTFS_DEF    ?=
 OTFS_INC    ?= 
 OTFS_LIB    ?= 
 
+#Temporary hack -- ideally should take params from top level makefile
+
+ifeq ($(shell uname -s),Linux)
+LIBBSD := -lbsd
+else
+LIBBSD :=
+endif
+
+
 BUILDDIR    := .
 TARGETDIR   := .
 SRCEXT      := c
 DEPEXT      := d
 OBJEXT      := o
-LIB         := -L./../$(OTFS_PRODUCTDIR) -lotfs $(patsubst -L./%, -L./../%, $(OTFS_LIB)) -lc -lm -lbsd
+LIB         := -L./../$(OTFS_PRODUCTDIR) $(patsubst -L./%, -L./../%, $(OTFS_LIB)) -lotfs -lc -lm $(LIBBSD)
 INC         := -I./../$(OTFS_PRODUCTDIR) $(patsubst -I./%, -I./../%, $(OTFS_INC)) 
 INCDEP      := $(INC)
 

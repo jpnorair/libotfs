@@ -35,8 +35,16 @@
 // This is the OTEAX library include, which does the heavy lifting
 #include <oteax.h>
 
+static void sub_printctx(void* ctx) {
+    for (int i=0; i<44; i++) {
+        fprintf(stdout, "ctx[%02d] = %08X\n", i, ((uint32_t*)ctx)[i]);
+    }
+    fprintf(stdout, "\n");
+}
+
+
 OT_INLINE ot_int EAXdrv_init(void* key, void* context) {
-    return (ot_int)eax_init_and_key((const unsigned char*)key, (EAXdrv_t*)context);
+    return (ot_int)eax_init_and_key((const unsigned char*)key, (EAXdrv_t*)context);;
 }
 
 OT_INLINE ot_int EAXdrv_clear(void* context) {

@@ -21,6 +21,9 @@
   * @brief      Authentication & Crypto Functionality
   * @ingroup    Authentication
   *
+  *
+  * @todo Entire context is stored in the key table.  Change this such that 
+  *       only the key scheduler is stored.
   ******************************************************************************
   */
 
@@ -75,18 +78,13 @@ typedef struct OT_PACKED {
     ot_u32  key[4];
 } keyfile_t;
 
-///@note the context data element should mirror the one from OTEAX.
-typedef struct {   
-    uint32_t    ks[44];
-    uint32_t    inf;
-} eax_ctx_t;
 
-typedef struct {
-    eax_ctx_t   ctx;
-} authctx_t;
 
 
 #if (_SEC_ANY)
+#   include <oteax.h>
+    typedef eax_ctx authctx_t;
+
 #   undef   AUTH_NUM_ELEMENTS
 #   define  AUTH_NUM_ELEMENTS   3
 
@@ -127,6 +125,8 @@ typedef struct {
   */
 #if (_SEC_ANY)
 idclass_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {    
+    ot_int i;
+    
     if ((user_id == NULL) || (user_id == auth_root)) {
         return ID_localroot;
     }
@@ -136,18 +136,30 @@ idclass_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {
     if (user_id == auth_guest) {
         return ID_localguest;
     }
-
-    ///@todo make sure this works.  May be endian dependent.
-    *id64  = ((uint64_t)1 << (user_id->length * 8)) - 1; 
-    *id64 &= *(uint64_t*)user_id->value;
     
+    /// - user_id contains a length and a value (uint8_t array)
+    /// - we need to copy it into the uint64_t, and make sure endian is correct
+    *id64 = 0;
+    i = 0;
+    switch (user_id->length) {
+        case 8: *id64 |= (uint64_t)user_id->value[i++] << 56;
+        case 7: *id64 |= (uint64_t)user_id->value[i++] << 48;
+        case 6: *id64 |= (uint64_t)user_id->value[i++] << 40;
+        case 5: *id64 |= (uint64_t)user_id->value[i++] << 32;
+        case 4: *id64 |= (uint64_t)user_id->value[i++] << 24;
+        case 3: *id64 |= (uint64_t)user_id->value[i++] << 16;
+        case 2: *id64 |= (uint64_t)user_id->value[i++] << 8;
+        case 1: *id64 |= user_id->value[i];
+       default: break;
+    }
+
     return ID_normal;
 }
 
 
-void sub_expand_key(void* rawkey, eax_ctx_t* ctx) {
+void sub_expand_key(void* rawkey, authctx_t* ctx) {
 /// This routine will expand the key (128 bits) into a much larger key sequence.
-/// The key sequence is what is actually used to do cryptographic operations.
+/// The key sequence is what is actually used to do cryptographic operations.    
     EAXdrv_init(rawkey, (void*)ctx);
 }
 
@@ -220,7 +232,7 @@ void auth_init(void) {
             dlls_info[i].id     = i;
             dlls_info[i].mflags = (i==0) ? AUTHMOD_root : AUTHMOD_user;
             dlls_info[i].EOL    = kfile.EOL;
-            sub_expand_key((void*)kfile.key, &dlls_ctx[i].ctx);
+            sub_expand_key((void*)kfile.key, &dlls_ctx[i]);
             vl_close(fp);
         }
     }
@@ -358,9 +370,9 @@ ot_int sub_do_crypto(void* nonce, void* data, ot_uint datalen, ot_uint key_index
     ot_u32* nce = (ot_u32*)nonce;
     iv[0]   = (nce[0] >> 8) | (nce[1] << 24);
     iv[1]   = nce[1] >> 8;
-    retval  = EAXdrv_fn(iv, data, datalen, (EAXdrv_t*)&dlls_ctx[key_index].ctx);
+    retval  = EAXdrv_fn(iv, data, datalen, (void*)&dlls_ctx[key_index]);
 #   else
-    retval  = EAXdrv_fn(nonce, data, datalen, (EAXdrv_t*)&dlls_ctx[key_index].ctx);
+    retval  = EAXdrv_fn(nonce, data, datalen, (void*)&dlls_ctx[key_index]);
 #   endif
 
     return (retval != 0) ? -2 : 4;
@@ -489,8 +501,8 @@ ot_int auth_get_enckey(void** key, ot_uint index) {
 ///@todo not sure if this function should be removed
 #if (_SEC_ANY)
     if ((key != NULL) && (index < dlls_size)) {
-        *((ot_u32**)key) = dlls_ctx[index].ctx.ks;
-        return sizeof(dlls_ctx[index].ctx.ks);
+        *((ot_u32**)key) = &dlls_ctx[index];
+        return sizeof(dlls_ctx[index]);
     }
 #endif
 
@@ -718,9 +730,9 @@ ot_u8 sub_add_key(ot_uint* key_index, keytype_t type, ot_u32 lifetime, void* key
         *key_index = dlls_size++;
         
         dlls_info[*key_index].id     = id64;
-        dlls_info[*key_index].mflags = ///@todo set this to appropriate bits.
+        dlls_info[*key_index].mflags = AUTHMOD_user; ///@todo set this to appropriate bits.
         dlls_info[*key_index].EOL    = time_get_utc() + lifetime;
-        sub_expand_key(keydata, &dlls_ctx[*key_index].ctx);
+        sub_expand_key(keydata, &dlls_ctx[*key_index]);
         
         return 0;
     }
@@ -836,6 +848,7 @@ ot_u8 auth_delete_key(ot_uint key_index) {
         dlls_info[key_index].mflags = (1<<7);    //AUTH_KEYFLAGS_INVALID;
         dlls_size--;
         
+        // Shift keys back down
         for (i=key_index; i<dlls_size; i++) {
             memcpy(&dlls_info[i], &dlls_info[i+1], sizeof(authinfo_t));
             memcpy(&dlls_ctx[i], &dlls_ctx[i+1], sizeof(authctx_t));
@@ -853,4 +866,30 @@ ot_u8 auth_delete_key(ot_uint key_index) {
 #   endif
 }
 
+
+
+keytype_t auth_get_key(void** keydata, ot_uint key_index) { 
+    if (keydata == NULL) {
+        return KEYTYPE_none;
+    }
+    
+#   if (AUTH_NUM_ELEMENTS >= 0)
+    if (key_index < dlls_size) {
+        if (dlls_info[key_index].mflags < (1<<7)) {
+            *keydata = (void*)&dlls_ctx[key_index];
+            return KEYTYPE_AES128;
+        }
+    }
+
+    *keydata = NULL;
+    return KEYTYPE_none;
+    
+#   elif (AUTH_NUM_ELEMENTS < 0)
+    ///@todo implement this
+    return KEYTYPE_none;
+    
+#   else    
+    return KEYTYPE_none;
+#   endif
+}
 

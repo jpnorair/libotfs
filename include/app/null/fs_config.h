@@ -281,8 +281,8 @@
 #define ISF_LEN_ipv6_addresses                  0
 #define ISF_LEN_sensor_list                     0
 #define ISF_LEN_sensor_alarms                   0
-#define ISF_LEN_root_authentication_key         0
-#define ISF_LEN_user_authentication_key         0
+#define ISF_LEN_root_authentication_key         22
+#define ISF_LEN_user_authentication_key         22
 #define ISF_LEN_routing_code                    0
 #define ISF_LEN_user_id                         0
 #define ISF_LEN_optional_command_list           0
@@ -309,8 +309,8 @@
 #define ISF_MAX_ipv6_addresses                  48
 #define ISF_MAX_sensor_list                     0
 #define ISF_MAX_sensor_alarms                   0
-#define ISF_MAX_root_authentication_key         16
-#define ISF_MAX_user_authentication_key         16
+#define ISF_MAX_root_authentication_key         22
+#define ISF_MAX_user_authentication_key         22
 #define ISF_MAX_routing_code                    0
 #define ISF_MAX_user_id                         60
 #define ISF_MAX_optional_command_list           0

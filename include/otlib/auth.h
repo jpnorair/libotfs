@@ -391,6 +391,18 @@ ot_u8 auth_delete_key(ot_uint key_index);
 
 
 
+/** @brief Gets a pointer to a key from the key table
+  * @param keydata      (void**) pointer to allocated key data pointer (void*)
+  * @param key_index    (ot_uint) input key index to retrieve
+  * @retval keytype_t   KEYTYPE_none on error, else corresponding key type.
+  * @ingroup Authentication
+  *
+  * @note This function should not be exposed to external processes or
+  * messaging protocols.  It is for privileged usage within the process only.
+  */
+keytype_t auth_get_key(void** keydata, ot_uint key_index);
+
+
 
 
 
