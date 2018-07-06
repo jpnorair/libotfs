@@ -308,12 +308,12 @@ OT_WEAK ot_int vl_add_action(vlBLOCK block_id, ot_u8 data_id, ot_u8 condition, o
     /// 1. See if action parameter is already in the list.
     /// 2. If so, then return the index.
     /// 3. If not present, add at first NULL
-    
+    ot_int i;
     ot_int select = -1;
     vaddr header = NULL_vaddr;
     
     if (0 == vl_getheader_vaddr(&header, block_id, data_id, VL_ACCESS_SU, NULL)) {
-        for (ot_int i=0, select=-1; i<OT_PARAM(VLACTIONS); i++) {
+        for (i=0, select=-1; i<OT_PARAM(VLACTIONS); i++) {
             if (vlaction[i] == NULL) {
                 if (select < 0) {
                     select = i;
