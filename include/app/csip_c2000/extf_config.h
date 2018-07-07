@@ -60,6 +60,13 @@
 /// CRC16 Module EXTFs
 
 
+/// Crypto Module EXTFs
+#define EXTF_EAXdrv_init
+#define EXTF_EAXdrv_clear
+#define EXTF_EAXdrv_encrypt
+#define EXTF_EAXdrv_decrypt
+
+
 
 /// Encode Module EXTFs
 

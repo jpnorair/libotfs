@@ -86,21 +86,29 @@ ot_int EAX_decrypt(void* dst, void* src, ot_uint srclen, void* nonce, void* key)
   */
 #include <oteax.h>
 
+#ifndef EXTF_EAXdrv_init
 OT_WEAK ot_int EAXdrv_init(void* key, void* context) {
     return (ot_int)eax_init_and_key(key, (EAXdrv_t*)context);
 }
+#endif
 
+#ifndef EXTF_EAXdrv_clear
 OT_WEAK ot_int EAXdrv_clear(void* context) {
     return (ot_int)eax_end((EAXdrv_t*)context);
 }
+#endif
 
+#ifndef EXTF_EAXdrv_encrypt
 OT_WEAK ot_int EAXdrv_encrypt(void* nonce, void* data, ot_uint datalen, void* context) {
     return (ot_int)eax_encrypt_message(nonce, data, datalen, (EAXdrv_t*)context);
 }
+#endif
 
+#ifndef EXTF_EAXdrv_decrypt
 OT_WEAK ot_int EAXdrv_decrypt(void* nonce, void* data, ot_uint datalen, void* context) {
     return (ot_int)eax_decrypt_message(nonce, data, datalen, (EAXdrv_t*)context);
 }
+#endif
 
 
 
