@@ -124,7 +124,7 @@ typedef struct OT_PACKED {
   * ========================================================================<BR>
   */
 #if (_SEC_ANY)
-idclass_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {    
+static idclass_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {    
     ot_int i;
     
     if ((user_id == NULL) || (user_id == auth_root)) {
@@ -157,7 +157,7 @@ idclass_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {
 }
 
 
-void sub_expand_key(void* rawkey, authctx_t* ctx) {
+static void sub_expand_key(void* rawkey, authctx_t* ctx) {
 /// This routine will expand the key (128 bits) into a much larger key sequence.
 /// The key sequence is what is actually used to do cryptographic operations.    
     EAXdrv_init(rawkey, (void*)ctx);
@@ -166,14 +166,14 @@ void sub_expand_key(void* rawkey, authctx_t* ctx) {
 
 
 ///@todo Bring this into OT Utils?
-ot_bool sub_idcmp(const id_tmpl* user_id, uint64_t id) {
+static ot_bool sub_idcmp(const id_tmpl* user_id, uint64_t id) {
     ot_int length;
     length = (id < 65536) ? 2 : 8;
     return (ot_bool)((length == user_id->length) && (*(uint64_t*)user_id->value == id));
 }
 
 
-ot_bool sub_authcmp(const id_tmpl* user_id, const id_tmpl* comp_id, ot_u8 mod_flags) {
+static ot_bool sub_authcmp(const id_tmpl* user_id, const id_tmpl* comp_id, ot_u8 mod_flags) {
     if ((user_id == NULL) || (user_id == comp_id))
         return True;
 
@@ -348,7 +348,7 @@ ot_u32 auth_getnonce(void) {
 
 
 
-ot_int sub_do_crypto(void* nonce, void* data, ot_uint datalen, ot_uint key_index,
+static ot_int sub_do_crypto(void* nonce, void* data, ot_uint datalen, ot_uint key_index,
                         ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*) ) {
 #if (_SEC_ANY)
     /// Nonce input is 7 bytes.
@@ -410,7 +410,7 @@ ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
 
 
 
-ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*)) {
+static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*)) {
 #ifdef __C2000__
     ot_u32  nonce[2] = {0, 0};
     ot_u32* data;
@@ -541,7 +541,7 @@ ot_int auth_get_deckey(void** key, ot_uint index) {
   * an Auth-Sec ALP.
   */
   
-ot_int sub_search_user(uint64_t id64, authmod_t reqmod) {
+static ot_int sub_search_user(uint64_t id64, authmod_t reqmod) {
 #if (AUTH_NUM_ELEMENTS > 0)
 ///@todo Current implementation is linear search.  In the future maybe
 ///      implement binary search, although for small tables typical for
@@ -662,7 +662,7 @@ const id_tmpl* auth_external_user(ot_uint index) {
 
 
 
-ot_bool sub_ismask(const id_tmpl* user_id, authmod_t authmask) {
+static ot_bool sub_ismask(const id_tmpl* user_id, authmod_t authmask) {
 #if (_SEC_ANY)
     if (user_id == NULL) {
         return true;
@@ -721,7 +721,7 @@ ot_u8 auth_check(ot_u8 req_mod, ot_u8 rw_mod, const id_tmpl* user_id) {
   * an Auth-Sec ALP.
   */
   
-ot_u8 sub_add_key(ot_uint* key_index, keytype_t type, ot_u32 lifetime, void* keydata, uint64_t id64) {
+static ot_u8 sub_add_key(ot_uint* key_index, keytype_t type, ot_u32 lifetime, void* keydata, uint64_t id64) {
 #if (AUTH_NUM_ELEMENTS >= 0)
     /// Static allocation
     /// - Make sure there is space to add.
