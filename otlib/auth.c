@@ -228,7 +228,7 @@ void auth_init(void) {
     for (i=0; i<2; i++) {
         fp = ISF_open_su(i+ISF_ID(root_authentication_key));
         if (fp != NULL) {
-            vl_load(fp, _KFILE_BYTES, (ot_u8*)&kfile);
+            vl_load(fp, _KFILE_BYTES, (void*)&kfile);
             dlls_info[i].id     = i;
             dlls_info[i].mflags = (i==0) ? AUTHMOD_root : AUTHMOD_user;
             dlls_info[i].EOL    = kfile.EOL;
@@ -414,7 +414,7 @@ ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(void*, vo
 #ifdef __C2000__
     ot_u32  nonce[2] = {0, 0};
     ot_u32* data;
-    ot_uint length;
+    ot_int length;
     int rc;
     int i;
     
@@ -495,7 +495,7 @@ ot_int auth_decrypt_q(ot_queue* q, ot_uint key_index) {
 #endif
 
 
-
+/*
 #ifndef EXTF_auth_get_enckey
 ot_int auth_get_enckey(void** key, ot_uint index) {
 ///@todo not sure if this function should be removed
@@ -519,7 +519,7 @@ ot_int auth_get_deckey(void** key, ot_uint index) {
     return auth_get_enckey(key, index);
 }
 #endif
-
+*/
 
 
 
@@ -621,7 +621,7 @@ ot_int auth_search_user(const id_tmpl* user_id, ot_u8 req_mod) {
     ///   At this point, we need to search for a non-local user in the 
     ///   authentication table.  The implementation is slightly different
     ///   between static and dynamic configurations, via subroutine.
-    return sub_search_user(id_u64, req_mod);
+    return sub_search_user(id_u64, (authmod_t)req_mod);
 
 #else
     return -1;

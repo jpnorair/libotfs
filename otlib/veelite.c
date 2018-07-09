@@ -604,7 +604,7 @@ OT_WEAK ot_u8 vl_getheader(vl_header_t* header, vlBLOCK block_id, ot_u8 data_id,
 #ifndef EXTF_vl_open_file
 OT_WEAK vlFILE* vl_open_file(vaddr header) {
     vlFILE* fp;
-    ot_u16 actioncode;
+    //ot_u16 actioncode;
 
     fp = sub_new_fp();
 
