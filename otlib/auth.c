@@ -410,7 +410,7 @@ ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
 
 
 
-ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*)) {
+static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*)) {
 #ifdef __C2000__
     ot_u32  nonce[2] = {0, 0};
     ot_u32* data;
