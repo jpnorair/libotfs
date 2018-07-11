@@ -138,7 +138,12 @@ static idclass_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {
     }
     
     /// - user_id contains a length and a value (uint8_t array)
-    /// - we need to copy it into the uint64_t, and make sure endian is correct
+    /// - we need to copy it into the uint64_t, and make sure endian is converted from network endian
+    /// - C2000 implementation is limited to user_id->length == 2
+#   ifdef __C2000__
+    *id64 = (uint64_t)PLATFORM_ENDIAN16(user_id->value[0]);
+
+#   else
     *id64 = 0;
     i = 0;
     switch (user_id->length) {
@@ -152,6 +157,7 @@ static idclass_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {
         case 1: *id64 |= user_id->value[i];
        default: break;
     }
+#   endif
 
     return ID_normal;
 }
@@ -364,13 +370,11 @@ static ot_int sub_do_crypto(void* nonce, void* data, ot_uint datalen, ot_uint ke
     }
     
 #   ifdef __C2000__
-    /// Nonce input is 32 bit aligned, 2 words
-    /// We take the data from the last 7 bytes, shift it forward, and zero-pad
-    ot_u32  iv[2];
-    ot_u32* nce = (ot_u32*)nonce;
-    iv[0]   = (nce[0] >> 8) | (nce[1] << 24);
-    iv[1]   = nce[1] >> 8;
-    retval  = EAXdrv_fn(iv, data, datalen, (void*)&dlls_ctx[key_index]);
+//    ot_u32  iv[2];
+//    ot_u32* nce = (ot_u32*)nonce;
+//    iv[0]   = (nce[0] >> 8) | (nce[1] << 24);
+//    iv[1]   = nce[1] >> 8;
+    retval  = EAXdrv_fn(nonce, data, datalen, (void*)&dlls_ctx[key_index]);
 #   else
     retval  = EAXdrv_fn(nonce, data, datalen, (void*)&dlls_ctx[key_index]);
 #   endif
@@ -464,6 +468,8 @@ static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(vo
 ot_int auth_encrypt_q(ot_queue* q, ot_uint key_index) {
 #if (_SEC_ANY)
     ot_int tag_size;
+
+
     tag_size = sub_crypt_q(q, key_index, &EAXdrv_encrypt);
     if (tag_size > 0) {
         q->putcursor += tag_size;
@@ -652,7 +658,7 @@ ot_u8 auth_get_user(id_tmpl* user_id, ot_uint key_index) {
 }
 
 
-const id_tmpl* auth_external_user(ot_uint index) {
+const id_tmpl* auth_intrinsic_user(ot_uint index) {
     switch (index) {
         case 0:     return auth_root;
         case 1:     return auth_user;

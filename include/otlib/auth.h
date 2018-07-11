@@ -307,17 +307,17 @@ ot_u8 auth_get_user(id_tmpl* user_id, ot_uint key_index);
 
 
 
-/** @brief Provides a surrogate user id to a caller that has already authenticated the message
+/** @brief Provides a intrinsic user id to a caller that has its own user management
   * @param index        (ot_uint) Surrogate Key Index: 0=root, 1=user, 2=guest
   * @retval id_tmpl*    pointer to surrogate user ID
   * @ingroup Authentication
   *
-  * This function essentially bypasses authentication.  
+  * This function bypasses internal key management.  
   * Do not use it unless you know exactly what you are doing, otherwise you
   * might have a security vulnerability.  If you don't use it, there is no 
   * incidental vuln, because it works on different data than the key data.
   */
-const id_tmpl* auth_external_user(ot_uint index);
+const id_tmpl* auth_intrinsic_user(ot_uint index);
 
 
 

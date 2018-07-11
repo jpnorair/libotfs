@@ -237,8 +237,8 @@
 #define ISF_LEN_ipv6_addresses                  0
 #define ISF_LEN_sensor_list                     0
 #define ISF_LEN_sensor_alarms                   0
-#define ISF_LEN_root_authentication_key         0
-#define ISF_LEN_user_authentication_key         0
+#define ISF_LEN_root_authentication_key        22
+#define ISF_LEN_user_authentication_key        22
 #define ISF_LEN_pv_config                   0
 #define ISF_LEN_pv_fault_config                 0
 #define ISF_LEN_nameplate_ratings               0
@@ -415,7 +415,7 @@
 #   define ISF_BASE_sensor_alarms               (ISF_BASE_sensor_list+ISF_ALLOC(sensor_list))
 #   define ISF_BASE_root_authentication_key     (ISF_BASE_sensor_alarms+ISF_ALLOC(sensor_alarms))
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
-#   define ISF_BASE_pv_config               (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
+#   define ISF_BASE_pv_config                   (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
 #   define ISF_BASE_pv_fault_config             (ISF_BASE_pv_config+ISF_ALLOC(pv_config))
 #   define ISF_BASE_nameplate_ratings           (ISF_BASE_pv_fault_config+ISF_ALLOC(pv_fault_config))
 #   define ISF_BASE_adjusted_settings           (ISF_BASE_nameplate_ratings+ISF_ALLOC(nameplate_ratings))

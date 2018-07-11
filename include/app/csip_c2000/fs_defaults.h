@@ -121,13 +121,21 @@ const ot_u16 overhead_files[] = {
 #   endif
 
     /* GFB Files */
-    JOIN_2BYTES(0x00, 0x00), JOIN_2BYTES(0x00, 0x01),                 /* GFB Elements 0 */
+    JOIN_2BYTES(0x00, 0x00), JOIN_2BYTES(0x00, 0x01),                 /* GFB Element 0 */
     JOIN_2BYTES(0x00, GFB_MOD_standard),
     JOIN_2BYTES(0x00, 0x14), JOIN_2BYTES(0xFF, 0xFF),
     FILE_ACTIONCODE(0,0),
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+
+    JOIN_2BYTES(0x00, 0x00), JOIN_2BYTES(0x00, 0x01),                 /* GFB Element 1 */
+    JOIN_2BYTES(0x01, GFB_MOD_standard),
+    JOIN_2BYTES(0x00, 0x14), JOIN_2BYTES(0xFF, 0xFF),
+    FILE_ACTIONCODE(0,0),
+#    if (OT_FEATURE(VLMODTIME) == ENABLED)
+    FILE_MODTIME(0),
+#    endif
     
     /* Mode 2 ISFs, written as little endian */
     JOIN_2BYTES(ISF_LEN(network_settings), 0x00),                       /* Length, little endian */
@@ -499,14 +507,14 @@ const ot_u16 isf_stock_files[] = {
 
     /* Sensor Alarms: id=0x0D, len=0, alloc=0 */
 
-    /* root auth key:       id=0x0E, len=0, alloc=22 */
+    /* root auth key:       id=0x0E, len=22, alloc=22 */
     _ERS16, SPLIT_LONG(48*3600),
     JOIN_2BYTES(0x00,0x11), JOIN_2BYTES(0x22,0x33),
     JOIN_2BYTES(0x44,0x55), JOIN_2BYTES(0x66,0x77),
     JOIN_2BYTES(0x88,0x99), JOIN_2BYTES(0xAA,0xBB),
     JOIN_2BYTES(0xCC,0xDD), JOIN_2BYTES(0xEE,0xFF),
     
-    /* Admin auth key:      id=0x0F, len=0, alloc=22 */
+    /* Admin auth key:      id=0x0F, len=22, alloc=22 */
     _ERS16, SPLIT_LONG(48*3600),
     JOIN_2BYTES(0x00,0x01), JOIN_2BYTES(0x02,0x03),
     JOIN_2BYTES(0x04,0x05), JOIN_2BYTES(0x06,0x07),
