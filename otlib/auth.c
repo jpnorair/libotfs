@@ -424,7 +424,7 @@ ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
 
 
 
-static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int tag_size, bool enc) {
+static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, bool enc) {
 #ifdef __C2000__
     ot_u32  nonce[2] = {0, 0};
     ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*);
@@ -452,7 +452,6 @@ static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int tag_size, bool 
     __byte((int*)data, i+2) = 0;
     
     // Run cryptography, then put everything back into original alignment.
-    i = length;
     if (enc) {
         EAXdrv_fn = &EAXdrv_encrypt;
     }
@@ -462,7 +461,7 @@ static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int tag_size, bool 
     }
     rc = sub_do_crypto(nonce, data, length, key_index, EAXdrv_fn);
     
-    for(; i >= 0; i--) {
+    for(i=length+3; i>=0; i--) {
         __byte((int*)data, i+3) = __byte((int*)data, i);
     }
     __byte((int*)data, 0) = __byte((int*)nonce, 4);
