@@ -320,7 +320,10 @@ ALP_status alp_parse_message(alp_tmpl* alp, const id_tmpl* user_id) {
     else {
         ot_qcur savedput        = alp->outq->putcursor;
         alp->outq->putcursor    = hdr_position;
-        q_writelong_be(alp->outq, alp->OUTREC(FLAGS));
+        q_writebyte(alp->outq, alp->OUTREC(FLAGS));
+        q_writebyte(alp->outq, alp->OUTREC(PLEN));
+        q_writebyte(alp->outq, alp->OUTREC(ID));
+        q_writebyte(alp->outq, alp->OUTREC(CMD));
         alp->outq->putcursor    = savedput;
         alp->OUTREC(FLAGS)     &= ~ALP_FLAG_MB;
     }

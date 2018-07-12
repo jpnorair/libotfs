@@ -72,12 +72,22 @@ typedef struct OT_PACKED {
 
 ///@note keyfile_t must match the structure of the "root & user authentication
 ///      key" files stored in the filesystem.
+///@note Hateful TI C Compiler does not support Packed structures despite the
+///      manual mentioning it does.
+#ifdef __TI_C__
+typedef struct OT_PACKED {
+    ot_u16  res0;
+    ot_u16  ctl;
+    ot_u32  EOL;
+    ot_u32  key[4];
+} keyfile_t;
+#else
 typedef struct OT_PACKED {
     ot_u16  ctl;
     ot_u32  EOL;
     ot_u32  key[4];
 } keyfile_t;
-
+#endif
 
 
 
@@ -234,7 +244,7 @@ void auth_init(void) {
     for (i=0; i<2; i++) {
         fp = ISF_open_su(i+ISF_ID(root_authentication_key));
         if (fp != NULL) {
-            vl_load(fp, _KFILE_BYTES, (void*)&kfile);
+            vl_load(fp, _KFILE_BYTES, (void*)&(kfile.ctl));
             dlls_info[i].id     = i;
             dlls_info[i].mflags = (i==0) ? AUTHMOD_root : AUTHMOD_user;
             dlls_info[i].EOL    = kfile.EOL;
@@ -405,7 +415,7 @@ ot_int auth_encrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
 ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index) {
 /// EAX cryptography is symmetric, so decrypt and encrypt are almost identical.
 #if (_SEC_ANY)
-    return sub_do_crypto(nonce, data, datalen, key_index, &EAXdrv_decrypt);
+    return sub_do_crypto(nonce, data, datalen-4, key_index, &EAXdrv_decrypt);
 #else
     return -1;
 #endif
@@ -414,9 +424,10 @@ ot_int auth_decrypt(void* nonce, void* data, ot_uint datalen, ot_uint key_index)
 
 
 
-static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*)) {
+static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int tag_size, bool enc) {
 #ifdef __C2000__
     ot_u32  nonce[2] = {0, 0};
+    ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*);
     ot_u32* data;
     ot_int length;
     int rc;
@@ -426,6 +437,7 @@ static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(vo
     nonce[0] = ((ot_u32*)q->front)[0];
     nonce[1] = ((ot_u32*)q->front)[1];
     __byte((int*)nonce, 7) = 0;
+    q->getcursor = 7;
     
     // Shift the queue 3 bytes forward.  This makes it 32bit aligned.  It has
     // the secondary benefit of guaranteeing that the last word is zero padded,
@@ -440,10 +452,18 @@ static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(vo
     __byte((int*)data, i+2) = 0;
     
     // Run cryptography, then put everything back into original alignment.
+    i = length;
+    if (enc) {
+        EAXdrv_fn = &EAXdrv_encrypt;
+    }
+    else {
+        EAXdrv_fn = &EAXdrv_decrypt;
+        length -= 4;
+    }
     rc = sub_do_crypto(nonce, data, length, key_index, EAXdrv_fn);
     
-    for(; length >= 0; length--) {
-        __byte((int*)data, length+3) = __byte((int*)data, length);
+    for(; i >= 0; i--) {
+        __byte((int*)data, i+3) = __byte((int*)data, i);
     }
     __byte((int*)data, 0) = __byte((int*)nonce, 4);
     __byte((int*)data, 1) = __byte((int*)nonce, 5);
@@ -455,9 +475,19 @@ static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(vo
     ot_u8* nonce;
     ot_u8* data;
     ot_uint length;
+    ot_int (*EAXdrv_fn)(void*, void*, ot_uint, void*);
+
     nonce   = q_markbyte(q, 7);
     length  = q_span(q);
-    data    = q_markbyte(q, length);
+    data    = q->getcursor; //q_markbyte(q, length);
+
+    if (enc) {
+        EAXdrv_fn = &EAXdrv_encrypt;
+    }
+    else {
+        EAXdrv_fn = &EAXdrv_decrypt;
+        length -= 4;
+    }
     
     return sub_do_crypto(nonce, data, length, key_index, EAXdrv_fn);
 #endif
@@ -468,9 +498,11 @@ static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int (*EAXdrv_fn)(vo
 ot_int auth_encrypt_q(ot_queue* q, ot_uint key_index) {
 #if (_SEC_ANY)
     ot_int tag_size;
+    ot_qcur saved_get;
 
-
-    tag_size = sub_crypt_q(q, key_index, &EAXdrv_encrypt);
+    saved_get       = q->getcursor;
+    tag_size        = sub_crypt_q(q, key_index, true);
+    q->getcursor    = saved_get;
     if (tag_size > 0) {
         q->putcursor += tag_size;
     }
@@ -488,7 +520,7 @@ ot_int auth_encrypt_q(ot_queue* q, ot_uint key_index) {
 ot_int auth_decrypt_q(ot_queue* q, ot_uint key_index) {
 #if (_SEC_ANY)
     ot_int tag_size;
-    tag_size = sub_crypt_q(q, key_index, &EAXdrv_decrypt);
+    tag_size = sub_crypt_q(q, key_index, false);
     if (tag_size > 0) {
         q->putcursor   -= tag_size;
         q->back        -= tag_size;

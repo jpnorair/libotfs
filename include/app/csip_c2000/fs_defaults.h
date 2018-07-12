@@ -63,8 +63,8 @@
 #define SPLIT_SHORT(VAL)    (((ot_u16)(VAL) >> 8) | ((ot_u16)(VAL) << 8))
 #define SPLIT_SHORT_LE(VAL) (VAL)
 
-#define SPLIT_LONG(VAL)     (ot_u16)(((ot_u32)(VAL) >> 16) & 0xFFFF), (ot_u16)((ot_u32)(VAL) & 0xFFFF)
-#define SPLIT_LONG_LE(VAL)  (ot_u16)((ot_u32)(VAL) & 0xFFFF), (ot_u16)(((ot_u32)(VAL) >> 16) & 0xFFFF)
+#define SPLIT_LONG(VAL)     (ot_u16)((((ot_u32)(VAL)) >> 16) & 0xFFFF), (ot_u16)(((ot_u32)(VAL)) & 0xFFFF)
+#define SPLIT_LONG_LE(VAL)  (ot_u16)(((ot_u32)(VAL)) & 0xFFFF), (ot_u16)((((ot_u32)(VAL)) >> 16) & 0xFFFF)
 
 #if (OT_FEATURE(VLACTIONS) == ENABLED)
 #   define FILE_ACTIONCODE(COND,ID) JOIN_2BYTES(COND, ID)
@@ -482,7 +482,7 @@ const ot_u16 isf_stock_files[] = {
     /* beacon transmit periods: id=0x06, len=0, alloc=0 */
     /* Period data format in Section X.9.4.7 of Mode 2 spec */ //0x0240
 
-    /* User ISF List: id=0x07, len=1, alloc=24 */
+    /* User ISF List: id=0x07, len=8, alloc=24 */
     /* List of Protocols supported (Tentative)*/
     JOIN_2BYTES(0xFF, _ERS), _ERS16, _ERS16, _ERS16,     
     _ERS16, _ERS16, _ERS16, _ERS16, 
@@ -508,14 +508,14 @@ const ot_u16 isf_stock_files[] = {
     /* Sensor Alarms: id=0x0D, len=0, alloc=0 */
 
     /* root auth key:       id=0x0E, len=22, alloc=22 */
-    _ERS16, SPLIT_LONG(48*3600),
+    _ERS16, SPLIT_LONG_LE(172800),
     JOIN_2BYTES(0x00,0x11), JOIN_2BYTES(0x22,0x33),
     JOIN_2BYTES(0x44,0x55), JOIN_2BYTES(0x66,0x77),
     JOIN_2BYTES(0x88,0x99), JOIN_2BYTES(0xAA,0xBB),
     JOIN_2BYTES(0xCC,0xDD), JOIN_2BYTES(0xEE,0xFF),
     
     /* Admin auth key:      id=0x0F, len=22, alloc=22 */
-    _ERS16, SPLIT_LONG(48*3600),
+    _ERS16, SPLIT_LONG_LE(172800),
     JOIN_2BYTES(0x00,0x01), JOIN_2BYTES(0x02,0x03),
     JOIN_2BYTES(0x04,0x05), JOIN_2BYTES(0x06,0x07),
     JOIN_2BYTES(0x08,0x09), JOIN_2BYTES(0x0A,0x0B),
