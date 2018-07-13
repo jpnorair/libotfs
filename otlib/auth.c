@@ -379,15 +379,7 @@ static ot_int sub_do_crypto(void* nonce, void* data, ot_uint datalen, ot_uint ke
         return -1;
     }
     
-#   ifdef __C2000__
-//    ot_u32  iv[2];
-//    ot_u32* nce = (ot_u32*)nonce;
-//    iv[0]   = (nce[0] >> 8) | (nce[1] << 24);
-//    iv[1]   = nce[1] >> 8;
     retval  = EAXdrv_fn(nonce, data, datalen, (void*)&dlls_ctx[key_index]);
-#   else
-    retval  = EAXdrv_fn(nonce, data, datalen, (void*)&dlls_ctx[key_index]);
-#   endif
 
     return (retval != 0) ? -2 : 4;
     
@@ -452,7 +444,7 @@ static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int tag_size, bool 
     __byte((int*)data, i+2) = 0;
     
     // Run cryptography, then put everything back into original alignment.
-    i = length;
+    //i = length;
     if (enc) {
         EAXdrv_fn = &EAXdrv_encrypt;
     }
@@ -462,7 +454,7 @@ static ot_int sub_crypt_q(ot_queue* q, ot_uint key_index, ot_int tag_size, bool 
     }
     rc = sub_do_crypto(nonce, data, length, key_index, EAXdrv_fn);
     
-    for(; i >= 0; i--) {
+    for(i=length; i >= 0; i--) {
         __byte((int*)data, i+3) = __byte((int*)data, i);
     }
     __byte((int*)data, 0) = __byte((int*)nonce, 4);
