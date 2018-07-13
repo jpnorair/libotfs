@@ -38,8 +38,8 @@
 #define ISF_MAX_opcurve_freqwatt                208 ///@todo confirm
 */
 
-#ifndef __DEFAULT_FS_CONFIG_H
-#define __DEFAULT_FS_CONFIG_H
+#ifndef __FS_CONFIG_H
+#define __FS_CONFIG_H
 
 #include "build_config.h"
 #include "features_config.h"
@@ -159,6 +159,7 @@
 #define ISF_ENMIRROR_sensor_alarms              __SET_MIRROR(0)
 #define ISF_ENMIRROR_root_authentication_key    __SET_MIRROR(1)
 #define ISF_ENMIRROR_user_authentication_key    __SET_MIRROR(1)
+// OTFS CSIP FILES -----------------------------------------------------
 #define ISF_ENMIRROR_pv_config                  __SET_MIRROR(1)
 #define ISF_ENMIRROR_pv_fault_config            __SET_MIRROR(1)
 #define ISF_ENMIRROR_nameplate_ratings          __SET_MIRROR(1)
@@ -166,6 +167,7 @@
 #define ISF_ENMIRROR_alarms                     __SET_MIRROR(1)
 #define ISF_ENMIRROR_opcurve_voltvar            __SET_MIRROR(1)
 #define ISF_ENMIRROR_opcurve_freqwatt           __SET_MIRROR(1)
+// OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_ENMIRROR_application_extension      __SET_MIRROR(1)
 
 
@@ -194,6 +196,7 @@
 #define ISF_MOD_sensor_alarms                   ISF_MOD_file_standard
 #define ISF_MOD_root_authentication_key         b00000000
 #define ISF_MOD_user_authentication_key         b00110000
+// OTFS CSIP FILES -----------------------------------------------------
 #define ISF_MOD_pv_config                       b00100100
 #define ISF_MOD_pv_fault_config                 b00100100
 #define ISF_MOD_nameplate_ratings               b00100100
@@ -201,6 +204,7 @@
 #define ISF_MOD_alarms                          b00100100
 #define ISF_MOD_opcurve_voltvar                 b00110100
 #define ISF_MOD_opcurve_freqwatt                b00110100
+// OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_MOD_application_extension           b00100100
 
 
