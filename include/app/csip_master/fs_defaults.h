@@ -588,6 +588,12 @@ const ot_u8 isf_stock_files[] = {
     SPLIT_LONG_LE(34),   // ConnRampUpRtg
     SPLIT_LONG_LE(35),   // RampRtePct
     SPLIT_LONG_LE(36),   // ConnDly
+    SPLIT_LONG_LE(37),
+    SPLIT_LONG_LE(38),
+    SPLIT_LONG_LE(39),
+    SPLIT_LONG_LE(40),
+    SPLIT_LONG_LE(41),
+    SPLIT_LONG_LE(42),
 
     /* CSIP Set Array: id=0x14, len=36, alloc=36 */
     SPLIT_LONG_LE(1),   // PairArray
