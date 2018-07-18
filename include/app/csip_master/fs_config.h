@@ -230,7 +230,7 @@
 #define ISF_MAX_pwrdata_inv                     88
 #define ISF_MAX_pwrdata_mppt                    80
 #define ISF_MAX_csip_nameplate                  36
-#define ISF_MAX_csip_cfg                        168
+#define ISF_MAX_csip_cfg                        164
 #define ISF_MAX_csip_setarray                   36
 #define ISF_MAX_csip_issuecmd                   24
 #define ISF_MAX_realtime_vars                   12
@@ -259,7 +259,7 @@
 #define ISF_LEN_pwrdata_inv                     88
 #define ISF_LEN_pwrdata_mppt                    80
 #define ISF_LEN_csip_nameplate                  36
-#define ISF_LEN_csip_cfg                        168
+#define ISF_LEN_csip_cfg                        164
 #define ISF_LEN_csip_setarray                   36
 #define ISF_LEN_csip_issuecmd                   24
 #define ISF_LEN_realtime_vars                   12

@@ -551,7 +551,7 @@ const ot_u8 isf_stock_files[] = {
     SPLIT_LONG_LE(8),   // Time resolution
     SPLIT_LONG_LE(9),   // Source of time synchronization
 
-    /* CSIP Configuration: id=0x13, len=144, alloc=144 */
+    /* CSIP Configuration: id=0x13, len=164, alloc=164 */
     SPLIT_LONG_LE(1),   // WMax
     SPLIT_LONG_LE(2),   // WChaMax
     SPLIT_LONG_LE(3),   // VAMax
@@ -593,7 +593,6 @@ const ot_u8 isf_stock_files[] = {
     SPLIT_LONG_LE(39),
     SPLIT_LONG_LE(40),
     SPLIT_LONG_LE(41),
-    SPLIT_LONG_LE(42),
 
     /* CSIP Set Array: id=0x14, len=36, alloc=36 */
     SPLIT_LONG_LE(1),   // PairArray
