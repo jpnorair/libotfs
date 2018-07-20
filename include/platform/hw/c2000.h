@@ -35,6 +35,7 @@ extern const ot_u16 isf_stock_files[];
 
 ///@note C2000ware directory must be added to include directories
 
+#   if defined(__USE_C2000WARE__)
 //#   include <device_support/f2806x/common/include/DSP28x_Project.h>
 #   include <device_support/f2806x/common/include/F2806x_Cla_defines.h>
 #   include <device_support/f2806x/common/include/F2806x_Cla_typedefs.h>
@@ -45,7 +46,6 @@ extern const ot_u16 isf_stock_files[];
 #   include <device_support/f2806x/common/include/F2806x_GlobalPrototypes.h>
 #   include <device_support/f2806x/common/include/F2806x_I2c_defines.h>
 #   include <device_support/f2806x/common/include/F2806x_SWPrioritizedIsrLevels.h>
-
 #   include <device_support/f2806x/headers/include/F2806x_Adc.h>
 #   include <device_support/f2806x/headers/include/F2806x_BootVars.h>
 #   include <device_support/f2806x/headers/include/F2806x_Cla.h>
@@ -70,6 +70,13 @@ extern const ot_u16 isf_stock_files[];
 #   include <device_support/f2806x/headers/include/F2806x_SysCtrl.h>
 #   include <device_support/f2806x/headers/include/F2806x_Usb.h>
 #   include <device_support/f2806x/headers/include/F2806x_XIntrupt.h>
+#   endif
+
+#elif defined(__TMS320F2837x__)
+#   define MCU_PARAM_PORTS  3
+#   define FLASH_SIZE       (128*1024)
+#   define SRAM_SIZE        (8*1024)
+#   define EEPROM_SIZE      0
 
 #else
 #   warning "Unknown C2000 defined.  Defaulting to TMS320F2806x"

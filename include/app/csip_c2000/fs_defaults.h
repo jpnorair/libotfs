@@ -442,16 +442,16 @@ const ot_u16 isf_stock_files[] = {
 #endif
     /* network settings: id=0x00, len=10, alloc=10 */
     __VID,                                              /* VID */
-    JOIN_2BYTES(0x11, 0x11),                            /* Device Subnet, Beacon Subnet */
+    JOIN_2BYTES(0x01, 0x00),                            /* Device Subnet, Beacon Subnet */
     PLATFORM_ENDIAN16_C(OT_ACTIVE_SETTINGS),                    /* Active Setting */
     JOIN_2BYTES(0x00, 1),                               /* Default Device Flags, Beacon Attempts */
-    PLATFORM_ENDIAN16_C(2),                                     /* Hold Scan Sequence Cycles */
+    PLATFORM_ENDIAN16_C(0),                                     /* Hold Scan Sequence Cycles */
 
     /* device features: id=0x01, len=48, alloc=48 */
     __UID,                                              /* UID: 8 bytes*/
     PLATFORM_ENDIAN16_C(OT_SUPPORTED_SETTINGS),                 /* Supported Setting */
     JOIN_2BYTES(255, 1),                                /* Max Frame Length, Max Frames per Packet */
-    PLATFORM_ENDIAN16_C(0),                                     /* DLLS Methods */
+    PLATFORM_ENDIAN16_C(1),                                     /* DLLS Methods */
     PLATFORM_ENDIAN16_C(0),                                     /* NLS Methods */
     PLATFORM_ENDIAN16_C(ISF_TOTAL_BYTES),                       /* ISFB Total Memory */
     PLATFORM_ENDIAN16_C(ISF_TOTAL_BYTES-ISF_HEAP_BYTES),        /* ISFB Available Memory */
@@ -521,104 +521,129 @@ const ot_u16 isf_stock_files[] = {
     JOIN_2BYTES(0x08,0x09), JOIN_2BYTES(0x0A,0x0B),
     JOIN_2BYTES(0x0C,0x0D), JOIN_2BYTES(0x0E,0x0F),
 
-    /* Fault Message: id=0x10, len=0, alloc=64 */
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
+    /* Power Data for Inverter: id=0x10, len=88, alloc=88 */
+    SPLIT_LONG_LE(1),   // AC Current
+    SPLIT_LONG_LE(2),   // AC Voltage
+    SPLIT_LONG_LE(3),   // AC Frequency
+    SPLIT_LONG_LE(4),   // AC Phase
+    SPLIT_LONG_LE(5),   // Battery Capacity rating
+    SPLIT_LONG_LE(6),   // Battery SOC
+    SPLIT_LONG_LE(7),   // Battery SOH
+    SPLIT_LONG_LE(8),   // Available energy of battery
+    SPLIT_LONG_LE(9),   // Max Battery charge rate
+    SPLIT_LONG_LE(10),   // Max Batter discharge rate
+    SPLIT_LONG_LE(11),   // Battery voltage
+    SPLIT_LONG_LE(12),   // Battery temperature
+    SPLIT_LONG_LE(13),   // Active Power
+    SPLIT_LONG_LE(14),   // Reactive Power
+    SPLIT_LONG_LE(15),   // Power Factor
+    SPLIT_LONG_LE(16),   // Inverter 1 Temperature
+    SPLIT_LONG_LE(17),   // Inverter 2 Temperature
+    SPLIT_LONG_LE(18),   // DC-DC Temperature
+    SPLIT_LONG_LE(19),   // Grid Direction
+    SPLIT_LONG_LE(20),   // Solpad Operating State
+    SPLIT_LONG_LE(21),   // Time to Empty
+    SPLIT_LONG_LE(22),   // Time to Full
+    
+    /* Power Data for MPPT: id=0x11, len=80, alloc=80 */
+    SPLIT_LONG_LE(1),   // PV1 Voltage
+    SPLIT_LONG_LE(2),   // PV1 Current
+    SPLIT_LONG_LE(3),   // PV1 Temperature
+    SPLIT_LONG_LE(4),   // MPPT1 Voltage
+    SPLIT_LONG_LE(5),   // MPPT1 Current
+    SPLIT_LONG_LE(6),   // MPPT1 Temperature
+    SPLIT_LONG_LE(7),   // Fill Factor 1
+    SPLIT_LONG_LE(8),   // Efficiency 1
+    SPLIT_LONG_LE(9),   // Maximum Available Power 1
+    SPLIT_LONG_LE(10),   // PV2 Voltage
+    SPLIT_LONG_LE(11),   // PV2 Current
+    SPLIT_LONG_LE(12),   // PV2 Temperature
+    SPLIT_LONG_LE(13),   // MPPT2 Voltage
+    SPLIT_LONG_LE(14),   // MPPT2 Current
+    SPLIT_LONG_LE(15),   // MPPT2 Temperature
+    SPLIT_LONG_LE(16),   // Fill Factor 2
+    SPLIT_LONG_LE(17),   // Efficiency 2
+    SPLIT_LONG_LE(18),   // Maximum Available Power 2
+    SPLIT_LONG_LE(19),   // MPPT Temperature
+    SPLIT_LONG_LE(20),   // MPPT State
 
-    /* Monitoring Data: id=0x11, len=0, alloc=64 */
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
+    /* CSIP Nameplate Ratings: id=0x12, len=36, alloc=36 */
+    SPLIT_LONG_LE(1),   // Active Power rating
+    SPLIT_LONG_LE(2),   // Apparent Power Rating
+    SPLIT_LONG_LE(3),   // Reactive Power Rating
+    SPLIT_LONG_LE(4),   // Maximum Battery Charge Rate
+    SPLIT_LONG_LE(5),   // Maximum Battery Discharge Rate
+    SPLIT_LONG_LE(6),   // Battery Present Indicator
+    SPLIT_LONG_LE(7),   // PV present indicator
+    SPLIT_LONG_LE(8),   // Time resolution
+    SPLIT_LONG_LE(9),   // Source of time synchronization
 
-    /* Nameplate Ratings: id=0x12, len=0, alloc=64 */
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
+    /* CSIP Configuration: id=0x13, len=164, alloc=164 */
+    SPLIT_LONG_LE(1),   // WMax
+    SPLIT_LONG_LE(2),   // WChaMax
+    SPLIT_LONG_LE(3),   // VAMax
+    SPLIT_LONG_LE(4),   // VAChaMax
+    SPLIT_LONG_LE(5),   // VArMax
+    SPLIT_LONG_LE(6),   // CtlHzHiLim
+    SPLIT_LONG_LE(7),   // CtlHzLoLim
+    SPLIT_LONG_LE(8),   // VRef
+    SPLIT_LONG_LE(9),   // VRefOfs
+    SPLIT_LONG_LE(10),   // WGra
+    SPLIT_LONG_LE(11),   // WChaGra
+    SPLIT_LONG_LE(12),   // PFsign (optional)
+    SPLIT_LONG_LE(13),   // PFExt
+    SPLIT_LONG_LE(14),   // VArAct
+    SPLIT_LONG_LE(15),   // ClcTotVA (optional)
+    SPLIT_LONG_LE(16),   // WMaxLimPct
+    SPLIT_LONG_LE(17),   // VArRef
+    SPLIT_LONG_LE(18),   // VArWMaxPct
+    SPLIT_LONG_LE(19),   // VArMaxPct
+    SPLIT_LONG_LE(20),   // VArAvalPct
+    SPLIT_LONG_LE(21),   // MinRsvPct
+    SPLIT_LONG_LE(22),   // WinTms
+    SPLIT_LONG_LE(23),   // RvrtTms
+    SPLIT_LONG_LE(24),   // OpMod Bitmask
+    SPLIT_LONG_LE(25),   // Volt ride-through arrays
+    SPLIT_LONG_LE(26),   // Freq ride-through arrays
+    SPLIT_LONG_LE(27),   // Dynamic volt/var arrays
+    SPLIT_LONG_LE(28),   // RampTms
+    SPLIT_LONG_LE(29),   // RampRte
+    SPLIT_LONG_LE(30),   // NomUpRamp
+    SPLIT_LONG_LE(31),   // NomDnRamp
+    SPLIT_LONG_LE(32),   // EmgRampUpRtg
+    SPLIT_LONG_LE(33),   // ConnRampDnRtg
+    SPLIT_LONG_LE(34),   // ConnRampUpRtg
+    SPLIT_LONG_LE(35),   // RampRtePct
+    SPLIT_LONG_LE(36),   // ConnDly
+    SPLIT_LONG_LE(37),
+    SPLIT_LONG_LE(38),
+    SPLIT_LONG_LE(39),
+    SPLIT_LONG_LE(40),
+    SPLIT_LONG_LE(41),
 
-    /* Adjusted Settings: id=0x13, len=0, alloc=64 */
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
+    /* CSIP Set Array: id=0x14, len=36, alloc=36 */
+    SPLIT_LONG_LE(1),   // PairArray
+    SPLIT_LONG_LE(2),   // IndpUnits
+    SPLIT_LONG_LE(3),   // DeptRef
+    SPLIT_LONG_LE(4),   // RmpPT1Tms
+    SPLIT_LONG_LE(5),   // RmpDecTmm
+    SPLIT_LONG_LE(6),   // RmpIncTmm
+    SPLIT_LONG_LE(7),   // RmpRsUp
+    SPLIT_LONG_LE(8),   // DeptRefStr
+    SPLIT_LONG_LE(9),   // DeptRefStop
+    
+    /* CSIP Issue Command: id=0x15, len=24, alloc=24 */
+    SPLIT_LONG_LE(1),   // InCurve
+    SPLIT_LONG_LE(2),   // ModEna
+    SPLIT_LONG_LE(3),   // ModType
+    SPLIT_LONG_LE(4),   // WinTm
+    SPLIT_LONG_LE(5),   // RvrtTms
+    SPLIT_LONG_LE(6),   // RmpTms
 
-    /* Alarms: id=0x14, len=0, alloc=4 */
-    _ERS16, _ERS16,
-
-    /* Operational Curve for Volt/VAR: id=0x15, len=0, alloc=208 */
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-
-    /* Operational Curve for Freq/Watt: id=0x16, len=0, alloc=208 */
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
+    /* Real-Time Variables for Volt/VAR: id=0x16, len=12, alloc=12 */
+    SPLIT_LONG_LE(1),   // Time: Epoch Seconds since 01/01/1970
+    SPLIT_LONG_LE(2),   // Time: Fractional Seconds
+    SPLIT_LONG_LE(3),   // ModType
 
     /* Application Extension: id=0xFF, len=0, alloc=64 */
     _ERS16, _ERS16, _ERS16, _ERS16,
