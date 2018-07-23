@@ -343,6 +343,15 @@ const ot_u8 overhead_files[] = {
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
+    ISF_LEN(user_data), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(user_data)),
+    ISF_ID(user_data),
+    ISF_MOD(user_data),
+    SPLIT_SHORT_LE(ISF_BASE(user_data)),
+    SPLIT_SHORT_LE(ISF_MIRROR(user_data)),
+    FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
+
     ISF_LEN(application_extension), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(application_extension)),
     ISF_ID(application_extension),
@@ -617,6 +626,16 @@ const ot_u8 isf_stock_files[] = {
     SPLIT_LONG_LE(1),   // Time: Epoch Seconds since 01/01/1970
     SPLIT_LONG_LE(2),   // Time: Fractional Seconds
     SPLIT_LONG_LE(3),   // ModType
+
+    /* User Data: id=0xFE, len=0, alloc=64 */
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
+    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
 
     /* Application Extension: id=0xFF, len=0, alloc=64 */
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
