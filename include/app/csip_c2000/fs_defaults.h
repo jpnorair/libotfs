@@ -298,71 +298,71 @@ const ot_u16 overhead_files[] = {
     FILE_MODTIME(0),
 #	endif
 
-    JOIN_2BYTES(ISF_LEN(pv_config), 0x00),
-    (ISF_ALLOC(pv_config)),
-    JOIN_2BYTES(ISF_ID(pv_config), ISF_MOD(pv_config)),
-    (ISF_BASE(pv_config)),
-    (ISF_MIRROR(pv_config)),
+    JOIN_2BYTES(ISF_LEN(pwrdata_inv), 0x00),
+    (ISF_ALLOC(pwrdata_inv)),
+    JOIN_2BYTES(ISF_ID(pwrdata_inv), ISF_MOD(pwrdata_inv)),
+    (ISF_BASE(pwrdata_inv)),
+    (ISF_MIRROR(pwrdata_inv)),
     FILE_ACTIONCODE(0,0),
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
 
-    JOIN_2BYTES(ISF_LEN(pv_fault_config), 0x00),
-    (ISF_ALLOC(pv_fault_config)),
-    JOIN_2BYTES(ISF_ID(pv_fault_config), ISF_MOD(pv_fault_config)),
-    (ISF_BASE(pv_fault_config)),
-    (ISF_MIRROR(pv_fault_config)),
+    JOIN_2BYTES(ISF_LEN(pwrdata_mppt), 0x00),
+    (ISF_ALLOC(pwrdata_mppt)),
+    JOIN_2BYTES(ISF_ID(pwrdata_mppt), ISF_MOD(pwrdata_mppt)),
+    (ISF_BASE(pwrdata_mppt)),
+    (ISF_MIRROR(pwrdata_mppt)),
     FILE_ACTIONCODE(0,0),
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
 
-    JOIN_2BYTES(ISF_LEN(nameplate_ratings), 0x00),
-    (ISF_ALLOC(nameplate_ratings)),
-    JOIN_2BYTES(ISF_ID(nameplate_ratings), ISF_MOD(nameplate_ratings)),
-    (ISF_BASE(nameplate_ratings)),
-    (ISF_MIRROR(nameplate_ratings)),
+    JOIN_2BYTES(ISF_LEN(csip_nameplate), 0x00),
+    (ISF_ALLOC(csip_nameplate)),
+    JOIN_2BYTES(ISF_ID(csip_nameplate), ISF_MOD(csip_nameplate)),
+    (ISF_BASE(csip_nameplate)),
+    (ISF_MIRROR(csip_nameplate)),
     FILE_ACTIONCODE(0,0),
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
 
-    JOIN_2BYTES(ISF_LEN(adjusted_settings), 0x00),
-    (ISF_ALLOC(adjusted_settings)),
-    JOIN_2BYTES(ISF_ID(adjusted_settings), ISF_MOD(adjusted_settings)),
-    (ISF_BASE(adjusted_settings)),
-    (ISF_MIRROR(adjusted_settings)),
+    JOIN_2BYTES(ISF_LEN(csip_cfg), 0x00),
+    (ISF_ALLOC(csip_cfg)),
+    JOIN_2BYTES(ISF_ID(csip_cfg), ISF_MOD(csip_cfg)),
+    (ISF_BASE(csip_cfg)),
+    (ISF_MIRROR(csip_cfg)),
     FILE_ACTIONCODE(0,0),
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
 
-    JOIN_2BYTES(ISF_LEN(alarms), 0x00),
-    (ISF_ALLOC(alarms)),
-    JOIN_2BYTES(ISF_ID(alarms), ISF_MOD(alarms)),
-    (ISF_BASE(alarms)),
-    (ISF_MIRROR(alarms)),
+    JOIN_2BYTES(ISF_LEN(csip_setarray), 0x00),
+    (ISF_ALLOC(csip_setarray)),
+    JOIN_2BYTES(ISF_ID(csip_setarray), ISF_MOD(csip_setarray)),
+    (ISF_BASE(csip_setarray)),
+    (ISF_MIRROR(csip_setarray)),
     FILE_ACTIONCODE(0,0),
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
 
-    JOIN_2BYTES(ISF_LEN(opcurve_voltvar), 0x00),
-    (ISF_ALLOC(opcurve_voltvar)),
-    JOIN_2BYTES(ISF_ID(opcurve_voltvar), ISF_MOD(opcurve_voltvar)),
-    (ISF_BASE(opcurve_voltvar)),
-    (ISF_MIRROR(opcurve_voltvar)),
+    JOIN_2BYTES(ISF_LEN(csip_issuecmd), 0x00),
+    (ISF_ALLOC(csip_issuecmd)),
+    JOIN_2BYTES(ISF_ID(csip_issuecmd), ISF_MOD(csip_issuecmd)),
+    (ISF_BASE(csip_issuecmd)),
+    (ISF_MIRROR(csip_issuecmd)),
     FILE_ACTIONCODE(0,0),
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
 
-    JOIN_2BYTES(ISF_LEN(opcurve_freqwatt), 0x00),
-    (ISF_ALLOC(opcurve_freqwatt)),
-    JOIN_2BYTES(ISF_ID(opcurve_freqwatt), ISF_MOD(opcurve_freqwatt)),
-    (ISF_BASE(opcurve_freqwatt)),
-    (ISF_MIRROR(opcurve_freqwatt)),
+    JOIN_2BYTES(ISF_LEN(realtime_vars), 0x00),
+    (ISF_ALLOC(realtime_vars)),
+    JOIN_2BYTES(ISF_ID(realtime_vars), ISF_MOD(realtime_vars)),
+    (ISF_BASE(realtime_vars)),
+    (ISF_MIRROR(realtime_vars)),
     FILE_ACTIONCODE(0,0),
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
