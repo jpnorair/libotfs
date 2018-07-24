@@ -161,6 +161,12 @@
 /// X:          data is executable (a program)                      <BR>
 /// 1st rwx:    read/write/exec for user                            <BR>
 /// 2nd rwx:    read/write/exec for guest
+#ifdef __DEBUG__
+#   define _DEBUG_FILEMOD  b00110110
+#else
+#   define _DEBUG_FILEMOD  0
+#endif
+
 #define ISF_MOD(VAL)                            ISF_MOD_##VAL
 #define ISF_MOD_file_standard                   b00000000
 #define ISF_MOD_network_settings                b00110100
@@ -180,15 +186,17 @@
 #define ISF_MOD_root_authentication_key         b00000000
 #define ISF_MOD_user_authentication_key         b00110000
 // OTFS CSIP FILES -----------------------------------------------------
-#define ISF_MOD_pwrdata_inv                 	b00100100
-#define ISF_MOD_pwrdata_mppt                    b00100100
-#define ISF_MOD_csip_nameplate                  b00110100
-#define ISF_MOD_csip_cfg                        b00110000
-#define ISF_MOD_csip_setarray                   b00110000
-#define ISF_MOD_csip_issuecmd                   b00110000
-#define ISF_MOD_realtime_vars                   b00010000
+#define ISF_MOD_pwrdata_inv                 	(b00100100 | _DEBUG_FILEMOD)
+#define ISF_MOD_pwrdata_mppt                    (b00100100 | _DEBUG_FILEMOD)
+#define ISF_MOD_csip_nameplate                  (b00110100 | _DEBUG_FILEMOD)
+#define ISF_MOD_csip_cfg                        (b00110000 | _DEBUG_FILEMOD)
+#define ISF_MOD_csip_setarray                   (b00110000 | _DEBUG_FILEMOD)
+#define ISF_MOD_csip_issuecmd                   (b00110000 | _DEBUG_FILEMOD)
+#define ISF_MOD_realtime_vars                   (b00010000 | _DEBUG_FILEMOD)
 // OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_MOD_application_extension           b00100100
+
+#undef _DEBUG_FILEMOD
 
 
 /// Stock ISF file max data lengths (not aligned, just max)
