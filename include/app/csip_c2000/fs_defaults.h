@@ -368,16 +368,6 @@ const ot_u16 overhead_files[] = {
     FILE_MODTIME(0),
 #	endif
 
-    JOIN_2BYTES(ISF_LEN(user_data), 0x00),
-    (ISF_ALLOC(user_data)),
-    JOIN_2BYTES(ISF_ID(user_data), ISF_MOD(user_data)),
-    (ISF_BASE(user_data)),
-    (ISF_MIRROR(user_data)),
-    FILE_ACTIONCODE(0,0),
-#	if (OT_FEATURE(VLMODTIME) == ENABLED)
-    FILE_MODTIME(0),
-#	endif
-
     JOIN_2BYTES(ISF_LEN(application_extension), 0x00),
     (ISF_ALLOC(application_extension)),
     JOIN_2BYTES(ISF_ID(application_extension), ISF_MOD(application_extension)),
@@ -654,16 +644,6 @@ const ot_u16 isf_stock_files[] = {
     SPLIT_LONG_LE(1),   // Time: Epoch Seconds since 01/01/1970
     SPLIT_LONG_LE(2),   // Time: Fractional Seconds
     SPLIT_LONG_LE(3),   // ModType
-
-    /* User Data: id=0xFE, len=0, alloc=64 */
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
-    _ERS16, _ERS16, _ERS16, _ERS16,
 
     /* Application Extension: id=0xFF, len=0, alloc=64 */
     _ERS16, _ERS16, _ERS16, _ERS16,

@@ -627,16 +627,6 @@ const ot_u8 isf_stock_files[] = {
     SPLIT_LONG_LE(2),   // Time: Fractional Seconds
     SPLIT_LONG_LE(3),   // ModType
 
-    /* User Data: id=0xFE, len=0, alloc=64 */
-    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
-    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
-    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
-    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
-    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
-    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
-    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
-    _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
-
     /* Application Extension: id=0xFF, len=0, alloc=64 */
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
     _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS, _ERS,
