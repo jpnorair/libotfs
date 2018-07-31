@@ -343,15 +343,6 @@ const ot_u8 overhead_files[] = {
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
 
-    ISF_LEN(user_data), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(user_data)),
-    ISF_ID(user_data),
-    ISF_MOD(user_data),
-    SPLIT_SHORT_LE(ISF_BASE(user_data)),
-    SPLIT_SHORT_LE(ISF_MIRROR(user_data)),
-    FILE_ACTIONCODE(0,0),
-    FILE_MODTIME(0),
-
     ISF_LEN(application_extension), 0x00,
     SPLIT_SHORT_LE(ISF_ALLOC(application_extension)),
     ISF_ID(application_extension),
