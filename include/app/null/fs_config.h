@@ -197,6 +197,7 @@
 #define ISF_ID_table_query_size                 0x14
 #define ISF_ID_table_query_results              0x15
 #define ISF_ID_hardware_fault_status            0x16
+#define ISF_ID_user_data                        0xFE
 #define ISF_ID_application_extension            0xFF
 
 /// ISF Mirror Enabling: <BR>
@@ -227,6 +228,7 @@
 #define ISF_ENMIRROR_table_query_size           __SET_MIRROR(0)
 #define ISF_ENMIRROR_table_query_results        __SET_MIRROR(0)
 #define ISF_ENMIRROR_hardware_fault_status      __SET_MIRROR(0)
+#define ISF_ENMIRROR_user_data                  __SET_MIRROR(1)
 #define ISF_ENMIRROR_application_extension      __SET_MIRROR(1)
 
 
@@ -262,6 +264,7 @@
 #define ISF_MOD_table_query_size                b00100100
 #define ISF_MOD_table_query_results             b00100100
 #define ISF_MOD_hardware_fault_status           b00100100
+#define ISF_MOD_user_data                       b00100100
 #define ISF_MOD_application_extension           b00100100
 
 /// ISF file default length:
@@ -290,6 +293,7 @@
 #define ISF_LEN_table_query_size                0
 #define ISF_LEN_table_query_results             0
 #define ISF_LEN_hardware_fault_status           0
+#define ISF_LEN_user_data                       0
 #define ISF_LEN_application_extension           0
 
 /// Stock ISF file max data lengths (not aligned, just max)
@@ -318,6 +322,7 @@
 #define ISF_MAX_table_query_size                0
 #define ISF_MAX_table_query_results             0
 #define ISF_MAX_hardware_fault_status           0
+#define ISF_MAX_user_data                       64
 #define ISF_MAX_application_extension           64
 
 
@@ -355,7 +360,8 @@
 #   define ISF_BASE_table_query_size            (ISF_BASE_memory_size+ISF_ALLOC(memory_size))
 #   define ISF_BASE_table_query_results         (ISF_BASE_table_query_size+ISF_ALLOC(table_query_size))
 #   define ISF_BASE_hardware_fault_status       (ISF_BASE_table_query_results+ISF_ALLOC(table_query_results))
-#   define ISF_BASE_application_extension       (ISF_BASE_hardware_fault_status+ISF_ALLOC(hardware_fault_status))
+#   define ISF_BASE_user_data                   (ISF_BASE_hardware_fault_status+ISF_ALLOC(hardware_fault_status))
+#   define ISF_BASE_application_extension       (ISF_BASE_user_data+ISF_ALLOC(user_data))
 #   define ISF_BASE_NEXT                        (ISF_BASE_application_extension+ISF_ALLOC(application_extension ))
 
 #else
@@ -382,7 +388,8 @@
 #   define ISF_BASE_table_query_size            (ISF_BASE_memory_size+ISF_ALLOC(memory_size))
 #   define ISF_BASE_table_query_results         (ISF_BASE_table_query_size+ISF_ALLOC(table_query_size))
 #   define ISF_BASE_hardware_fault_status       (ISF_BASE_table_query_results+ISF_ALLOC(table_query_results))
-#   define ISF_BASE_application_extension       (ISF_BASE_hardware_fault_status+ISF_ALLOC(hardware_fault_status))
+#   define ISF_BASE_user_data                   (ISF_BASE_hardware_fault_status+ISF_ALLOC(hardware_fault_status))
+#   define ISF_BASE_application_extension       (ISF_BASE_user_data+ISF_ALLOC(user_data))
 #   define ISF_BASE_NEXT                        (ISF_BASE_application_extension+ISF_ALLOC(application_extension))
 #endif
 
@@ -412,7 +419,8 @@
 #define ISF_MIRROR_table_query_size             (ISF_MIRROR_memory_size+ISF_MIRALLOC(memory_size))
 #define ISF_MIRROR_table_query_results          (ISF_MIRROR_table_query_size+ISF_MIRALLOC(table_query_size))
 #define ISF_MIRROR_hardware_fault_status        (ISF_MIRROR_table_query_results+ISF_MIRALLOC(table_query_results))
-#define ISF_MIRROR_application_extension        (ISF_MIRROR_hardware_fault_status+ISF_MIRALLOC(hardware_fault_status))
+#define ISF_MIRROR_user_data                    (ISF_MIRROR_hardware_fault_status+ISF_MIRALLOC(hardware_fault_status))
+#define ISF_MIRROR_application_extension        (ISF_MIRROR_user_data+ISF_MIRALLOC(hardware_user_data))
 #define ISF_MIRROR_NEXT                         (ISF_MIRROR_application_extension+ISF_MIRALLOC(application_extension))
 
 
@@ -441,14 +449,12 @@
     ISF_ALLOC(table_query_size) + \
     ISF_ALLOC(table_query_results) + \
     ISF_ALLOC(hardware_fault_status) + \
+    ISF_ALLOC(user_data) + \
     ISF_ALLOC(application_extension) \
 )
 
 /// Total amount of stock ISF data stored exclusively in mirror
 #define ISF_MIRROR_STOCK_BYTES   0
-//#define ISF_MIRROR_STOCK_BYTES   ( \
-//    ISF_ALLOC()
-//)
 
 /// Total amount of stock ISF data stored in ROM
 #define ISF_VWORM_STOCK_BYTES   (ISF_STOCK_BYTES - ISF_MIRROR_STOCK_BYTES)
