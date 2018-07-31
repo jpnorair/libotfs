@@ -705,11 +705,11 @@ static ot_bool sub_ismask(const id_tmpl* user_id, authmod_t authmask) {
 }
 
 ot_bool auth_isroot(const id_tmpl* user_id) {
-    return sub_ismask(user_id, AUTHMOD_root);
+    return sub_ismask(user_id, b00000000);
 }
 
 ot_bool auth_isuser(const id_tmpl* user_id) {
-return sub_ismask(user_id, AUTHMOD_user);
+return sub_ismask(user_id, b00111000);
 }
 
 
@@ -718,18 +718,32 @@ ot_u8 auth_check(ot_u8 req_mod, ot_u8 rw_mod, const id_tmpl* user_id) {
 /// Find the ID in the table, then mask the user's mod with the file's mod
 /// and the mod from the request (i.e. read, write).
 #if (_SEC_ANY)
+    ot_int user_type;
     ot_u8 test          = (req_mod & rw_mod);
     ot_u8 guest_test    = test & 0x07;
 
     if (guest_test) {
         return guest_test;
     }
-    if (auth_search_user(user_id, req_mod) >= 0) {
-        return test;
-    }
-    return 0;
-#else
 
+    user_type = auth_search_user(user_id, req_mod);
+    if (user_type >= 0) {
+#   if (AUTH_NUM_ELEMENTS >= 0)
+        if (user_type < dlls_size) {
+            if (dlls_info[user_type].mflags == AUTHMOD_root) {
+                return rw_mod;
+            }
+        }
+        return test;
+
+#   elif (AUTH_NUM_ELEMENTS < 0)
+    ///@todo implement this
+#   endif
+    }
+
+    return 0;
+
+#else
     // Try guest access
     return (0x07 & req_mod & rw_mod);
 #endif
@@ -782,7 +796,7 @@ ot_u8 auth_find_keyindex(ot_uint* key_index, const id_tmpl* user_id) {
         return 1;
     }
     
-    index = auth_search_user(user_id, AUTHMOD_user);
+    index = auth_search_user(user_id, b00111000);
     if (index < 0) {
         return 255;
     }
