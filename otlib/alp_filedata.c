@@ -278,11 +278,13 @@ ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 
         ot_u8   err_code;
         ot_u8   file_id;
         ot_u16  limit;
+        ot_long lim_check;
 
         file_id     = q_readbyte(inq);
         offset      = q_readshort(inq);
         span        = q_readshort(inq);
-        limit       = offset + span;
+        lim_check   = (ot_long)offset + (ot_long)span;
+        limit       = (lim_check > 65535) ? 65535 : (ot_u16)lim_check;
         err_code    = vl_getheader_vaddr(&header, file_block, file_id, file_mod, user_id);
         file_mod    = ((file_mod & VL_ACCESS_W) != 0);
         
