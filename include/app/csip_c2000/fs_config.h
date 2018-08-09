@@ -196,8 +196,6 @@
 // OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_MOD_application_extension           b00100100
 
-#undef _DEBUG_FILEMOD
-
 
 /// Stock ISF file max data lengths (not aligned, just max)
 #define ISF_MAX(VAL)                            ISF_MAX_##VAL
