@@ -60,7 +60,8 @@
 #   include <app/csip_slave/build_config.h>
 #   include <app/csip_slave/extf_config.h>
 
-#elif defined(APP_csip_c2000)
+// Default C2000 APP
+#elif defined(APP_csip_c2000) || defined(__C2000__)
 #   include <app/csip_c2000/app_config.h>
 #   include <app/csip_c2000/board_config.h>
 #   include <app/csip_c2000/build_config.h>
