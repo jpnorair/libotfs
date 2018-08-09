@@ -38,10 +38,11 @@
 #elif defined(APP_csip_slave)
 #   include <app/csip_slave/fs_defaults.h>
 
-#elif defined(APP_csip_c2000)
+// Default APP for C2000
+#elif defined(APP_csip_c2000) || defined(__C2000__)
 #   include <app/csip_c2000/fs_defaults.h>
 
-// Default APP is NULL
+// Default APP for other conditions
 #else
 #   include <app/null/fs_defaults.h>
 
