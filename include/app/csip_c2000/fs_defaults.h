@@ -622,15 +622,26 @@ const ot_u16 isf_stock_files[] = {
     SPLIT_LONG_LE(41),
 
     /* CSIP Set Array: id=0x14, len=36, alloc=36 */
-    SPLIT_LONG_LE(1),   // PairArray
-    SPLIT_LONG_LE(2),   // IndpUnits
-    SPLIT_LONG_LE(3),   // DeptRef
-    SPLIT_LONG_LE(4),   // RmpPT1Tms
-    SPLIT_LONG_LE(5),   // RmpDecTmm
-    SPLIT_LONG_LE(6),   // RmpIncTmm
-    SPLIT_LONG_LE(7),   // RmpRsUp
-    SPLIT_LONG_LE(8),   // DeptRefStr
-    SPLIT_LONG_LE(9),   // DeptRefStop
+    SPLIT_LONG_LE(0),   // PairArray x0
+    SPLIT_LONG_LE(0),   // PairArray y0
+    SPLIT_LONG_LE(1),   // PairArray x1
+    SPLIT_LONG_LE(1),   // PairArray y1
+    SPLIT_LONG_LE(2),   // PairArray x2
+    SPLIT_LONG_LE(2),   // PairArray y2
+    SPLIT_LONG_LE(3),   // PairArray x3
+    SPLIT_LONG_LE(3),   // PairArray y3
+    SPLIT_LONG_LE(4),   // PairArray x4
+    SPLIT_LONG_LE(4),   // PairArray y4
+    SPLIT_LONG_LE(5),   // PairArray x5
+    SPLIT_LONG_LE(5),   // PairArray y5
+    SPLIT_LONG_LE(48),   // IndpUnits
+    SPLIT_LONG_LE(52),   // DeptRef
+    SPLIT_LONG_LE(56),   // RmpPT1Tms
+    SPLIT_LONG_LE(60),   // RmpDecTmm
+    SPLIT_LONG_LE(64),   // RmpIncTmm
+    SPLIT_LONG_LE(68),   // RmpRsUp
+    SPLIT_LONG_LE(72),   // DeptRefStr
+    SPLIT_LONG_LE(76),   // DeptRefStop
     
     /* CSIP Issue Command: id=0x15, len=24, alloc=24 */
     SPLIT_LONG_LE(1),   // InCurve
