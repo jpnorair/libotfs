@@ -88,7 +88,7 @@
  */
 
 #define ISF_OTFS_FILES      16
-#define ISF_CSIP_FILES      7
+#define ISF_CSIP_FILES      8
 #define ISF_APPEXT_FILES    1
 
 #define ISF_ID(VAL)                             ISF_ID_##VAL
@@ -116,7 +116,8 @@
 #define ISF_ID_csip_cfg                         0x13
 #define ISF_ID_csip_setarray                    0x14
 #define ISF_ID_csip_issuecmd                    0x15
-#define ISF_ID_realtime_vars                    0x16
+#define ISF_ID_csip_operations                  0x16
+#define ISF_ID_csip_issuecontrol                0x17
 // OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_ID_application_extension            0xFF
 
@@ -129,7 +130,7 @@
 #define ISF_ENMIRROR_network_settings           __SET_MIRROR(1)
 #define ISF_ENMIRROR_device_features            __SET_MIRROR(1)
 #define ISF_ENMIRROR_channel_configuration      __SET_MIRROR(0)
-#define ISF_ENMIRROR_real_time_scheduler        __SET_MIRROR(0)
+#define ISF_ENMIRROR_real_time_scheduler        __SET_MIRROR(1)
 #define ISF_ENMIRROR_hold_scan_sequence         __SET_MIRROR(0)
 #define ISF_ENMIRROR_sleep_scan_sequence        __SET_MIRROR(0)
 #define ISF_ENMIRROR_beacon_transmit_sequence   __SET_MIRROR(0)
@@ -149,7 +150,8 @@
 #define ISF_ENMIRROR_csip_cfg                   __SET_MIRROR(1)
 #define ISF_ENMIRROR_csip_setarray              __SET_MIRROR(1)
 #define ISF_ENMIRROR_csip_issuecmd              __SET_MIRROR(1)
-#define ISF_ENMIRROR_realtime_vars              __SET_MIRROR(1)
+#define ISF_ENMIRROR_operations                 __SET_MIRROR(1)
+#define ISF_ENMIRROR_issuecontrol               __SET_MIRROR(1)
 // OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_ENMIRROR_application_extension      __SET_MIRROR(1)
 
@@ -192,7 +194,8 @@
 #define ISF_MOD_csip_cfg                        (b00110000 | _DEBUG_FILEMOD)
 #define ISF_MOD_csip_setarray                   (b00110000 | _DEBUG_FILEMOD)
 #define ISF_MOD_csip_issuecmd                   (b00110000 | _DEBUG_FILEMOD)
-#define ISF_MOD_realtime_vars                   (b00010000 | _DEBUG_FILEMOD)
+#define ISF_MOD_csip_operations                 (b00010000 | _DEBUG_FILEMOD)
+#define ISF_MOD_csip_issuecontrol               (b00110000 | _DEBUG_FILEMOD)
 // OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_MOD_application_extension           b00100100
 
@@ -203,7 +206,7 @@
 #define ISF_MAX_network_settings                10
 #define ISF_MAX_device_features                 48
 #define ISF_MAX_channel_configuration           0
-#define ISF_MAX_real_time_scheduler             0
+#define ISF_MAX_real_time_scheduler             12
 #define ISF_MAX_hold_scan_sequence              0
 #define ISF_MAX_sleep_scan_sequence             0
 #define ISF_MAX_beacon_transmit_sequence        0
@@ -222,7 +225,8 @@
 #define ISF_MAX_csip_cfg                        164
 #define ISF_MAX_csip_setarray                   80
 #define ISF_MAX_csip_issuecmd                   24
-#define ISF_MAX_realtime_vars                   12
+#define ISF_MAX_csip_operations                 16
+#define ISF_MAX_csip_issuecontrol               4
 #define ISF_MAX_application_extension           64
 
 
@@ -232,7 +236,7 @@
 #define ISF_LEN_network_settings                10
 #define ISF_LEN_device_features                 48
 #define ISF_LEN_channel_configuration           0
-#define ISF_LEN_real_time_scheduler             0
+#define ISF_LEN_real_time_scheduler             12
 #define ISF_LEN_hold_scan_sequence              0
 #define ISF_LEN_sleep_scan_sequence             0
 #define ISF_LEN_beacon_transmit_sequence        0
@@ -251,7 +255,8 @@
 #define ISF_LEN_csip_cfg                        164
 #define ISF_LEN_csip_setarray                   80
 #define ISF_LEN_csip_issuecmd                   24
-#define ISF_LEN_realtime_vars                   12
+#define ISF_LEN_csip_operations                 16
+#define ISF_LEN_csip_issuecontrol               4
 #define ISF_LEN_application_extension           0
 
 /** ========================================================================<BR>
@@ -291,7 +296,8 @@
     ISF_ALLOC(csip_cfg) + \
     ISF_ALLOC(csip_setarray) + \
     ISF_ALLOC(csip_issuecmd) + \
-    ISF_ALLOC(realtime_vars) + \
+    ISF_ALLOC(csip_operations) + \
+    ISF_ALLOC(csip_issuecontrol) + \
     ISF_ALLOC(application_extension) + \
     0 \
 )
@@ -427,8 +433,9 @@
 #   define ISF_BASE_csip_cfg                    (ISF_BASE_csip_nameplate+ISF_ALLOC(csip_nameplate))
 #   define ISF_BASE_csip_setarray               (ISF_BASE_csip_cfg+ISF_ALLOC(csip_cfg))
 #   define ISF_BASE_csip_issuecmd               (ISF_BASE_csip_setarray+ISF_ALLOC(csip_setarray))
-#   define ISF_BASE_realtime_vars               (ISF_BASE_csip_issuecmd+ISF_ALLOC(csip_issuecmd))
-#   define ISF_BASE_application_extension       (ISF_BASE_realtime_vars+ISF_ALLOC(realtime_vars))
+#   define ISF_BASE_csip_operations             (ISF_BASE_csip_issuecmd+ISF_ALLOC(csip_issuecmd))
+#   define ISF_BASE_csip_issuecontrol           (ISF_BASE_csip_operations+ISF_ALLOC(csip_operations))
+#   define ISF_BASE_application_extension       (ISF_BASE_csip_issuecontrol+ISF_ALLOC(csip_issuecontrol))
 #   define ISF_BASE_NEXT                        (ISF_BASE_application_extension+ISF_ALLOC(application_extension ))
 
 #else
@@ -454,8 +461,9 @@
 #   define ISF_BASE_csip_cfg                    (ISF_BASE_csip_nameplate+ISF_ALLOC(csip_nameplate))
 #   define ISF_BASE_csip_setarray               (ISF_BASE_csip_cfg+ISF_ALLOC(csip_cfg))
 #   define ISF_BASE_csip_issuecmd               (ISF_BASE_csip_setarray+ISF_ALLOC(csip_setarray))
-#   define ISF_BASE_realtime_vars               (ISF_BASE_csip_issuecmd+ISF_ALLOC(csip_issuecmd))
-#   define ISF_BASE_application_extension       (ISF_BASE_realtime_vars+ISF_ALLOC(realtime_vars))
+#   define ISF_BASE_csip_operations             (ISF_BASE_csip_issuecmd+ISF_ALLOC(csip_issuecmd))
+#   define ISF_BASE_csip_issuecontrol           (ISF_BASE_csip_operations+ISF_ALLOC(csip_operations))
+#   define ISF_BASE_application_extension       (ISF_BASE_csip_issuecontrol+ISF_ALLOC(csip_issuecontrol))
 #   define ISF_BASE_NEXT                        (ISF_BASE_application_extension+ISF_ALLOC(application_extension))
 #endif
 
@@ -483,8 +491,9 @@
 #define ISF_MIRROR_csip_cfg                     (ISF_MIRROR_csip_nameplate+ISF_MIRALLOC(csip_nameplate))
 #define ISF_MIRROR_csip_setarray                (ISF_MIRROR_csip_cfg+ISF_MIRALLOC(csip_cfg))
 #define ISF_MIRROR_csip_issuecmd                (ISF_MIRROR_csip_setarray+ISF_MIRALLOC(csip_setarray))
-#define ISF_MIRROR_realtime_vars                (ISF_MIRROR_csip_issuecmd+ISF_MIRALLOC(csip_issuecmd))
-#define ISF_MIRROR_application_extension        (ISF_MIRROR_realtime_vars+ISF_MIRALLOC(realtime_vars))
+#define ISF_MIRROR_csip_operations              (ISF_MIRROR_csip_issuecmd+ISF_MIRALLOC(csip_issuecmd))
+#define ISF_MIRROR_csip_issuecontrol            (ISF_MIRROR_csip_issuecontrol+ISF_MIRALLOC(csip_issuecontrol))
+#define ISF_MIRROR_application_extension        (ISF_MIRROR_csip_issuecontrol+ISF_MIRALLOC(csip_issuecontrol))
 #define ISF_MIRROR_NEXT                         (ISF_MIRROR_application_extension+ISF_MIRALLOC(application_extension))
 
 

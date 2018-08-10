@@ -471,7 +471,10 @@ const ot_u16 isf_stock_files[] = {
 
     /* channel configuration: id=0x02, len=0, alloc=0 */
 
-    /* real time scheduler: id=0x03, len=0, alloc=0 */
+    /* real time scheduler: id=0x03, len=12, alloc=12 */
+    SPLIT_LONG_LE(0),   // Time: Epoch Seconds since 01/01/1970
+    SPLIT_LONG_LE(0),   // Time: Fractional Seconds
+    SPLIT_LONG_LE(0),   // ModType
 
     /* hold scan periods: id=0x04, len=0, alloc=0 */
     /* Period data format in Section X.9.4.5 of Mode 2 spec */
@@ -651,10 +654,14 @@ const ot_u16 isf_stock_files[] = {
     SPLIT_LONG_LE(5),   // RvrtTms
     SPLIT_LONG_LE(6),   // RmpTms
 
-    /* Real-Time Variables for Volt/VAR: id=0x16, len=12, alloc=12 */
-    SPLIT_LONG_LE(1),   // Time: Epoch Seconds since 01/01/1970
-    SPLIT_LONG_LE(2),   // Time: Fractional Seconds
-    SPLIT_LONG_LE(3),   // ModType
+    /* CSIP Operations: id=0x16, len=16, alloc=16 */
+    SPLIT_LONG_LE(1),   // Time value in Seconds
+    SPLIT_LONG_LE(2),   // Time value in Seconds
+    SPLIT_LONG_LE(3),   // Time value in Seconds
+    SPLIT_LONG_LE(4),   // Bit value
+    
+    /* CSIP Issue Control: id=0x17, len=4, alloc=4 */
+    SPLIT_LONG_LE(1),   // I/O Register
 
     /* Application Extension: id=0xFF, len=0, alloc=64 */
     _ERS16, _ERS16, _ERS16, _ERS16,
