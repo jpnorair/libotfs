@@ -325,17 +325,23 @@ OT_WEAK ot_int vl_add_action(vlBLOCK block_id, ot_u8 data_id, ot_u8 condition, o
             }
         }
     
-        ///@todo make work for C2000
         if (select >= 0) {
+#       if !defined(__C2000__)
             ot_uni16 actioncode;
-            
-            vlaction[select]        = action;
-            vlaction_users[select] += 1;
-            
             actioncode.ubyte[0]     = condition;
             actioncode.ubyte[1]     = select;
-            
+            vlaction[select]        = action;
+            vlaction_users[select] += 1;
             vworm_write(header+10, actioncode.ushort);
+            
+#       else
+            ot_u16 actioncode;
+            __byte((int*)&actioncode, 0)    = condition;
+            __byte((int*)&actioncode, 1)    = select;
+            vlaction[select]                = action;
+            vlaction_users[select]         += 1;
+            vworm_write(header+10, actioncode);
+#       endif
         }
     }
     

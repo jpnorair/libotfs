@@ -231,6 +231,40 @@ int test_veelite_memptr(void) {
 
 
 
+
+void sub_fileaction(void* handle) {
+    vlFILE* fp = (vlFILE*)handle;
+    printf("sub_fileaction() called\n");
+    printf(" --> fp->header = %d\n", fp->header);
+    printf(" --> fp->start  = %d\n", fp->start);
+    printf(" --> fp->alloc  = %d\n", fp->alloc);
+    printf(" --> fp->idmod  = %04X\n", fp->idmod);
+    printf(" --> fp->length = %d\n", fp->length);
+    printf(" --> fp->flags  = %04X\n", fp->flags);
+}
+
+int test_veelite_actions(void) {
+    ot_int rc;
+    uint8_t id;
+    vlFILE* fp;
+    ot_u16 test;
+    
+    vl_init(NULL);
+    
+    rc = vl_add_action(VL_ISF_BLOCKID, 0, VL_FLAG_MODDED, &sub_fileaction);
+    
+    fp = ISF_open_su(0);
+    test = vl_read(fp, 0);
+    vl_write(fp, 0, test+1);
+    vl_close(fp);
+    
+    return 0;
+}
+
+
+
+
+
 void sub_hexdump(void* base, size_t bytes, size_t cols) {
     uint8_t* a = (uint8_t*)base;
     
@@ -306,6 +340,12 @@ int main(void) {
     printf("STARTING Memptr test\n");
     test_veelite_memptr();
     printf("ENDING Memptr test\n\n");
+    
+    printf("STARTING VL-Actions test\n");
+    test_veelite_actions();
+    printf("ENDING VL-Actions test\n\n");
+    
+    
     
     return 0;
 }
