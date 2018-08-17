@@ -358,15 +358,25 @@ const ot_u16 overhead_files[] = {
     FILE_MODTIME(0),
 #	endif
 
-    JOIN_2BYTES(ISF_LEN(realtime_vars), 0x00),
-    (ISF_ALLOC(realtime_vars)),
-    JOIN_2BYTES(ISF_ID(realtime_vars), ISF_MOD(realtime_vars)),
-    (ISF_BASE(realtime_vars)),
-    (ISF_MIRROR(realtime_vars)),
+    JOIN_2BYTES(ISF_LEN(csip_operations), 0x00),
+    (ISF_ALLOC(csip_operations)),
+    JOIN_2BYTES(ISF_ID(csip_operations), ISF_MOD(csip_operations)),
+    (ISF_BASE(csip_operations)),
+    (ISF_MIRROR(csip_operations)),
     FILE_ACTIONCODE(0,0),
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+
+    JOIN_2BYTES(ISF_LEN(csip_issuecontrol), 0x00),
+    (ISF_ALLOC(csip_issuecontrol)),
+    JOIN_2BYTES(ISF_ID(csip_issuecontrol), ISF_MOD(csip_issuecontrol)),
+    (ISF_BASE(csip_issuecontrol)),
+    (ISF_MIRROR(csip_issuecontrol)),
+    FILE_ACTIONCODE(0,0),
+#   if (OT_FEATURE(VLMODTIME) == ENABLED)
+    FILE_MODTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(application_extension), 0x00),
     (ISF_ALLOC(application_extension)),
@@ -447,6 +457,8 @@ const ot_u16 isf_stock_files[] = {
     JOIN_2BYTES(0x00, 1),                               /* Default Device Flags, Beacon Attempts */
     PLATFORM_ENDIAN16_C(0),                                     /* Hold Scan Sequence Cycles */
 
+    _ERS16, //Alignment Padding
+
     /* device features: id=0x01, len=48, alloc=48 */
     __UID,                                              /* UID: 8 bytes*/
     PLATFORM_ENDIAN16_C(OT_SUPPORTED_SETTINGS),                 /* Supported Setting */
@@ -517,12 +529,16 @@ const ot_u16 isf_stock_files[] = {
     JOIN_2BYTES(0x88,0x99), JOIN_2BYTES(0xAA,0xBB),
     JOIN_2BYTES(0xCC,0xDD), JOIN_2BYTES(0xEE,0xFF),
     
+    _ERS16, //Alignment Padding
+    
     /* Admin auth key:      id=0x0F, len=22, alloc=22 */
     _ERS16, SPLIT_LONG_LE(172800),
     JOIN_2BYTES(0x00,0x01), JOIN_2BYTES(0x02,0x03),
     JOIN_2BYTES(0x04,0x05), JOIN_2BYTES(0x06,0x07),
     JOIN_2BYTES(0x08,0x09), JOIN_2BYTES(0x0A,0x0B),
     JOIN_2BYTES(0x0C,0x0D), JOIN_2BYTES(0x0E,0x0F),
+    
+    _ERS16, //Alignment Padding
 
     /* Power Data for Inverter: id=0x10, len=88, alloc=88 */
     SPLIT_LONG_LE(1),   // AC Current

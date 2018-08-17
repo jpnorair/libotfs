@@ -50,8 +50,8 @@
   */
 
 #define VL_WORD             2
-#define _ALLOC_OFFSET       (VL_WORD-1)
-#define _ALLOC_SHIFT        1
+#define _ALLOC_OFFSET       ((VL_WORD*2)-1)
+#define _ALLOC_SHIFT        2
 #define _MIRALLOC_OFFSET    _ALLOC_OFFSET
 #define _MIRALLOC_SHIFT     _ALLOC_SHIFT
 
@@ -150,8 +150,8 @@
 #define ISF_ENMIRROR_csip_cfg                   __SET_MIRROR(1)
 #define ISF_ENMIRROR_csip_setarray              __SET_MIRROR(1)
 #define ISF_ENMIRROR_csip_issuecmd              __SET_MIRROR(1)
-#define ISF_ENMIRROR_operations                 __SET_MIRROR(1)
-#define ISF_ENMIRROR_issuecontrol               __SET_MIRROR(1)
+#define ISF_ENMIRROR_csip_operations            __SET_MIRROR(1)
+#define ISF_ENMIRROR_csip_issuecontrol          __SET_MIRROR(1)
 // OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_ENMIRROR_application_extension      __SET_MIRROR(1)
 
@@ -492,7 +492,7 @@
 #define ISF_MIRROR_csip_setarray                (ISF_MIRROR_csip_cfg+ISF_MIRALLOC(csip_cfg))
 #define ISF_MIRROR_csip_issuecmd                (ISF_MIRROR_csip_setarray+ISF_MIRALLOC(csip_setarray))
 #define ISF_MIRROR_csip_operations              (ISF_MIRROR_csip_issuecmd+ISF_MIRALLOC(csip_issuecmd))
-#define ISF_MIRROR_csip_issuecontrol            (ISF_MIRROR_csip_issuecontrol+ISF_MIRALLOC(csip_issuecontrol))
+#define ISF_MIRROR_csip_issuecontrol            (ISF_MIRROR_csip_operations+ISF_MIRALLOC(csip_operations))
 #define ISF_MIRROR_application_extension        (ISF_MIRROR_csip_issuecontrol+ISF_MIRALLOC(csip_issuecontrol))
 #define ISF_MIRROR_NEXT                         (ISF_MIRROR_application_extension+ISF_MIRALLOC(application_extension))
 
