@@ -247,7 +247,7 @@ vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers);
 
 
 
-void sub_action(vlFILE* fp);
+ot_u8 sub_action(vlFILE* fp);
 
 
 
@@ -379,15 +379,19 @@ OT_WEAK void vl_remove_action(vlBLOCK block_id, ot_u8 data_id) {
 #endif
 
 
-void sub_action(vlFILE* fp) {
-#if (OT_FEATURE(VLACTIONS))
+ot_u8 sub_action(vlFILE* fp) {
+    ot_u8 retval = 0;
+
+#   if (OT_FEATURE(VLACTIONS))
     ot_u16 select;
     select = vworm_read(fp->header+10) >> 8;        ///@todo this is little endian only
     
     if (select < OT_PARAM(VLACTIONS)) {
-        vlaction[select](fp);
+        retval = vlaction[select](fp);
     }
-#endif
+#   endif
+    
+    return retval;
 }
 
 
@@ -815,6 +819,7 @@ OT_WEAK ot_u8 vl_append( vlFILE* fp, ot_uint length, vl_u8* data ) {
 
 #ifndef EXTF_vl_close
 OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
+    ot_u8 retval = 0;
 
     if (FP_ISVALID(fp)) {
         if (fp->read == &vsram_read) {
@@ -845,7 +850,7 @@ OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
             action.ubyte[0]    &= (ot_u8)fp->flags;
             
             if (action.ubyte[0] != 0) {
-                sub_action(fp);
+                retval = sub_action(fp);
             }
         }
 #       endif
@@ -857,10 +862,12 @@ OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
         fp->flags   = 0;
         fp->read    = NULL;
         fp->write   = NULL;
-
-        return 0;
     }
-    return 255;
+    else {
+        retval = 255;
+    }
+    
+    return retval;
 }
 #endif
 
