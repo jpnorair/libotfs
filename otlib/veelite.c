@@ -61,7 +61,7 @@ static vlFILE vlfile[OT_PARAM(VLFPS)];
 
 // If file actions are enabled, you can have a certain number of callbacks
 #if (OT_FEATURE(VLACTIONS))
-static ot_sigv  vlaction[OT_PARAM(VLACTIONS)];
+static ot_procv vlaction[OT_PARAM(VLACTIONS)];
 static ot_u8    vlaction_users[OT_PARAM(VLACTIONS)];
 
 #endif
@@ -303,7 +303,7 @@ OT_WEAK ot_u8 vl_init(void* handle) {
 // Add Action (Infrequently called)
 // This function is only accessible from internal code (not via protocol)
 #ifndef EXTF_vl_add_action
-OT_WEAK ot_int vl_add_action(vlBLOCK block_id, ot_u8 data_id, ot_u8 condition, ot_sigv action) {
+OT_WEAK ot_int vl_add_action(vlBLOCK block_id, ot_u8 data_id, ot_u8 condition, ot_procv action) {
 #   if (OT_FEATURE(VLACTIONS))
     /// 1. See if action parameter is already in the list.
     /// 2. If so, then return the index.

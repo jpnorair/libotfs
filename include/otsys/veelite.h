@@ -169,12 +169,12 @@ ot_u8 vl_init(void* handle);
   * @param  data_id     (ot_u8) 0-255 file ID of file
   * @param  condition   (ot_u8) Condition to call action: OR'ed combination 
   *                     of VL_FLAG_OPENED, VL_FLAG_MODDED, VL_FLAG_RESIZED.
-  * @param  action      (ot_sigv) 
+  * @param  action      (ot_procv) 
   * @retval ot_int      Returns non-negative on success.
   * @ingroup Veelite
   *
   */
-ot_int vl_add_action(vlBLOCK block_id, ot_u8 data_id, ot_u8 condition, ot_sigv action);
+ot_int vl_add_action(vlBLOCK block_id, ot_u8 data_id, ot_u8 condition, ot_procv action);
 
 
 
