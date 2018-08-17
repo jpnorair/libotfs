@@ -166,5 +166,5 @@ $(SUBMODULES): %: directories
 	cd ./$@ && $(MAKE) -f $(MKFILE).mk obj
 
 #Non-File Targets
-.PHONY: all lib remake clean cleaner
+.PHONY: all lib pkg remake clean cleaner
 
