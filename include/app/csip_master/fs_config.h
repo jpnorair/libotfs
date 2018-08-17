@@ -152,8 +152,8 @@
 #define ISF_ENMIRROR_csip_cfg                   __SET_MIRROR(1)
 #define ISF_ENMIRROR_csip_setarray              __SET_MIRROR(1)
 #define ISF_ENMIRROR_csip_issuecmd              __SET_MIRROR(1)
-#define ISF_ENMIRROR_operations                 __SET_MIRROR(1)
-#define ISF_ENMIRROR_issuecontrol               __SET_MIRROR(1)
+#define ISF_ENMIRROR_csip_operations            __SET_MIRROR(1)
+#define ISF_ENMIRROR_csip_issuecontrol          __SET_MIRROR(1)
 // OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_ENMIRROR_application_extension      __SET_MIRROR(1)
 
@@ -190,7 +190,7 @@
 #define ISF_MOD_root_authentication_key         b00000000
 #define ISF_MOD_user_authentication_key         b00110000
 // OTFS CSIP FILES -----------------------------------------------------
-#define ISF_MOD_pwrdata_inv                 	(b00100100 | _DEBUG_FILEMOD)
+#define ISF_MOD_pwrdata_inv                     (b00100100 | _DEBUG_FILEMOD)
 #define ISF_MOD_pwrdata_mppt                    (b00100100 | _DEBUG_FILEMOD)
 #define ISF_MOD_csip_nameplate                  (b00110100 | _DEBUG_FILEMOD)
 #define ISF_MOD_csip_cfg                        (b00110000 | _DEBUG_FILEMOD)
@@ -221,7 +221,7 @@
 #define ISF_MAX_sensor_alarms                   0
 #define ISF_MAX_root_authentication_key         22
 #define ISF_MAX_user_authentication_key         22
-#define ISF_MAX_pwrdata_inv                 	88
+#define ISF_MAX_pwrdata_inv                     88
 #define ISF_MAX_pwrdata_mppt                    80
 #define ISF_MAX_csip_nameplate                  36
 #define ISF_MAX_csip_cfg                        164
@@ -494,7 +494,7 @@
 #define ISF_MIRROR_csip_setarray                (ISF_MIRROR_csip_cfg+ISF_MIRALLOC(csip_cfg))
 #define ISF_MIRROR_csip_issuecmd                (ISF_MIRROR_csip_setarray+ISF_MIRALLOC(csip_setarray))
 #define ISF_MIRROR_csip_operations              (ISF_MIRROR_csip_issuecmd+ISF_MIRALLOC(csip_issuecmd))
-#define ISF_MIRROR_csip_issuecontrol            (ISF_MIRROR_csip_issuecontrol+ISF_MIRALLOC(csip_issuecontrol))
+#define ISF_MIRROR_csip_issuecontrol            (ISF_MIRROR_csip_operations+ISF_MIRALLOC(csip_operations))
 #define ISF_MIRROR_application_extension        (ISF_MIRROR_csip_issuecontrol+ISF_MIRALLOC(csip_issuecontrol))
 #define ISF_MIRROR_NEXT                         (ISF_MIRROR_application_extension+ISF_MIRALLOC(application_extension))
 
