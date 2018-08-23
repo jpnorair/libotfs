@@ -375,6 +375,13 @@ ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 
         /// Reads don't generally cause errors.
         /// error on the first read item that has an error in it.
         sub_filedata_senderror:
+        {   ot_u8 app_err;
+            app_err = vl_close(fp);
+            if (app_err != 0) && (err_code == 0) {
+                err_code = 0x09;    
+            }
+        }
+        
         if (respond) {
             if (2 >= q_writespace(outq)) {
                 goto sub_filedata_overrun;
@@ -393,7 +400,6 @@ ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 
         }
 
         data_in -= 5;   // 5 bytes input header
-        vl_close(fp);
     }
 
     // Total Completion:
