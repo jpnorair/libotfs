@@ -11,7 +11,7 @@
 
 #if (defined(__x86_64__) || defined(__x86_64)) || \
     (defined(__amd64__) || defined(__amd64)) || \
-    (defined(__arm__) && defined(__aarch64__)) || \
+    (defined(__aarch64__)) || \
     (defined(__ia64__) || defined(_IA64) || defined(__IA64__)) || \
     (defined(__ppc64__) || defined(ppc64))
 #   define IS_64BIT     1
