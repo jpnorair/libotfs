@@ -62,3 +62,7 @@ Thumbs.db
 #################
 *.swp
 multifs
+test/auth
+test/queue
+test/time
+test/veelite
