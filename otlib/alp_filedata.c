@@ -377,7 +377,7 @@ ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 
         sub_filedata_senderror:
         {   ot_u8 app_err;
             app_err = vl_close(fp);
-            if (app_err != 0) && (err_code == 0) {
+            if ((app_err != 0) && (err_code == 0)) {
                 err_code = 0x09;    
             }
         }

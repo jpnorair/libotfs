@@ -26,6 +26,10 @@
 #ifndef __FEATURES_CONFIG_H
 #define __FEATURES_CONFIG_H
 
+#ifndef OT_FEATURE_CLIENT
+#   define OT_FEATURE_CLIENT    1
+#endif
+
 #include <app/features_defaults.h>
 
 
