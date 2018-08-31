@@ -88,7 +88,7 @@ OT_WEAK void alp_breakdown_queue(ot_queue* in_q, void* data_type) {
     ((ot_queue*)data_type)->alloc       = queue_length;
     ((ot_queue*)data_type)->options     = in_q->options;
     marker                              = q_markbyte(in_q, queue_length);
-    ((ot_queue*)data_type)->front       = &(in_q->front[marker>>1]);
+    ((ot_queue*)data_type)->front       = (void*)((uint32_t)in_q->front + (marker>>1));
     ((ot_queue*)data_type)->back        = q_offset((ot_queue*)data_type, queue_length);
     ((ot_queue*)data_type)->getcursor   = q_offset((ot_queue*)data_type, 0);
     ((ot_queue*)data_type)->putcursor   = q_offset((ot_queue*)data_type, 0);
@@ -136,7 +136,7 @@ OT_WEAK void alp_breakdown_id_tmpl(ot_queue* in_q, void* data_type) {
     id_length                       = q_readbyte(in_q);
     ((id_tmpl*)data_type)->length   = id_length;
     marker                          = q_markbyte(in_q, id_length);
-    ((id_tmpl*)data_type)->value    = (id_length==0) ? NULL : &(in_q->front[marker>>1]);
+    ((id_tmpl*)data_type)->value    = (id_length==0) ? NULL : (void*)((uint32_t)in_q->front + (marker>>1));
 #endif
 }
 
