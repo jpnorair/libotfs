@@ -505,50 +505,53 @@ const ot_u8 isf_stock_files[] = {
     0x0C, 0x0D, 0x0E, 0x0F,
 
 /* Power Data for Inverter: id=0x10, len=88, alloc=88 */
-    SPLIT_LONG_LE(1),   // AC Current
-    SPLIT_LONG_LE(2),   // AC Voltage
-    SPLIT_LONG_LE(3),   // AC Frequency
-    SPLIT_LONG_LE(4),   // AC Phase
-    SPLIT_LONG_LE(5),   // Battery Capacity rating
-    SPLIT_LONG_LE(6),   // Battery SOC
-    SPLIT_LONG_LE(7),   // Battery SOH
-    SPLIT_LONG_LE(8),   // Available energy of battery
-    SPLIT_LONG_LE(9),   // Max Battery charge rate
-    SPLIT_LONG_LE(10),   // Max Batter discharge rate
-    SPLIT_LONG_LE(11),   // Battery voltage
-    SPLIT_LONG_LE(12),   // Battery temperature
-    SPLIT_LONG_LE(13),   // Active Power
-    SPLIT_LONG_LE(14),   // Reactive Power
-    SPLIT_LONG_LE(15),   // Power Factor
-    SPLIT_LONG_LE(16),   // Inverter 1 Temperature
-    SPLIT_LONG_LE(17),   // Inverter 2 Temperature
-    SPLIT_LONG_LE(18),   // DC-DC Temperature
-    SPLIT_LONG_LE(19),   // Grid Direction
-    SPLIT_LONG_LE(20),   // Solpad Operating State
-    SPLIT_LONG_LE(21),   // Time to Empty
-    SPLIT_LONG_LE(22),   // Time to Full
+    SPLIT_SHORT_LE(1),   // AC Current
+    SPLIT_SHORT_LE(2),   // AC Voltage
+    SPLIT_SHORT_LE(3),   // AC Frequency
+    SPLIT_SHORT_LE(4),   // AC Phase
+    SPLIT_SHORT_LE(5),   // Battery Capacity rating
+    SPLIT_SHORT_LE(6),   // Battery SOC
+    SPLIT_SHORT_LE(7),   // Battery SOH
+    SPLIT_SHORT_LE(8),   // Available energy of battery
+    SPLIT_SHORT_LE(9),   // Max Battery charge rate
+    SPLIT_SHORT_LE(10),   // Max Batter discharge rate
+    SPLIT_SHORT_LE(11),   // Battery voltage
+    SPLIT_SHORT_LE(12),   // Battery temperature
+    SPLIT_SHORT_LE(13),   // Active Power
+    SPLIT_SHORT_LE(14),   // Reactive Power
+    SPLIT_SHORT_LE(15),   // Power Factor
+    SPLIT_SHORT_LE(16),   // Inverter 1 Temperature
+    SPLIT_SHORT_LE(17),   // Inverter 2 Temperature
+    SPLIT_SHORT_LE(18),   // DC-DC Temperature
+    SPLIT_SHORT_LE(19),   // Grid Direction
+    SPLIT_SHORT_LE(20),   // Solpad Operating State
+    SPLIT_SHORT_LE(21),   // Time to Empty
+    SPLIT_SHORT_LE(22),   // Time to Full
+    SPLIT_SHORT_LE(23),
+    SPLIT_SHORT_LE(24),
+    SPLIT_SHORT_LE(25),
     
     /* Power Data for MPPT: id=0x11, len=80, alloc=80 */
-    SPLIT_LONG_LE(1),   // PV1 Voltage
-    SPLIT_LONG_LE(2),   // PV1 Current
-    SPLIT_LONG_LE(3),   // PV1 Temperature
-    SPLIT_LONG_LE(4),   // MPPT1 Voltage
-    SPLIT_LONG_LE(5),   // MPPT1 Current
-    SPLIT_LONG_LE(6),   // MPPT1 Temperature
-    SPLIT_LONG_LE(7),   // Fill Factor 1
-    SPLIT_LONG_LE(8),   // Efficiency 1
-    SPLIT_LONG_LE(9),   // Maximum Available Power 1
-    SPLIT_LONG_LE(10),   // PV2 Voltage
-    SPLIT_LONG_LE(11),   // PV2 Current
-    SPLIT_LONG_LE(12),   // PV2 Temperature
-    SPLIT_LONG_LE(13),   // MPPT2 Voltage
-    SPLIT_LONG_LE(14),   // MPPT2 Current
-    SPLIT_LONG_LE(15),   // MPPT2 Temperature
-    SPLIT_LONG_LE(16),   // Fill Factor 2
-    SPLIT_LONG_LE(17),   // Efficiency 2
-    SPLIT_LONG_LE(18),   // Maximum Available Power 2
-    SPLIT_LONG_LE(19),   // MPPT Temperature
-    SPLIT_LONG_LE(20),   // MPPT State
+    SPLIT_SHORT_LE(1),   // PV1 Voltage
+    SPLIT_SHORT_LE(2),   // PV1 Current
+    SPLIT_SHORT_LE(3),   // PV1 Temperature
+    SPLIT_SHORT_LE(4),   // MPPT1 Voltage
+    SPLIT_SHORT_LE(5),   // MPPT1 Current
+    SPLIT_SHORT_LE(6),   // MPPT1 Temperature
+    SPLIT_SHORT_LE(7),   // Fill Factor 1
+    SPLIT_SHORT_LE(8),   // Efficiency 1
+    SPLIT_SHORT_LE(9),   // Maximum Available Power 1
+    SPLIT_SHORT_LE(10),   // PV2 Voltage
+    SPLIT_SHORT_LE(11),   // PV2 Current
+    SPLIT_SHORT_LE(12),   // PV2 Temperature
+    SPLIT_SHORT_LE(13),   // MPPT2 Voltage
+    SPLIT_SHORT_LE(14),   // MPPT2 Current
+    SPLIT_SHORT_LE(15),   // MPPT2 Temperature
+    SPLIT_SHORT_LE(16),   // Fill Factor 2
+    SPLIT_SHORT_LE(17),   // Efficiency 2
+    SPLIT_SHORT_LE(18),   // Maximum Available Power 2
+    SPLIT_SHORT_LE(19),   // MPPT Temperature
+    SPLIT_SHORT_LE(20),   // MPPT State
 
     /* CSIP Nameplate Ratings: id=0x12, len=36, alloc=36 */
     SPLIT_LONG_LE(1),   // Active Power rating

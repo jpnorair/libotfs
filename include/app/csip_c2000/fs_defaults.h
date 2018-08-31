@@ -541,50 +541,54 @@ const ot_u16 isf_stock_files[] = {
     _ERS16, //Alignment Padding
 
     /* Power Data for Inverter: id=0x10, len=88, alloc=88 */
-    SPLIT_LONG_LE(1),   // AC Current
-    SPLIT_LONG_LE(2),   // AC Voltage
-    SPLIT_LONG_LE(3),   // AC Frequency
-    SPLIT_LONG_LE(4),   // AC Phase
-    SPLIT_LONG_LE(5),   // Battery Capacity rating
-    SPLIT_LONG_LE(6),   // Battery SOC
-    SPLIT_LONG_LE(7),   // Battery SOH
-    SPLIT_LONG_LE(8),   // Available energy of battery
-    SPLIT_LONG_LE(9),   // Max Battery charge rate
-    SPLIT_LONG_LE(10),   // Max Batter discharge rate
-    SPLIT_LONG_LE(11),   // Battery voltage
-    SPLIT_LONG_LE(12),   // Battery temperature
-    SPLIT_LONG_LE(13),   // Active Power
-    SPLIT_LONG_LE(14),   // Reactive Power
-    SPLIT_LONG_LE(15),   // Power Factor
-    SPLIT_LONG_LE(16),   // Inverter 1 Temperature
-    SPLIT_LONG_LE(17),   // Inverter 2 Temperature
-    SPLIT_LONG_LE(18),   // DC-DC Temperature
-    SPLIT_LONG_LE(19),   // Grid Direction
-    SPLIT_LONG_LE(20),   // Solpad Operating State
-    SPLIT_LONG_LE(21),   // Time to Empty
-    SPLIT_LONG_LE(22),   // Time to Full
+    (1),   // AC Current
+    (2),   // AC Voltage
+    (3),   // AC Frequency
+    (4),   // AC Phase
+    (5),   // Battery Capacity rating
+    (6),   // Battery SOC
+    (7),   // Battery SOH
+    (8),   // Available energy of battery
+    (9),   // Max Battery charge rate
+    (10),   // Max Batter discharge rate
+    (11),   // Battery voltage
+    (12),   // Battery temperature
+    (13),   // Active Power
+    (14),   // Reactive Power
+    (15),   // Power Factor
+    (16),   // Inverter 1 Temperature
+    (17),   // Inverter 2 Temperature
+    (18),   // DC-DC Temperature
+    (19),   // Grid Direction
+    (20),   // Solpad Operating State
+    (21),   // Time to Empty
+    (22),   // Time to Full
+    (23),
+    (24),
+    (25),
+    _ERS16, //Alignment Padding
     
     /* Power Data for MPPT: id=0x11, len=80, alloc=80 */
-    SPLIT_LONG_LE(1),   // PV1 Voltage
-    SPLIT_LONG_LE(2),   // PV1 Current
-    SPLIT_LONG_LE(3),   // PV1 Temperature
-    SPLIT_LONG_LE(4),   // MPPT1 Voltage
-    SPLIT_LONG_LE(5),   // MPPT1 Current
-    SPLIT_LONG_LE(6),   // MPPT1 Temperature
-    SPLIT_LONG_LE(7),   // Fill Factor 1
-    SPLIT_LONG_LE(8),   // Efficiency 1
-    SPLIT_LONG_LE(9),   // Maximum Available Power 1
-    SPLIT_LONG_LE(10),   // PV2 Voltage
-    SPLIT_LONG_LE(11),   // PV2 Current
-    SPLIT_LONG_LE(12),   // PV2 Temperature
-    SPLIT_LONG_LE(13),   // MPPT2 Voltage
-    SPLIT_LONG_LE(14),   // MPPT2 Current
-    SPLIT_LONG_LE(15),   // MPPT2 Temperature
-    SPLIT_LONG_LE(16),   // Fill Factor 2
-    SPLIT_LONG_LE(17),   // Efficiency 2
-    SPLIT_LONG_LE(18),   // Maximum Available Power 2
-    SPLIT_LONG_LE(19),   // MPPT Temperature
-    SPLIT_LONG_LE(20),   // MPPT State
+    (1),   // PV1 Voltage
+    (2),   // PV1 Current
+    (3),   // PV1 Temperature
+    (4),   // MPPT1 Voltage
+    (5),   // MPPT1 Current
+    (6),   // MPPT1 Temperature
+    (7),   // Fill Factor 1
+    (8),   // Efficiency 1
+    (9),   // Maximum Available Power 1
+    (10),   // PV2 Voltage
+    (11),   // PV2 Current
+    (12),   // PV2 Temperature
+    (13),   // MPPT2 Voltage
+    (14),   // MPPT2 Current
+    (15),   // MPPT2 Temperature
+    (16),   // Fill Factor 2
+    (17),   // Efficiency 2
+    (18),   // Maximum Available Power 2
+    (19),   // MPPT Temperature
+    (20),   // MPPT State
 
     /* CSIP Nameplate Ratings: id=0x12, len=36, alloc=36 */
     SPLIT_LONG_LE(1),   // Active Power rating

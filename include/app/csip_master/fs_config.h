@@ -221,8 +221,8 @@
 #define ISF_MAX_sensor_alarms                   0
 #define ISF_MAX_root_authentication_key         22
 #define ISF_MAX_user_authentication_key         22
-#define ISF_MAX_pwrdata_inv                     88
-#define ISF_MAX_pwrdata_mppt                    80
+#define ISF_MAX_pwrdata_inv                     50
+#define ISF_MAX_pwrdata_mppt                    40
 #define ISF_MAX_csip_nameplate                  36
 #define ISF_MAX_csip_cfg                        164
 #define ISF_MAX_csip_setarray                   80
@@ -251,8 +251,8 @@
 #define ISF_LEN_sensor_alarms                   0
 #define ISF_LEN_root_authentication_key         22
 #define ISF_LEN_user_authentication_key         22
-#define ISF_LEN_pwrdata_inv                     88
-#define ISF_LEN_pwrdata_mppt                    80
+#define ISF_LEN_pwrdata_inv                     50
+#define ISF_LEN_pwrdata_mppt                    40
 #define ISF_LEN_csip_nameplate                  36
 #define ISF_LEN_csip_cfg                        164
 #define ISF_LEN_csip_setarray                   80
