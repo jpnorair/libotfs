@@ -168,6 +168,62 @@ ot_u8 vl_multifs_switch(void* handle, void** getfsbase, const id_tmpl* fsid) {
 
 
 
+// void* vl_multifs_spawn(void* handle) {
+//     void* obj;
+//     
+//     obj = (handle != NULL) ? handle : fstab;
+//     return (void*)judy_clone((Judy*)obj);
+// }
+// 
+// void vl_multifs_term(void* spawn) {
+//     judy_close((Judy*)spawn);
+// }
+
+ot_u8 vl_multifs_start(void* handle, void** getfsbase) {
+    ot_u8 null_id[1] = {0};
+    void* obj;
+    MCU_TYPE_UINT* val;
+    ot_u8 rc;
+    
+    obj = (handle != NULL) ? handle : fstab;
+    val = judy_strt( (Judy*)obj, (const unsigned char*)null_id, 1);
+    
+    if (val == NULL) {
+        rc = 0x11;
+    }
+    if (getfsbase != NULL) {
+        *getfsbase = (void*)*val;
+        vworm_init(*getfsbase, NULL);
+        vl_init(NULL);
+        rc = 0;
+    }
+    
+    return rc;
+}
+
+ot_u8 vl_multifs_next(void* handle, void** getfsbase) {
+    void* obj;
+    MCU_TYPE_UINT* val;
+    ot_u8 rc;
+    
+    obj = (handle != NULL) ? handle : fstab;
+    val = judy_nxt((Judy*)obj);
+    
+    if (val == NULL) {
+        rc = 0x11;
+    }
+    if (getfsbase != NULL) {
+        *getfsbase = (void*)*val;
+        vworm_init(*getfsbase, NULL);
+        vl_init(NULL);
+        rc = 0;
+    }
+    
+    return rc;
+}
+
+
+
 
 #endif
 

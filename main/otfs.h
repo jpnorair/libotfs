@@ -117,4 +117,10 @@ int otfs_del(void* handle, const otfs_t* fs, bool unload);
 int otfs_setfs(void* handle, const uint8_t* eui64_bytes);
 
 
+
+int otfs_iterator_start(void* handle);
+
+int otfs_iterator_next(void* handle);
+
+
 #endif
