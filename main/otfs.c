@@ -157,5 +157,22 @@ int otfs_setfs(void* handle, const uint8_t* eui64_bytes) {
 
 
 
+int otfs_iterator_start(void* handle) {
+#if (OT_FEATURE_MULTIFS == ENABLED)
+    void* getfs;
+    return vl_multifs_start(handle, &getfs);
+#else
+	return 0;
+#endif
+}
+
+int otfs_iterator_next(void* handle) {
+#if (OT_FEATURE_MULTIFS == ENABLED)
+    void* getfs;
+    return vl_multifs_next(handle, &getfs);
+#else
+	return 0;
+#endif
+}
 
 
