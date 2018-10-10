@@ -179,7 +179,7 @@ ot_u8 vl_multifs_switch(void* handle, void** getfsbase, const id_tmpl* fsid) {
 //     judy_close((Judy*)spawn);
 // }
 
-ot_u8 vl_multifs_start(void* handle, void** getfsbase) {
+ot_u8 vl_multifs_start(void* handle, void** getfsbase, id_tmpl* fsid) {
     ot_u8 null_id[1] = {0};
     void* obj;
     MCU_TYPE_UINT* val;
@@ -191,6 +191,9 @@ ot_u8 vl_multifs_start(void* handle, void** getfsbase) {
     if (val == NULL) {
         rc = 0x11;
     }
+    if (fsid != NULL) {
+        fsid->length = judy_key((Judy*)obj, fsid->value, 8);
+    }
     if (getfsbase != NULL) {
         *getfsbase = (void*)*val;
         vworm_init(*getfsbase, NULL);
@@ -201,7 +204,7 @@ ot_u8 vl_multifs_start(void* handle, void** getfsbase) {
     return rc;
 }
 
-ot_u8 vl_multifs_next(void* handle, void** getfsbase) {
+ot_u8 vl_multifs_next(void* handle, void** getfsbase, id_tmpl* fsid) {
     void* obj;
     MCU_TYPE_UINT* val;
     ot_u8 rc;
@@ -211,6 +214,9 @@ ot_u8 vl_multifs_next(void* handle, void** getfsbase) {
     
     if (val == NULL) {
         rc = 0x11;
+    }
+    if (fsid != NULL) {
+        fsid->length = judy_key((Judy*)obj, fsid->value, 8);
     }
     if (getfsbase != NULL) {
         *getfsbase = (void*)*val;

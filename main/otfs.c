@@ -157,19 +157,39 @@ int otfs_setfs(void* handle, const uint8_t* eui64_bytes) {
 
 
 
-int otfs_iterator_start(void* handle) {
+int otfs_iterator_start(void* handle, otfs_t** fs, uint8_t* eui64_bytes) {
 #if (OT_FEATURE_MULTIFS == ENABLED)
-    void* getfs;
-    return vl_multifs_start(handle, &getfs);
+    ot_u8 rc;
+    id_tmpl user_id;
+    user_id.length  = 0;
+    user_id.value   = NULL;
+    
+    rc = vl_multifs_start(handle, (void**)fs, &user_id);
+    if ((rc == 0) && (user_id.length == 8)) {
+        memcpy(eui64_bytes, user_id.value, 8);
+        return 0;
+    }
+    return 1;
+    
 #else
 	return 0;
 #endif
 }
 
-int otfs_iterator_next(void* handle) {
+int otfs_iterator_next(void* handle, otfs_t** fs, uint8_t* eui64_bytes) {
 #if (OT_FEATURE_MULTIFS == ENABLED)
-    void* getfs;
-    return vl_multifs_next(handle, &getfs);
+    ot_u8 rc;
+    id_tmpl user_id;
+    user_id.length  = 0;
+    user_id.value   = NULL;
+    
+    rc = vl_multifs_next(handle, (void**)fs, &user_id);
+    if ((rc == 0) && (user_id.length == 8)) {
+        memcpy(eui64_bytes, user_id.value, 8);
+        return 0;
+    }
+    return 1;
+    
 #else
 	return 0;
 #endif

@@ -118,9 +118,9 @@ int otfs_setfs(void* handle, const uint8_t* eui64_bytes);
 
 
 
-int otfs_iterator_start(void* handle);
+int otfs_iterator_start(void* handle, otfs_t** fs, uint8_t* eui64_bytes);
 
-int otfs_iterator_next(void* handle);
+int otfs_iterator_next(void* handle, otfs_t** fs, uint8_t* eui64_bytes);
 
 
 #endif
