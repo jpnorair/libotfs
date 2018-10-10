@@ -99,23 +99,23 @@ const ot_u8 overhead_files[] __attribute__ ((section(".vl_ov"))) = {
 const ot_u8 overhead_files[] = {
 #endif
     /* Filesystem Header: Same size as two file headers */
-    SPLIT_SHORT_LE(OVERHEAD_TOTAL_BYTES),
-#   if (OT_FEATURE(VLACTIONS) == ENABLED)
+    SPLIT_SHORT_LE(OVERHEAD_TOTAL_BYTES),   // Allocation of metadata (overhead)
+#   if (OT_FEATURE(VLACTIONS) == ENABLED)   
     SPLIT_SHORT_LE(0),
     SPLIT_SHORT_LE(0),
 #   endif
-    SPLIT_SHORT_LE(GFB_TOTAL_BYTES),
-    SPLIT_SHORT_LE(GFB_STOCK_BYTES),
-    SPLIT_SHORT_LE(GFB_NUM_STOCK_FILES),
-    SPLIT_SHORT_LE(ISS_TOTAL_BYTES),
-    SPLIT_SHORT_LE(ISS_STOCK_BYTES),
-    SPLIT_SHORT_LE(ISS_NUM_STOCK_FILES),
-    SPLIT_SHORT_LE(ISF_TOTAL_BYTES),
-    SPLIT_SHORT_LE(ISF_STOCK_BYTES),
-    SPLIT_SHORT_LE(ISF_NUM_STOCK_FILES),
+    SPLIT_SHORT_LE(GFB_TOTAL_BYTES),        // Total Allocation of GFB Block
+    SPLIT_SHORT_LE(GFB_STOCK_BYTES),        // Allocation of Stock GFB files (doesn't change)
+    SPLIT_SHORT_LE(GFB_NUM_STOCK_FILES),    // Number of GFB files
+    SPLIT_SHORT_LE(ISS_TOTAL_BYTES),        // Total Allocation of ISS Block
+    SPLIT_SHORT_LE(ISS_STOCK_BYTES),        // Allocation of Stock ISS files (doesn't change)
+    SPLIT_SHORT_LE(ISS_NUM_STOCK_FILES),    // Number of ISS files
+    SPLIT_SHORT_LE(ISF_TOTAL_BYTES),        // Total Allocation of ISF Block
+    SPLIT_SHORT_LE(ISF_STOCK_BYTES),        // Allocation of Stock ISF files (doesn't change)
+    SPLIT_SHORT_LE(ISF_NUM_STOCK_FILES),    // Number of ISF files
 #   if (OT_FEATURE(VLMODTIME) == ENABLED)
-    SPLIT_LONG_LE(0),
-    SPLIT_LONG_LE(0),
+    SPLIT_LONG_LE(0),                       // Modification time 0
+    SPLIT_LONG_LE(0),                       // Modification time 1
 #   endif
     
     /* GFB Files */
