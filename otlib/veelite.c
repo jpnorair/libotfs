@@ -974,6 +974,12 @@ OT_WEAK ot_u8 ISF_loadmirror() {
 
 
 /// Private Block Functions
+///@note There are two variants of these functions.  First variant uses file boundaries
+///      determined at compile time.  Second uses the Filesystem Header.
+
+/// First Variant
+#if (OT_FEATURE(MULTIFS) != ENABLED)
+
 vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
 #if ((OT_FEATURE(VLNEW) == ENABLED) && ((GFB_HEAP_BYTES > 0) && (GFB_NUM_USER_FILES > 0)))
     vl_header_t  new_header;
@@ -1153,11 +1159,202 @@ ot_u8 sub_isf_mirror(ot_u8 direction) {
 
 
 
+/// Second Variant: To use with MultiFS or runtime-defined FS
+#else
+
+
+vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
+#   if (OT_FEATURE(VLNEW) == ENABLED)
+    vl_header_t new_header;
+    ot_uni16    idmod;
+    vlFSHEADER* fshdr;
+    ot_int      num_files;
+    
+    fshdr       = vworm_get(OVERHEAD_START_VADDR);
+    num_files   = fshdr->gfb.files - fshdr->gfb.used;
+    
+    if (num_files > 0) {
+        idmod.ubyte[0]  = id;
+        idmod.ubyte[1]  = mod;
+
+        // Fill vl_header_t
+        new_header.length   = (ot_u16)0;
+        new_header.alloc    = (ot_u16)GFB_FILE_BYTES;
+        new_header.idmod    = idmod.ushort;
+        new_header.mirror   = NULL_vaddr;
+
+        // Find where to put the new data, and if heap is full
+        return sub_new_file(&new_header,
+                            fshdr->ftab_alloc,
+                            fshdr->ftab_alloc+fshdr->gfb.alloc,
+                            GFB_Header_START + ((fshdr->gfb.used)*sizeof(vl_header_t)),
+                            num_files   );
+    }
+#   endif
+    
+    return NULL;
+}
+
+
+
+vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length ) {
+#   if (OT_FEATURE(VLNEW) == ENABLED)
+    vl_header_t new_header;
+    ot_uni16    idmod;
+    vlFSHEADER* fshdr;
+    ot_int      num_files;
+    
+    fshdr       = vworm_get(OVERHEAD_START_VADDR);
+    num_files   = fshdr->isf.files - fshdr->isf.used
+    
+    if (num_files > 0) {
+        idmod.ubyte[0]  = id;
+        idmod.ubyte[1]  = mod;
+
+        // Fill vl_header_t
+        new_header.length   = (ot_u16)0;
+        new_header.alloc    = (ot_u16)max_length;
+        new_header.idmod    = idmod.ushort;
+        new_header.mirror   = NULL_vaddr;
+
+        // determine amount of actual ISF allocation needed (keeping it even)
+        new_header.alloc += 1;
+        new_header.alloc &= ~1;
+
+        // Find where to put the new data, and if heap is full
+        return sub_new_file(&new_header,
+                            fshdr->ftab_alloc + fshdr->gfb.alloc + fshdr->iss.alloc,
+                            fshdr->ftab_alloc + fshdr->gfb.alloc + fshdr->iss.alloc + fshdr->isf.alloc,
+                            GFB_Header_START + ((fshdr->gfb.files+fshdr->iss.files+fshdr->isf.used)*sizeof(vl_header_t)),
+                            num_files );
+    }
+#   endif
+    
+    return NULL;
+}
+
+
+ot_u8 sub_gfb_delete_check(ot_u8 id) {
+#   if (OT_FEATURE(VLNEW) == ENABLED)
+    vlFSHEADER* fshdr = vworm_get(OVERHEAD_START_VADDR);
+    return ( id > fshdr->gfb.used );
+#   endif
+
+    return 0;
+}
+
+
+ot_u8 sub_isf_delete_check(ot_u8 id) {
+#   if (OT_FEATURE(VLNEW) == ENABLED)
+    ot_uni16        idmod;
+    vlFSHEADER*     fshdr;
+    vl_header_t*    isfhdr;
+    ot_int          i;
+    
+    fshdr   = vworm_get(OVERHEAD_START_VADDR);
+    isfhdr  = (void*)fshdr + sizeof(vlFSHEADER) + ((fshdr->gfb.files+fshdr->iss.files)*sizeof(vl_header_t));
+    i       = fshdr->isf.used-1;
+    
+    while (i >= 0) {
+        idmod.ushort = isfhdr[i].idmod;
+        if (idmod.ubyte[0] == id) {
+            break;
+        }
+        i--;
+    }
+    
+    return (i >= 0);
+    
+#   else
+
+    return 0;
+#   endif
+}
+
+
+vaddr sub_gfb_search(ot_u8 id) {
+    vlFSHEADER* fshdr;
+    fshdr = vworm_get(OVERHEAD_START_VADDR);
+    return sub_header_search( GFB_Header_START, id, fshdr->gfb.files );
+}
+
+
+vaddr sub_isf_search(ot_u8 id) {
+    vlFSHEADER* fshdr;
+    fshdr = vworm_get(OVERHEAD_START_VADDR);
+    return sub_header_search(   GFB_Header_START+((fshdr->gfb.files+fshdr->iss.files)*sizeof(vl_header_t)), 
+                                id, 
+                                fshdr->isf.files);
+}
+
+
+
+ot_u8 sub_isf_mirror(ot_u8 direction) {
+#if (ISF_MIRROR_HEAP_BYTES > 0)
+#   error "should be no mirror"
+    vlFSHEADER* fshdr;
+    vaddr   header;
+    vaddr   header_base;
+    vaddr   header_alloc;
+    vaddr   header_mirror;
+    //vaddr   header_end;
+    ot_int  i;
+    ot_u16* mirror_ptr;
+
+    
+    fshdr = vworm_get(OVERHEAD_START_VADDR);
+
+    // Go through ISF Header array
+    header = GFB_Header_START+((fshdr->gfb.files+fshdr->iss.files)*sizeof(vl_header_t));
+    for (i=0; i<fshdr->isf.used; i++, header+=OCTETS_IN_vl_header_t) {
+
+        //get header data
+        header_alloc    = vworm_read(header+2);
+        header_base     = vworm_read(header+6);
+        header_mirror   = vworm_read(header+8);
+
+        // Copy vworm to mirror if there is a mirror
+        // 0. Skip unmirrored or uninitialized, or unallocated files
+        // 1. Resolve Mirror Length (in vsram it is right ahead of the data)
+        // 2. Load/Save Mirror Data (header_alloc is repurposed)
+        if ((header_mirror != NULL_vaddr) && (header_alloc  != 0)) {
+        	mirror_ptr = (ot_u16*)vsram_get(header_mirror);
+            if (direction == MIRROR_TO_SRAM) { // LOAD
+                *mirror_ptr = vworm_read(header+0);
+            }
+            if (header_base == NULL_vaddr) {	// EXIT if file is mirror-only
+            	continue;
+            }
+            if (direction != MIRROR_TO_SRAM) {  // SAVE
+                vworm_write((header+0), *mirror_ptr);
+            }
+
+            header_alloc = header_base + *mirror_ptr;
+            mirror_ptr++;
+            for ( ; header_base<header_alloc; header_base+=2, mirror_ptr++) {
+                if (direction == MIRROR_TO_SRAM) { 
+                    *mirror_ptr = vworm_read(header_base);
+                }
+                else { 
+                    vworm_write(header_base, *mirror_ptr); 
+                }
+            }
+        }
+    }
+#endif
+    return 0;
+}
+
+#endif
+
+
+
 
 
 
 
 /// Generic Subroutines
+///@note All these are MULTIFS SAFE
 
 vlFILE* sub_new_fp() {
 #if (OT_PARAM(VLFPS) < 8)
@@ -1225,6 +1422,20 @@ void sub_delete_file(vaddr del_header) {
 
 vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers) {
 
+    // Quick check to see if Header is at the indexed location.
+#   if (OT_FEATURE(MULTIFS) == ENABLED)
+    ot_uni16 idmod;
+    const vl_header_t* hdr = vworm_get(header);
+    
+    if (search_id < num_headers) {
+        idmod.ushort = hdr[search_id].idmod;
+        if (idmod.ubyte[0] == search_id) {
+            return header + (search_id * sizeof(vl_header_t));
+        }
+    }
+#   endif
+
+    // Normal check, includes mirror checking
     for (; num_headers > 0; num_headers--) {
 #       if !defined(__C2000__)
         ot_uni16 idmod;
@@ -1287,8 +1498,6 @@ vaddr sub_find_empty_header(vaddr header, ot_int num_headers) {
 }
 
 
-/// @todo This checks out in testing, although it is a complex function that
-///       probably merits further testing
 vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
                         vaddr header, ot_uint new_alloc, ot_int num_headers) {
 #if (OT_FEATURE(VLNEW) == ENABLED)

@@ -86,13 +86,13 @@ int otfs_new(void* handle, const otfs_t* fs) {
     int rc;
 
     user_id.length  = 8;
-    user_id.value   = (uint8_t*)fs->uid.u8;
-    
+    user_id.value   = (uint8_t*)&fs->uid.u8[0];
+
     rc = vl_multifs_add(handle, (void*)fs->base, (const id_tmpl*)&user_id);
     if (rc != 0) {
         return -rc;
     }
-    
+
     vworm_init(fs->base, NULL);
 
 #else 
@@ -101,11 +101,11 @@ int otfs_new(void* handle, const otfs_t* fs) {
 
     ///@note might be wise to put below features into otfs_setfs() (or a
     ///      subroutine of such that takes a direct pointer).
-    
+
     // Initialize veelite for this context
     ///@todo veelite will need context input
     vl_init(NULL);
-    
+
     // Initialize auth_init for this FS context
     auth_init();
 
@@ -162,11 +162,12 @@ int otfs_iterator_start(void* handle, otfs_t** fs, uint8_t* eui64_bytes) {
     ot_u8 rc;
     id_tmpl user_id;
     user_id.length  = 0;
-    user_id.value   = NULL;
-    
+    user_id.value   = eui64_bytes;
+
     rc = vl_multifs_start(handle, (void**)fs, &user_id);
+fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);    
     if ((rc == 0) && (user_id.length == 8)) {
-        memcpy(eui64_bytes, user_id.value, 8);
+fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);    
         return 0;
     }
     return 1;

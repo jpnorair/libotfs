@@ -74,40 +74,41 @@ ot_u8 vl_multifs_deinit(void* handle) {
     return 0;
 }
 
-
+#include <string.h>
 ot_u8 vl_multifs_add(void* handle, void* newfsbase, const id_tmpl* fsid) {
     void* obj;
     MCU_TYPE_UINT* new_value;
     
-    //{   uint64_t test;
-    //    ot_memcpy(&test, fsid->value, 8);
-    //    printf("--> UID = %016llX\n", test);
-    //    printf("--> Value = %016llX\n", (unsigned int)newfsbase);
-    //}
-    
+//    {   uint64_t test;
+//        memcpy(&test, fsid->value, 8);
+//        printf("--> UID = %016llX (length=%i)\n", test, fsid->length);
+//        printf("--> Value = %016llX\n", (uint64_t)newfsbase);
+//        printf("--> handle = %016llX\n", (uint64_t)handle);
+//    }
+  
     obj         = (handle != NULL) ? handle : fstab;
     new_value   = judy_cell(obj, fsid->value, fsid->length);
-    
+
     /// Error on case when out of memory.
     /// 0x05 Veelite error is: "Cannot create file: Supplied length (in header) 
     /// is beyond file limits."  The variant for MultiFS is 0x15.
     if (new_value == NULL) {
         return 0x15;
     }
-    
+
     /// Error on case when FSID already exists.
     /// 0x02 Veelite error is: "Cannot create file: File ID already exists."
     /// The variant for MultiFS is 0x12.
     if (*new_value != 0) {
         return 0x12;
     }
-    
+ 
     /// Finally attach the newfs after errors are handled.  It is important to
     /// have the new_value data type be an integer type that is as big as the 
     /// pointer type on the platform.
     //printf("--> Judy Value = %016llX\n", (MCU_TYPE_UINT)newfsbase);
     *new_value = (MCU_TYPE_UINT)newfsbase;
-    
+  
     return 0;
 }
 
@@ -187,11 +188,12 @@ ot_u8 vl_multifs_start(void* handle, void** getfsbase, id_tmpl* fsid) {
     
     obj = (handle != NULL) ? handle : fstab;
     val = judy_strt( (Judy*)obj, (const unsigned char*)null_id, 1);
-    
+   
     if (val == NULL) {
         rc = 0x11;
     }
     if (fsid != NULL) {
+fprintf(stderr, "%s %d :: fsid->value=%016llX\n", __FUNCTION__, __LINE__, (uint64_t)fsid->value);  
         fsid->length = judy_key((Judy*)obj, fsid->value, 8);
     }
     if (getfsbase != NULL) {
@@ -200,7 +202,7 @@ ot_u8 vl_multifs_start(void* handle, void** getfsbase, id_tmpl* fsid) {
         vl_init(NULL);
         rc = 0;
     }
-    
+fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);
     return rc;
 }
 
