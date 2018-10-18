@@ -165,9 +165,9 @@ int otfs_iterator_start(void* handle, otfs_t** fs, uint8_t* eui64_bytes) {
     user_id.value   = eui64_bytes;
 
     rc = vl_multifs_start(handle, (void**)fs, &user_id);
-fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);    
+//fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);    
     if ((rc == 0) && (user_id.length == 8)) {
-fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);    
+//fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);    
         return 0;
     }
     return 1;
@@ -182,11 +182,10 @@ int otfs_iterator_next(void* handle, otfs_t** fs, uint8_t* eui64_bytes) {
     ot_u8 rc;
     id_tmpl user_id;
     user_id.length  = 0;
-    user_id.value   = NULL;
-    
+    user_id.value   = eui64_bytes;
+
     rc = vl_multifs_next(handle, (void**)fs, &user_id);
     if ((rc == 0) && (user_id.length == 8)) {
-        memcpy(eui64_bytes, user_id.value, 8);
         return 0;
     }
     return 1;

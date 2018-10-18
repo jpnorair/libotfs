@@ -35,7 +35,7 @@
 #include <otlib/utils.h>
 #include <otlib/auth.h>
 #include <otsys/veelite.h>
-
+#include <otlib/memcpy.h>
 
 // Veelite init function
 #if (CC_SUPPORT == SIM_GCC)
@@ -46,15 +46,18 @@
 // For implementation using Judy datatype via libjudy (part of hbuilder pkg)
 // Intended for larger-scale POSIX system
 #include <judy.h>
+#define JUDYKEYS_PER_UID    ((8+JUDY_key_size-1)/JUDY_key_size)
+
 
 static void* fstab = NULL;     // Judy-based FS Table
 
 
 
 
+
 ot_u8 vl_multifs_init(void** new_handle) {
     void* obj;
-    obj = judy_open(2, 0);
+    obj = judy_open(4*JUDYKEYS_PER_UID, JUDYKEYS_PER_UID);
     
     if (new_handle != NULL) {
         *new_handle = obj;
@@ -74,7 +77,7 @@ ot_u8 vl_multifs_deinit(void* handle) {
     return 0;
 }
 
-#include <string.h>
+
 ot_u8 vl_multifs_add(void* handle, void* newfsbase, const id_tmpl* fsid) {
     void* obj;
     MCU_TYPE_UINT* new_value;
@@ -135,10 +138,12 @@ ot_u8 vl_multifs_del(void* handle, const id_tmpl* fsid) {
 }
 
 
+
+
 ot_u8 vl_multifs_switch(void* handle, void** getfsbase, const id_tmpl* fsid) {
     void* obj;
     MCU_TYPE_UINT* val;
-    ot_u8 rc;
+    ot_u8 rc = 255;
     
     obj = (handle != NULL) ? handle : fstab;
     val = judy_slot(obj, fsid->value, fsid->length);
@@ -169,65 +174,44 @@ ot_u8 vl_multifs_switch(void* handle, void** getfsbase, const id_tmpl* fsid) {
 
 
 
-// void* vl_multifs_spawn(void* handle) {
-//     void* obj;
-//     
-//     obj = (handle != NULL) ? handle : fstab;
-//     return (void*)judy_clone((Judy*)obj);
-// }
-// 
-// void vl_multifs_term(void* spawn) {
-//     judy_close((Judy*)spawn);
-// }
 
-ot_u8 vl_multifs_start(void* handle, void** getfsbase, id_tmpl* fsid) {
-    ot_u8 null_id[1] = {0};
-    void* obj;
-    MCU_TYPE_UINT* val;
-    ot_u8 rc;
-    
-    obj = (handle != NULL) ? handle : fstab;
-    val = judy_strt( (Judy*)obj, (const unsigned char*)null_id, 1);
-   
+static ot_u8 sub_pullfs(void* obj, MCU_TYPE_UINT* val, void** getfsbase, id_tmpl* fsid) {
+    ot_u8 rc = 255;
+
     if (val == NULL) {
         rc = 0x11;
     }
-    if (fsid != NULL) {
-fprintf(stderr, "%s %d :: fsid->value=%016llX\n", __FUNCTION__, __LINE__, (uint64_t)fsid->value);  
-        fsid->length = judy_key((Judy*)obj, fsid->value, 8);
+    else if (fsid != NULL) {
+        judy_key((Judy*)obj, fsid->value, JUDYKEYS_PER_UID);
+        
+        if ((getfsbase != NULL) && (*(uint64_t*)fsid->value != 0)) {
+            fsid->length = 8;
+            *getfsbase = (void*)*val;
+            vworm_init(*getfsbase, NULL);
+            vl_init(NULL);
+            rc = 0;
+        }
     }
-    if (getfsbase != NULL) {
-        *getfsbase = (void*)*val;
-        vworm_init(*getfsbase, NULL);
-        vl_init(NULL);
-        rc = 0;
-    }
-fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);
     return rc;
+}
+
+ot_u8 vl_multifs_start(void* handle, void** getfsbase, id_tmpl* fsid) {
+    uint64_t null_id= 0;
+    void* obj;
+    MCU_TYPE_UINT* val;
+    
+    obj = (handle != NULL) ? handle : fstab;
+    val = judy_strt( (Judy*)obj, (const unsigned char*)&null_id, JUDYKEYS_PER_UID);
+    return sub_pullfs(obj, val, getfsbase, fsid);
 }
 
 ot_u8 vl_multifs_next(void* handle, void** getfsbase, id_tmpl* fsid) {
     void* obj;
     MCU_TYPE_UINT* val;
-    ot_u8 rc;
     
     obj = (handle != NULL) ? handle : fstab;
     val = judy_nxt((Judy*)obj);
-    
-    if (val == NULL) {
-        rc = 0x11;
-    }
-    if (fsid != NULL) {
-        fsid->length = judy_key((Judy*)obj, fsid->value, 8);
-    }
-    if (getfsbase != NULL) {
-        *getfsbase = (void*)*val;
-        vworm_init(*getfsbase, NULL);
-        vl_init(NULL);
-        rc = 0;
-    }
-    
-    return rc;
+    return sub_pullfs(obj, val, getfsbase, fsid);
 }
 
 
