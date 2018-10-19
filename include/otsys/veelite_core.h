@@ -47,10 +47,12 @@
 typedef enum {
     VL_NULL_BLOCKID = 0,
     VL_GFB_BLOCKID  = 1,
-    VL_ISFS_BLOCKID = 2,
+    VL_ISS_BLOCKID  = 2,
     VL_ISF_BLOCKID  = 3
 } vlBLOCK;
 
+// deprecated
+#define VL_ISFS_BLOCKID VL_ISS_BLOCKID
 
 
 /** @typedef vl_blockheader
