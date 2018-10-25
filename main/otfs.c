@@ -43,10 +43,25 @@ int otfs_init(void** handle) {
 #endif
 }
 
-int otfs_deinit(void* handle) {
+int otfs_deinit(void* handle, bool do_free) {
 #if (OT_FEATURE_MULTIFS == ENABLED)
+    if (do_free) {
+        otfs_t*     fs  = NULL;
+        uint64_t    uid = 0;
+        int         rc;
+        
+        rc = otfs_iterator_start(handle, &fs, (uint8_t*)&uid);
+        while ((rc == 0) && (fs != NULL)) {
+            if (fs->base != NULL) {
+                free(fs->base);
+            }
+            rc = otfs_iterator_next(handle, &fs, (uint8_t*)&uid);
+        }
+    }
+    
     return vl_multifs_deinit(handle);
 #else
+
     return 0;
 #endif
 }
@@ -165,9 +180,7 @@ int otfs_iterator_start(void* handle, otfs_t** fs, uint8_t* eui64_bytes) {
     user_id.value   = eui64_bytes;
 
     rc = vl_multifs_start(handle, (void**)fs, &user_id);
-//fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);    
     if ((rc == 0) && (user_id.length == 8)) {
-//fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);    
         return 0;
     }
     return 1;

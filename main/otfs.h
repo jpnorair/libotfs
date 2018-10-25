@@ -79,7 +79,7 @@ typedef struct {
 
 int otfs_init(void** handle);
 
-int otfs_deinit(void* handle);
+int otfs_deinit(void* handle, bool do_free);
 
 
 /** @brief Load Application Defaults into an empty FS

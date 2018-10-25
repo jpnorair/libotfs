@@ -183,7 +183,6 @@ static ot_u8 sub_pullfs(void* obj, MCU_TYPE_UINT* val, void** getfsbase, id_tmpl
     }
     else if (fsid != NULL) {
         judy_key((Judy*)obj, fsid->value, JUDYKEYS_PER_UID);
-        
         if ((getfsbase != NULL) && (*(uint64_t*)fsid->value != 0)) {
             fsid->length = 8;
             *getfsbase = (void*)*val;
@@ -201,7 +200,7 @@ ot_u8 vl_multifs_start(void* handle, void** getfsbase, id_tmpl* fsid) {
     MCU_TYPE_UINT* val;
     
     obj = (handle != NULL) ? handle : fstab;
-    val = judy_strt( (Judy*)obj, (const unsigned char*)&null_id, JUDYKEYS_PER_UID);
+    val = judy_strt( (Judy*)obj, (const unsigned char*)&null_id, 0 /*JUDYKEYS_PER_UID*/);
     return sub_pullfs(obj, val, getfsbase, fsid);
 }
 
