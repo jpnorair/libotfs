@@ -158,7 +158,7 @@ libotfs.Linux.so: $(SUBMODULES)
 
 #Library dependencies (not in otfs sources)
 $(LIBMODULES): %: 
-	cd ./../$@ && $(MAKE) lib TARGET=$(TARGET) && $(MAKE) install
+	cd ./../$@ && $(MAKE) pkg TARGET=$(TARGET)
 
 #libotfs submodules
 $(SUBMODULES): %: directories
