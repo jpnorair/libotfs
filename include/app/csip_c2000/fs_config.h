@@ -88,7 +88,7 @@
  */
 
 #define ISF_OTFS_FILES      16
-#define ISF_CSIP_FILES      8
+#define ISF_CSIP_FILES      9
 #define ISF_APPEXT_FILES    1
 
 #define ISF_ID(VAL)                             ISF_ID_##VAL
@@ -112,12 +112,13 @@
 // OTFS CSIP FILES -----------------------------------------------------
 #define ISF_ID_pwrdata_inv                      0x10
 #define ISF_ID_pwrdata_mppt                     0x11
-#define ISF_ID_csip_nameplate                   0x12
-#define ISF_ID_csip_cfg                         0x13
-#define ISF_ID_csip_setarray                    0x14
-#define ISF_ID_csip_issuecmd                    0x15
-#define ISF_ID_csip_operations                  0x16
-#define ISF_ID_csip_issuecontrol                0x17
+#define ISF_ID_csip_nameplate_inv               0x12
+#define ISF_ID_csip_nameplate_mppt              0x13
+#define ISF_ID_csip_cfg                         0x14
+#define ISF_ID_csip_setarray                    0x15
+#define ISF_ID_csip_issuecmd                    0x16
+#define ISF_ID_csip_operations                  0x17
+#define ISF_ID_csip_issuecontrol                0x18
 // OTFS STANDARD APP EXT FILE -----------------------------------------------
 #define ISF_ID_application_extension            0xFF
 
@@ -146,7 +147,8 @@
 // OTFS CSIP FILES -----------------------------------------------------
 #define ISF_ENMIRROR_pwrdata_inv                __SET_MIRROR(1)
 #define ISF_ENMIRROR_pwrdata_mppt               __SET_MIRROR(1)
-#define ISF_ENMIRROR_csip_nameplate             __SET_MIRROR(1)
+#define ISF_ENMIRROR_csip_nameplate_inv         __SET_MIRROR(1)
+#define ISF_ENMIRROR_csip_nameplate_mppt        __SET_MIRROR(1)
 #define ISF_ENMIRROR_csip_cfg                   __SET_MIRROR(1)
 #define ISF_ENMIRROR_csip_setarray              __SET_MIRROR(1)
 #define ISF_ENMIRROR_csip_issuecmd              __SET_MIRROR(1)
@@ -188,9 +190,10 @@
 #define ISF_MOD_root_authentication_key         b00000000
 #define ISF_MOD_user_authentication_key         b00110000
 // OTFS CSIP FILES -----------------------------------------------------
-#define ISF_MOD_pwrdata_inv                 	(b00100100 | _DEBUG_FILEMOD)
+#define ISF_MOD_pwrdata_inv                     (b00100100 | _DEBUG_FILEMOD)
 #define ISF_MOD_pwrdata_mppt                    (b00100100 | _DEBUG_FILEMOD)
-#define ISF_MOD_csip_nameplate                  (b00110100 | _DEBUG_FILEMOD)
+#define ISF_MOD_csip_nameplate_inv              (b00110100 | _DEBUG_FILEMOD)
+#define ISF_MOD_csip_nameplate_mppt             (b00110100 | _DEBUG_FILEMOD)
 #define ISF_MOD_csip_cfg                        (b00110000 | _DEBUG_FILEMOD)
 #define ISF_MOD_csip_setarray                   (b00110000 | _DEBUG_FILEMOD)
 #define ISF_MOD_csip_issuecmd                   (b00110000 | _DEBUG_FILEMOD)
@@ -221,7 +224,8 @@
 #define ISF_MAX_user_authentication_key         22
 #define ISF_MAX_pwrdata_inv                 	50
 #define ISF_MAX_pwrdata_mppt                    40
-#define ISF_MAX_csip_nameplate                  36
+#define ISF_MAX_csip_nameplate_inv              36
+#define ISF_MAX_csip_nameplate_mppt             8
 #define ISF_MAX_csip_cfg                        164
 #define ISF_MAX_csip_setarray                   80
 #define ISF_MAX_csip_issuecmd                   24
@@ -251,7 +255,8 @@
 #define ISF_LEN_user_authentication_key         22
 #define ISF_LEN_pwrdata_inv                     50
 #define ISF_LEN_pwrdata_mppt                    40
-#define ISF_LEN_csip_nameplate                  36
+#define ISF_LEN_csip_nameplate_inv              36
+#define ISF_LEN_csip_nameplate_mppt             8
 #define ISF_LEN_csip_cfg                        164
 #define ISF_LEN_csip_setarray                   80
 #define ISF_LEN_csip_issuecmd                   24
@@ -292,7 +297,8 @@
     ISF_ALLOC(user_authentication_key) + \
     ISF_ALLOC(pwrdata_inv) + \
     ISF_ALLOC(pwrdata_mppt) + \
-    ISF_ALLOC(csip_nameplate) + \
+    ISF_ALLOC(csip_nameplate_inv) + \
+    ISF_ALLOC(csip_nameplate_mppt) + \
     ISF_ALLOC(csip_cfg) + \
     ISF_ALLOC(csip_setarray) + \
     ISF_ALLOC(csip_issuecmd) + \
@@ -429,8 +435,9 @@
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
 #   define ISF_BASE_pwrdata_inv                 (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
 #   define ISF_BASE_pwrdata_mppt                (ISF_BASE_pwrdata_inv+ISF_ALLOC(pwrdata_inv))
-#   define ISF_BASE_csip_nameplate              (ISF_BASE_pwrdata_mppt+ISF_ALLOC(pwrdata_mppt))
-#   define ISF_BASE_csip_cfg                    (ISF_BASE_csip_nameplate+ISF_ALLOC(csip_nameplate))
+#   define ISF_BASE_csip_nameplate_inv          (ISF_BASE_pwrdata_mppt+ISF_ALLOC(pwrdata_mppt))
+#   define ISF_BASE_csip_nameplate_mppt         (ISF_BASE_csip_nameplate_inv+ISF_ALLOC(csip_nameplate_inv))
+#   define ISF_BASE_csip_cfg                    (ISF_BASE_csip_nameplate_mppt+ISF_ALLOC(csip_nameplate_mppt))
 #   define ISF_BASE_csip_setarray               (ISF_BASE_csip_cfg+ISF_ALLOC(csip_cfg))
 #   define ISF_BASE_csip_issuecmd               (ISF_BASE_csip_setarray+ISF_ALLOC(csip_setarray))
 #   define ISF_BASE_csip_operations             (ISF_BASE_csip_issuecmd+ISF_ALLOC(csip_issuecmd))
@@ -457,8 +464,9 @@
 #   define ISF_BASE_user_authentication_key     (ISF_BASE_root_authentication_key+ISF_ALLOC(root_authentication_key))
 #   define ISF_BASE_pwrdata_inv                 (ISF_BASE_user_authentication_key+ISF_ALLOC(user_authentication_key))
 #   define ISF_BASE_pwrdata_mppt                (ISF_BASE_pwrdata_inv+ISF_ALLOC(pwrdata_inv))
-#   define ISF_BASE_csip_nameplate              (ISF_BASE_pwrdata_mppt+ISF_ALLOC(pwrdata_mppt))
-#   define ISF_BASE_csip_cfg                    (ISF_BASE_csip_nameplate+ISF_ALLOC(csip_nameplate))
+#   define ISF_BASE_csip_nameplate_inv          (ISF_BASE_pwrdata_mppt+ISF_ALLOC(pwrdata_mppt))
+#   define ISF_BASE_csip_nameplate_mppt         (ISF_BASE_csip_nameplate_inv+ISF_ALLOC(csip_nameplate_inv))
+#   define ISF_BASE_csip_cfg                    (ISF_BASE_csip_nameplate_mppt+ISF_ALLOC(csip_nameplate_mppt))
 #   define ISF_BASE_csip_setarray               (ISF_BASE_csip_cfg+ISF_ALLOC(csip_cfg))
 #   define ISF_BASE_csip_issuecmd               (ISF_BASE_csip_setarray+ISF_ALLOC(csip_setarray))
 #   define ISF_BASE_csip_operations             (ISF_BASE_csip_issuecmd+ISF_ALLOC(csip_issuecmd))
@@ -487,8 +495,9 @@
 #define ISF_MIRROR_user_authentication_key      (ISF_MIRROR_root_authentication_key+ISF_MIRALLOC(root_authentication_key))
 #define ISF_MIRROR_pwrdata_inv                  (ISF_MIRROR_user_authentication_key+ISF_MIRALLOC(user_authentication_key))
 #define ISF_MIRROR_pwrdata_mppt                 (ISF_MIRROR_pwrdata_inv+ISF_MIRALLOC(pwrdata_inv))
-#define ISF_MIRROR_csip_nameplate               (ISF_MIRROR_pwrdata_mppt+ISF_MIRALLOC(pwrdata_mppt))
-#define ISF_MIRROR_csip_cfg                     (ISF_MIRROR_csip_nameplate+ISF_MIRALLOC(csip_nameplate))
+#define ISF_MIRROR_csip_nameplate_inv           (ISF_MIRROR_pwrdata_mppt+ISF_MIRALLOC(pwrdata_mppt))
+#define ISF_MIRROR_csip_nameplate_mppt          (ISF_MIRROR_csip_nameplate_inv+ISF_MIRALLOC(csip_nameplate_inv))
+#define ISF_MIRROR_csip_cfg                     (ISF_MIRROR_csip_nameplate_mppt+ISF_MIRALLOC(csip_nameplate_mppt))
 #define ISF_MIRROR_csip_setarray                (ISF_MIRROR_csip_cfg+ISF_MIRALLOC(csip_cfg))
 #define ISF_MIRROR_csip_issuecmd                (ISF_MIRROR_csip_setarray+ISF_MIRALLOC(csip_setarray))
 #define ISF_MIRROR_csip_operations              (ISF_MIRROR_csip_issuecmd+ISF_MIRALLOC(csip_issuecmd))

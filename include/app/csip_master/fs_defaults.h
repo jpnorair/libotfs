@@ -326,12 +326,22 @@ const ot_u8 overhead_files[] = {
     FILE_MODTIME(0),
     FILE_ACCTIME(0),
 
-    ISF_LEN(csip_nameplate), 0x00,
-    SPLIT_SHORT_LE(ISF_ALLOC(csip_nameplate)),
-    ISF_ID(csip_nameplate),
-    ISF_MOD(csip_nameplate),
-    SPLIT_SHORT_LE(ISF_BASE(csip_nameplate)),
-    SPLIT_SHORT_LE(ISF_MIRROR(csip_nameplate)),
+    ISF_LEN(csip_nameplate_inv), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(csip_nameplate_inv)),
+    ISF_ID(csip_nameplate_inv),
+    ISF_MOD(csip_nameplate_inv),
+    SPLIT_SHORT_LE(ISF_BASE(csip_nameplate_inv)),
+    SPLIT_SHORT_LE(ISF_MIRROR(csip_nameplate_inv)),
+    FILE_ACTIONCODE(0,0),
+    FILE_MODTIME(0),
+    FILE_ACCTIME(0),
+    
+    ISF_LEN(csip_nameplate_mppt), 0x00,
+    SPLIT_SHORT_LE(ISF_ALLOC(csip_nameplate_mppt)),
+    ISF_ID(csip_nameplate_mppt),
+    ISF_MOD(csip_nameplate_mppt),
+    SPLIT_SHORT_LE(ISF_BASE(csip_nameplate_mppt)),
+    SPLIT_SHORT_LE(ISF_MIRROR(csip_nameplate_mppt)),
     FILE_ACTIONCODE(0,0),
     FILE_MODTIME(0),
     FILE_ACCTIME(0),
@@ -588,7 +598,7 @@ const ot_u8 isf_stock_files[] = {
     SPLIT_SHORT_LE(19),   // MPPT Temperature
     SPLIT_SHORT_LE(20),   // MPPT State
 
-    /* CSIP Nameplate Ratings: id=0x12, len=36, alloc=36 */
+    /* CSIP Nameplate INV Ratings: id=0x12, len=36, alloc=36 */
     SPLIT_LONG_LE(1),   // Active Power rating
     SPLIT_LONG_LE(2),   // Apparent Power Rating
     SPLIT_LONG_LE(3),   // Reactive Power Rating
@@ -598,6 +608,10 @@ const ot_u8 isf_stock_files[] = {
     SPLIT_LONG_LE(7),   // PV present indicator
     SPLIT_LONG_LE(8),   // Time resolution
     SPLIT_LONG_LE(9),   // Source of time synchronization
+    
+    /* CSIP Nameplate MMPT Ratings: id=0x13, len=8, alloc=8 */
+    SPLIT_LONG_LE(1),   // ...
+    SPLIT_LONG_LE(2),   // ...
 
     /* CSIP Configuration: id=0x13, len=164, alloc=164 */
     SPLIT_LONG_LE(1),   // WMax
