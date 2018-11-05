@@ -136,6 +136,11 @@
 #ifndef OT_FEATURE_VLMODTIME
 #   define OT_FEATURE_VLMODTIME         ENABLED                             // File Modification Timestamp
 #endif
+#ifndef OT_FEATURE_VLACCTIME
+#   undef OT_FEATURE_VLMODTIME
+#   define OT_FEATURE_VLMODTIME         ENABLED
+#   define OT_FEATURE_VLACCTIME         ENABLED                             // File Access Timestamp
+#endif
 #ifndef OT_FEATURE_VL_SECURITY
 #   define OT_FEATURE_VL_SECURITY       NOT_AVAILABLE                       // AES128 on pre-shared key, for stored files
 #endif

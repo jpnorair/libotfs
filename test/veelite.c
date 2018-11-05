@@ -317,6 +317,10 @@ int main(void) {
     printf("->res_time0     = %d\n", fs_head->res_time0);
     printf("->res_time4     = %d\n", fs_head->res_time4);
 #   endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    printf("->res_time8     = %d\n", fs_head->res_time8);
+    printf("->res_time12    = %d\n", fs_head->res_time12);
+#   endif
     
     rc = vworm_init((void*)fs_base, fs_head);
     printf("vworm_init() returned %d\n", rc);

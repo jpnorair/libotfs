@@ -98,6 +98,9 @@ typedef struct OT_PACKED {
 #   if (OT_FEATURE(VLMODTIME) == ENABLED)
     ot_u32  modtime;
 #   endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    ot_u32  acctime;
+#   endif
 } vl_header_t;
 
 
@@ -439,6 +442,22 @@ vlFILE* ISF_open( ot_u8 id, ot_u8 mod, const id_tmpl* user_id );
 ot_u8 vl_chmod(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id);
 ot_u8 GFB_chmod_su( ot_u8 id, ot_u8 mod );
 ot_u8 ISF_chmod_su( ot_u8 id, ot_u8 mod );
+
+
+
+/** @brief  Touch file to update access modification times (like touch in POSIX)
+  * @param  block_id    (vlBLOCK) Block ID of file to chmod
+  * @param  data_id     (ot_u8) 0-255 file ID of file to chmod
+  * @param  flags       (ot_u8) supply VL_FLAG_MODDED to affect modification time
+  * @param  user_id     (id_tmpl*) User ID that is trying to chmod
+  * @retval ot_u8       0 on success
+  * @ingroup Veelite
+  *
+  * File Access time will always be updated to present time.  File Modification
+  * time will also be updated if the modification flag is supplied.
+  */
+ot_u8 vl_touch(vlBLOCK block_id, ot_u8 data_id, ot_u8 flags, const id_tmpl* user_id);
+
 
 
 /** @brief  Reads 16 bits at a time from the open file (GFB, ISF)

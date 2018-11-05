@@ -30,6 +30,7 @@
 ///@note You can override some Default Features & Parameters here
 #define OT_FEATURE_VLACTIONS            ENABLED          // File Actions in Veelite
 #define OT_FEATURE_VLMODTIME            DISABLED         // File Modification Timestamp
+#define OT_FEATURE_VLACCTIME            DISABLED
 
 #include <app/features_defaults.h>
 
