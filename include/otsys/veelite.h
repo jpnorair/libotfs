@@ -388,6 +388,29 @@ ot_u8   vl_getheader(vl_header_t* header, vlBLOCK block_id, ot_u8 data_id, ot_u8
 vlFILE* vl_open_file(vaddr header);
 
 
+/** @brief  Get the Modification time of the file (seconds since epoch)
+  * @param  vlFILE*     File Pointer of open file
+  * @retval ot_u32      Second since epoch that file was last modified
+  * @ingroup Veelite
+  *
+  * If mod time is not enabled on the Veelite build, then 0 will be returned.
+  */
+ot_u32 vl_getmodtime(vlFILE* fp);
+
+
+/** @brief  Get the Access time of the file (seconds since epoch)
+ * @param  vlFILE*     File Pointer of open file
+ * @retval ot_u32      Second since epoch that file was last accessed
+ * @ingroup Veelite
+ *
+ * If access time is not enabled on the Veelite build, then the modtime will be
+ * returned.  If the modtime is not enabled on the Veelite build, then 0 will
+ * be returned.
+ */
+ot_u32 vl_getacctime(vlFILE* fp);
+
+
+
 /** @brief  Normal File Open Function
   * @param  block_id    (vlBLOCK) Block ID of file to open
   * @param  data_id     (ot_u8) 0-255 file ID of file to open
