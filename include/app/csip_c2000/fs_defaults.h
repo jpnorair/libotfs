@@ -386,11 +386,24 @@ const ot_u16 overhead_files[] = {
     FILE_ACCTIME(0),
 #   endif
 
-    JOIN_2BYTES(ISF_LEN(csip_nameplate), 0x00),
-    (ISF_ALLOC(csip_nameplate)),
-    JOIN_2BYTES(ISF_ID(csip_nameplate), ISF_MOD(csip_nameplate)),
-    (ISF_BASE(csip_nameplate)),
-    (ISF_MIRROR(csip_nameplate)),
+    JOIN_2BYTES(ISF_LEN(csip_nameplate_inv), 0x00),
+    (ISF_ALLOC(csip_nameplate_inv)),
+    JOIN_2BYTES(ISF_ID(csip_nameplate_inv), ISF_MOD(csip_nameplate_inv)),
+    (ISF_BASE(csip_nameplate_inv)),
+    (ISF_MIRROR(csip_nameplate_inv)),
+    FILE_ACTIONCODE(0,0),
+#	if (OT_FEATURE(VLMODTIME) == ENABLED)
+    FILE_MODTIME(0),
+#	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
+
+    JOIN_2BYTES(ISF_LEN(csip_nameplate_mppt), 0x00),
+    (ISF_ALLOC(csip_nameplate_mppt)),
+    JOIN_2BYTES(ISF_ID(csip_nameplate_mppt), ISF_MOD(csip_nameplate_mppt)),
+    (ISF_BASE(csip_nameplate_mppt)),
+    (ISF_MIRROR(csip_nameplate_mppt)),
     FILE_ACTIONCODE(0,0),
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
@@ -679,7 +692,7 @@ const ot_u16 isf_stock_files[] = {
     (19),   // MPPT Temperature
     (20),   // MPPT State
 
-    /* CSIP Nameplate Ratings: id=0x12, len=36, alloc=36 */
+    /* CSIP Nameplate INV Ratings: id=0x12, len=36, alloc=36 */
     SPLIT_LONG_LE(1),   // Active Power rating
     SPLIT_LONG_LE(2),   // Apparent Power Rating
     SPLIT_LONG_LE(3),   // Reactive Power Rating
@@ -689,6 +702,10 @@ const ot_u16 isf_stock_files[] = {
     SPLIT_LONG_LE(7),   // PV present indicator
     SPLIT_LONG_LE(8),   // Time resolution
     SPLIT_LONG_LE(9),   // Source of time synchronization
+    
+    /* CSIP Nameplate MPPT Ratings: id=0x13, len=8, alloc=8 */
+    SPLIT_LONG_LE(1),   // ...
+    SPLIT_LONG_LE(2),   // ...
 
     /* CSIP Configuration: id=0x13, len=164, alloc=164 */
     SPLIT_LONG_LE(1),   // WMax
