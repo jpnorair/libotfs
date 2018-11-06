@@ -84,6 +84,10 @@ typedef struct OT_PACKED {
     ot_u32          res_time0;
     ot_u32          res_time4;
 #   endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    ot_u32          res_time8;
+    ot_u32          res_time12;
+#   endif
 } vlFSHEADER;
 
 

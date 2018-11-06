@@ -169,7 +169,7 @@ ot_u8 sub_isf_mirror(ot_u8 direction);
 vlFILE* sub_new_fp();
 vlFILE* sub_new_file(vl_header_t* new_header, vaddr heap_base, vaddr heap_end, vaddr header_base, ot_int header_window );
 void sub_delete_file(vaddr del_header);
-void sub_copy_header( vaddr header, ot_u16* output_header );
+void sub_copy_header(vl_header_t* output_header, vaddr header);
 
 /** @brief Writes a block of data to the header
   * @param addr : (ot_u8*) physical address of the start of the write
@@ -553,7 +553,7 @@ OT_WEAK ot_u8 vl_delete(vlBLOCK block_id, ot_u8 data_id, const id_tmpl* user_id)
 
 
 
-#ifndef EXTF_vl_getheader
+#ifndef EXTF_vl_getheader_vaddr
 OT_WEAK ot_u8 vl_getheader_vaddr(vaddr* header, vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id) {
 
     /// 1. Get the header from the supplied Block ID & Data ID
@@ -602,7 +602,7 @@ OT_WEAK ot_u8 vl_getheader(vl_header_t* header, vlBLOCK block_id, ot_u8 data_id,
 
     output = vl_getheader_vaddr(&header_vaddr, block_id, data_id, mod, user_id);
     if (output == 0) {
-        sub_copy_header( header_vaddr, (ot_u16*)header );
+        sub_copy_header(header, header_vaddr);
     }
 
     return output;
@@ -679,6 +679,25 @@ OT_WEAK ot_u8 vl_chmod(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl
     }
 
     return output;
+}
+#endif
+
+
+#ifndef EXTF_vl_touch
+OT_WEAK ot_u8 vl_touch(vlBLOCK block_id, ot_u8 data_id, ot_u8 flags, const id_tmpl* user_id) {
+    vlFILE* fp;
+    ot_u8 retval;
+    
+    fp = vl_open(block_id, data_id, VL_ACCESS_RW, user_id);
+    if (fp != NULL) {
+        fp->flags &= (VL_FLAG_OPENED | VL_FLAG_MODDED);
+        retval = vl_close(fp);
+    }
+    else {
+        retval = 255;   ///@todo replace with error code constant 
+    }
+
+    return retval;
 }
 #endif
 
@@ -820,6 +839,7 @@ OT_WEAK ot_u8 vl_append( vlFILE* fp, ot_uint length, vl_u8* data ) {
 #ifndef EXTF_vl_close
 OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
     ot_u8 retval = 0;
+    ot_u32 epoch_s;
 
     if (FP_ISVALID(fp)) {
         if (fp->read == &vsram_read) {
@@ -835,9 +855,14 @@ OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
         ///@todo make sure all platforms are supporting the time module from OpenTag,
         ///      which itself must be added to libotfs
         ///@todo make sure enabling VLMODTIME also mandatorily enables TIME features
+#       if (OT_FEATURE(VLMODTIME) == ENABLED) || (OT_FEATURE(VLACCTIME) == ENABLED)
+        epoch_s = time_get_utc();
+#       endif
+#       if (OT_FEATURE(VLACCTIME) == ENABLED)
+        sub_write_header( (fp->header+16), (ot_u16*)&epoch_s, 4);    ///@todo make offset constant instead of 12
+#       endif
 #       if (OT_FEATURE(VLMODTIME) == ENABLED)
         if (fp->flags & VL_FLAG_MODDED) {
-            ot_u32 epoch_s = time_get_utc();
             sub_write_header( (fp->header+12), (ot_u16*)&epoch_s, 4);    ///@todo make offset constant instead of 12
         }
 #       endif
@@ -1462,12 +1487,13 @@ vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers) {
 }
 
 
-void sub_copy_header( vaddr header, ot_u16* output_header ) {
+void sub_copy_header(vl_header_t* output_header, vaddr header ) {
     ot_int i;
-    ot_int copy_length = (OCTETS_IN_vl_header_t / 2);
+    ot_int copy_length  = (OCTETS_IN_vl_header_t / 2);
+    ot_u16* header_u16  = (ot_u16*)output_header;
 
     for (i=0; i<copy_length; i++) {
-        output_header[i] = vworm_read(header);
+        header_u16[i] = vworm_read(header);
         header += 2;
     }
 }

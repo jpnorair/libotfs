@@ -76,7 +76,11 @@
 #else
 #   define FILE_MODTIME(EPOCH_S), 
 #endif
-
+#if (OT_FEATURE(VLACCTIME) == ENABLED)
+#   define FILE_ACCTIME(EPOCH_S) SPLIT_LONG_LE(EPOCH_S)
+#else
+#   define FILE_ACCTIME(EPOCH_S), 
+#endif
 
 #ifndef OT_ACTIVE_SETTINGS
 #   define OT_ACTIVE_SETTINGS 0
@@ -119,6 +123,10 @@ const ot_u16 overhead_files[] = {
     SPLIT_LONG_LE(0),
     SPLIT_LONG_LE(0),
 #   endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    SPLIT_LONG_LE(0),
+    SPLIT_LONG_LE(0),
+#   endif
 
     /* GFB Files */
     JOIN_2BYTES(0x00, 0x00), JOIN_2BYTES(0x00, 0x01),                 /* GFB Element 0 */
@@ -128,14 +136,20 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(0x00, 0x00), JOIN_2BYTES(0x00, 0x01),                 /* GFB Element 1 */
     JOIN_2BYTES(0x01, GFB_MOD_standard),
     JOIN_2BYTES(0x00, 0x14), JOIN_2BYTES(0xFF, 0xFF),
     FILE_ACTIONCODE(0,0),
-#    if (OT_FEATURE(VLMODTIME) == ENABLED)
+#   if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
-#    endif
+#   endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
     
     /* Mode 2 ISFs, written as little endian */
     JOIN_2BYTES(ISF_LEN(network_settings), 0x00),                       /* Length, little endian */
@@ -147,6 +161,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(device_features), 0x00),
     (ISF_ALLOC(device_features)),
@@ -157,6 +174,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(channel_configuration), 0x00),
     (ISF_ALLOC(channel_configuration)),
@@ -167,6 +187,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(real_time_scheduler), 0x00),
     (ISF_ALLOC(real_time_scheduler)),
@@ -177,6 +200,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(hold_scan_sequence), 0x00),
     (ISF_ALLOC(hold_scan_sequence)),
@@ -187,6 +213,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(sleep_scan_sequence), 0x00),
     (ISF_ALLOC(sleep_scan_sequence)),
@@ -197,6 +226,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(beacon_transmit_sequence), 0x00),
     (ISF_ALLOC(beacon_transmit_sequence)),
@@ -207,6 +239,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(isf_list), 0x00),
     (ISF_ALLOC(isf_list)),
@@ -217,6 +252,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(iss_list), 0x00),
     (ISF_ALLOC(iss_list)),
@@ -227,6 +265,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(gfb_file_list), 0x00),
     (ISF_ALLOC(gfb_file_list)),
@@ -237,6 +278,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(location_data_list), 0x00),
     (ISF_ALLOC(location_data_list)),
@@ -247,6 +291,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(ipv6_addresses), 0x00),
     (ISF_ALLOC(ipv6_addresses)),
@@ -257,6 +304,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(sensor_list), 0x00),
     (ISF_ALLOC(sensor_list)),
@@ -267,6 +317,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(sensor_alarms), 0x00),
     (ISF_ALLOC(sensor_alarms)),
@@ -277,6 +330,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(root_authentication_key), 0x00),
     (ISF_ALLOC(root_authentication_key)),
@@ -287,6 +343,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(user_authentication_key), 0x00),
     (ISF_ALLOC(user_authentication_key)),
@@ -297,6 +356,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(pwrdata_inv), 0x00),
     (ISF_ALLOC(pwrdata_inv)),
@@ -307,6 +369,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(pwrdata_mppt), 0x00),
     (ISF_ALLOC(pwrdata_mppt)),
@@ -317,6 +382,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(csip_nameplate), 0x00),
     (ISF_ALLOC(csip_nameplate)),
@@ -327,6 +395,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(csip_cfg), 0x00),
     (ISF_ALLOC(csip_cfg)),
@@ -337,6 +408,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(csip_setarray), 0x00),
     (ISF_ALLOC(csip_setarray)),
@@ -347,6 +421,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(csip_issuecmd), 0x00),
     (ISF_ALLOC(csip_issuecmd)),
@@ -357,6 +434,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(csip_operations), 0x00),
     (ISF_ALLOC(csip_operations)),
@@ -367,6 +447,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 
     JOIN_2BYTES(ISF_LEN(csip_issuecontrol), 0x00),
     (ISF_ALLOC(csip_issuecontrol)),
@@ -376,6 +459,9 @@ const ot_u16 overhead_files[] = {
     FILE_ACTIONCODE(0,0),
 #   if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
+#   endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
 #   endif
 
     JOIN_2BYTES(ISF_LEN(application_extension), 0x00),
@@ -387,6 +473,9 @@ const ot_u16 overhead_files[] = {
 #	if (OT_FEATURE(VLMODTIME) == ENABLED)
     FILE_MODTIME(0),
 #	endif
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    FILE_ACCTIME(0),
+#   endif
 };
 
 
