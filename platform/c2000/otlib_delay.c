@@ -28,6 +28,19 @@
 #include <otplatform.h>
 #include <otlib/delay.h>
 
+#if defined (__TMS320F2806x__)
+  extern void DSP28x_usDelay(long Count);
+
+	#define CPU_RATE   11.111L   // for a 90MHz CPU clock speed (SYSCLKOUT)
+	#define DELAY_US(A)  DSP28x_usDelay(((((long double) A * 1000.0L) / (long double)CPU_RATE) - 9.0L) / 5.0L)
+#elif defined (__TMS320F2837x__)
+	extern void F28x_usDelay(long LoopCount);
+
+//	#define CPU_RATE   5.00L   // for a 200MHz CPU clock speed (SYSCLKOUT)
+	#define CPU_RATE   5.263L   // for a 190MHz CPU clock speed  (SYSCLKOUT)
+	#define DELAY_US(A)  F28x_usDelay(((((long double) A * 1000.0L) / (long double)CPU_RATE) - 9.0L) / 5.0L)
+#endif
+
 
 #ifndef EXTF_delay_sti
 void delay_sti(ot_u16 sti) {

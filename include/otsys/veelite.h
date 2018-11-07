@@ -399,15 +399,45 @@ ot_u32 vl_getmodtime(vlFILE* fp);
 
 
 /** @brief  Get the Access time of the file (seconds since epoch)
- * @param  vlFILE*     File Pointer of open file
- * @retval ot_u32      Second since epoch that file was last accessed
- * @ingroup Veelite
- *
- * If access time is not enabled on the Veelite build, then the modtime will be
- * returned.  If the modtime is not enabled on the Veelite build, then 0 will
- * be returned.
- */
+  * @param  vlFILE*     File Pointer of open file
+  * @retval ot_u32      Second since epoch that file was last accessed
+  * @ingroup Veelite
+  *
+  * If access time is not enabled on the Veelite build, then the modtime will be
+  * returned.  If the modtime is not enabled on the Veelite build, then 0 will
+  * be returned.
+  */
 ot_u32 vl_getacctime(vlFILE* fp);
+
+
+/** @brief  Get the Modification time of the file (seconds since epoch)
+  * @param  vlFILE*     File Pointer of open file
+  * @param  ot_u32 		seconds since epoch for new time
+  * @retval ot_u8		Zero on success
+  * @ingroup Veelite
+  *
+  * vl_setmodtime() is not necessary to use.  vl_close() automatically sets file time
+  * values.  vl_setmodtime() is a utility function.
+  *
+  * If modification time is not enabled on the Veelite build, then nothing will happen, 
+  * and a non-zero value will be returned (255).
+  */
+ot_u8 vl_setmodtime(vlFILE* fp, ot_u32 newtime);
+
+
+/** @brief  Set the Access time of the file (seconds since epoch)
+  * @param  vlFILE*     File Pointer of open file
+  * @param  ot_u32 		seconds since epoch for new time
+  * @retval ot_u8		Zero on success
+  * @ingroup Veelite
+  *
+  * vl_setacctime() is not necessary to use.  vl_close() automatically sets file time
+  * values.  vl_setacctime() is a utility function.
+  *
+  * If access time is not enabled on the Veelite build, then nothing will happen, and a
+  * non-zero value will be returned (255).
+  */
+ot_u8 vl_setacctime(vlFILE* fp, ot_u32 newtime);
 
 
 
