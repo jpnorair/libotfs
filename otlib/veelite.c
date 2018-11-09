@@ -661,7 +661,7 @@ OT_WEAK vlFILE* vl_open(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmp
 OT_WEAK ot_u32 vl_getmodtime(vlFILE* fp) {
     ot_uni32 modtime;
     modtime.ulong = 0;
-#   if (OT_FEATURE(VL_MODTIME) == ENABLED)
+#   if (OT_FEATURE(VLMODTIME) == ENABLED)
     if (fp != NULL) {
         modtime.ushort[0]   = vworm_read(fp->header + 12);
         modtime.ushort[1]   = vworm_read(fp->header + 14);
@@ -674,7 +674,7 @@ OT_WEAK ot_u32 vl_getmodtime(vlFILE* fp) {
 
 #ifndef EXTF_vl_getacctime
 OT_WEAK ot_u32 vl_getacctime(vlFILE* fp) {
-#   if (OT_FEATURE(VL_ACCTIME) == ENABLED)
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
     ot_uni32 acctime;
     acctime.ulong = 0;
     if (fp != NULL) {
