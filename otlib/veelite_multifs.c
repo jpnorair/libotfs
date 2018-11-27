@@ -157,7 +157,7 @@ ot_u8 vl_multifs_switch(void* handle, void** getfsbase, const id_tmpl* fsid) {
     if (val == NULL) {
         rc = 0x11;
     }
-    if (getfsbase != NULL) {
+    else if (getfsbase != NULL) {
         *getfsbase = (void*)*val;
         //printf("--> Judy Value = %016llX\n", (MCU_TYPE_UINT)*getfsbase);
         
