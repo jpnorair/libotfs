@@ -900,8 +900,8 @@ OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
 #       endif
 
         // Treatment of Actions
-        ///@todo make this work on C2000
 #       if (OT_FEATURE(VLACTIONS) == ENABLED)
+#       if !defined(__C2000__)
         {   ot_uni16 action; 
             action.ushort       = vworm_read(fp->header+10);    ///@todo make offset constant instead of 10
             action.ubyte[0]    &= (ot_u8)fp->flags;
@@ -910,6 +910,16 @@ OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
                 retval = sub_action(fp);
             }
         }
+#       else
+        {   ot_u16 action;
+            action = vworm_read(fp->header+10);    ///@todo make offset constant instead of 10
+            action &= fp->flags & 0x00FF;
+
+            if (action != 0) {
+                retval = sub_action(fp);
+            }
+        }
+#       endif
 #       endif
 
         // Kill file attributes
