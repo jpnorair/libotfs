@@ -176,7 +176,7 @@
 #define ISF_MOD_network_settings                b00110100
 #define ISF_MOD_device_features                 b00100100
 #define ISF_MOD_channel_configuration           ISF_MOD_file_standard
-#define ISF_MOD_real_time_scheduler             ISF_MOD_file_standard
+#define ISF_MOD_real_time_scheduler             (b00100100 | _DEBUG_FILEMOD)
 #define ISF_MOD_hold_scan_sequence              ISF_MOD_file_standard
 #define ISF_MOD_sleep_scan_sequence             ISF_MOD_file_standard
 #define ISF_MOD_beacon_transmit_sequence        ISF_MOD_file_standard
