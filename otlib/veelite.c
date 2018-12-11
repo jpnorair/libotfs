@@ -147,12 +147,12 @@ typedef vlFILE* (*sub_new)(ot_u8, ot_u8, ot_u8);
 
 
 // Private Functions
-vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg);
-vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length);
-ot_u8 sub_gfb_delete_check(ot_u8 id);
-ot_u8 sub_isf_delete_check(ot_u8 id);
-vaddr sub_gfb_search(ot_u8 id);
-vaddr sub_isf_search(ot_u8 id);
+static vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg);
+static vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length);
+static ot_u8 sub_gfb_delete_check(ot_u8 id);
+static ot_u8 sub_isf_delete_check(ot_u8 id);
+static vaddr sub_gfb_search(ot_u8 id);
+static vaddr sub_isf_search(ot_u8 id);
 
 
 /** @brief Performs mirroring operations on ISF files
@@ -161,15 +161,15 @@ vaddr sub_isf_search(ot_u8 id);
   *
   * For @c direction @c 0 is vworm->vsram, and non-zero is vsram->vworm
   */
-ot_u8 sub_isf_mirror(ot_u8 direction);
+static ot_u8 sub_isf_mirror(ot_u8 direction);
 
 
 
 
-vlFILE* sub_new_fp();
-vlFILE* sub_new_file(vl_header_t* new_header, vaddr heap_base, vaddr heap_end, vaddr header_base, ot_int header_window );
-void sub_delete_file(vaddr del_header);
-void sub_copy_header(vl_header_t* output_header, vaddr header);
+static vlFILE* sub_new_fp();
+static vlFILE* sub_new_file(vl_header_t* new_header, vaddr heap_base, vaddr heap_end, vaddr header_base, ot_int header_window );
+static void sub_delete_file(vaddr del_header);
+static void sub_copy_header(vl_header_t* output_header, vaddr header);
 
 /** @brief Writes a block of data to the header
   * @param addr : (ot_u8*) physical address of the start of the write
@@ -180,7 +180,7 @@ void sub_copy_header(vl_header_t* output_header, vaddr header);
   * @note @c addr @c parameter should be half word aligned (i.e. even).
   *       Behavior is not guaranteed with non half-word aligned addresses
   */
-void sub_write_header(vaddr header, ot_u16* data, ot_uint length );
+static void sub_write_header(vaddr header, ot_u16* data, ot_uint length );
 
 
 
@@ -198,7 +198,7 @@ void sub_write_header(vaddr header, ot_u16* data, ot_uint length );
   * @c sub_find_empty_header() @c will always return the nearest header to the front
   * of the array.
   */
-vaddr sub_find_empty_header(vaddr header, ot_int num_headers);
+static vaddr sub_find_empty_header(vaddr header, ot_int num_headers);
 
 
 
@@ -215,7 +215,7 @@ vaddr sub_find_empty_header(vaddr header, ot_int num_headers);
   * could be made faster.  @c sub_find_empty_heap() @c only runs when adding a ISF
   * file, which may never even happen.
   */
-vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
+static vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
                         vaddr header, ot_uint new_alloc, ot_int num_headers);
 
 
@@ -230,7 +230,7 @@ vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
   *
   * Not implemented at time being.
   */
-ot_u8 sub_defragment_heap(vaddr base, ot_uint window);
+static ot_u8 sub_defragment_heap(vaddr base, ot_uint window);
 
 
 
@@ -242,12 +242,12 @@ ot_u8 sub_defragment_heap(vaddr base, ot_uint window);
   * @retval ot_int : Number of headers searched through until ID was found.
   *                  -1 if no headers were found.
   */
-vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers);
+static vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers);
 
 
 
 
-ot_u8 sub_action(vlFILE* fp);
+static ot_u8 sub_action(vlFILE* fp);
 
 
 
@@ -274,12 +274,13 @@ OT_WEAK ot_u8 vl_init(void* handle) {
 #   endif
 
     /// Initialize environment variables
+    memset(vlfile, 0, sizeof(vlfile));
     for (i=0; i<OT_PARAM(VLFPS); i++) {
         vlfile[i].header   = NULL_vaddr;
-        vlfile[i].start    = 0;
-        vlfile[i].length   = 0;
-        vlfile[i].read     = NULL;
-        vlfile[i].write    = NULL;
+//        vlfile[i].start    = 0;
+//        vlfile[i].length   = 0;
+//        vlfile[i].read     = NULL;
+//        vlfile[i].write    = NULL;
     }
 
     /// Initialize core
@@ -379,7 +380,7 @@ OT_WEAK void vl_remove_action(vlBLOCK block_id, ot_u8 data_id) {
 #endif
 
 
-ot_u8 sub_action(vlFILE* fp) {
+static ot_u8 sub_action(vlFILE* fp) {
     ot_u8 retval = 0;
 
 #   if (OT_FEATURE(VLACTIONS))
@@ -409,12 +410,12 @@ OT_WEAK vlFILE* vl_get_fp(ot_int fd) {
 
 #ifndef EXTF_vl_get_fd
 OT_WEAK ot_int vl_get_fd(vlFILE* fp) {
-    ot_int fd;
+    ot_uint fd;
 
     fd  = (ot_int)((vl_u8*)fp - (vl_u8*)vlfile);
     fd /= sizeof(vlFILE);
 
-    return fd;
+    return (fd < OT_PARAM(VLFPS)) ? (ot_int)fd : -1;
 }
 #endif
 
@@ -1047,7 +1048,7 @@ OT_WEAK ot_u8 ISF_loadmirror() {
 /// First Variant
 #if (OT_FEATURE(MULTIFS) != ENABLED)
 
-vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
+static vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
 #if ((OT_FEATURE(VLNEW) == ENABLED) && ((GFB_HEAP_BYTES > 0) && (GFB_NUM_USER_FILES > 0)))
     vl_header_t  new_header;
     
@@ -1082,7 +1083,7 @@ vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
 
 
 
-vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length ) {
+static vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length ) {
 #if ((OT_FEATURE(VLNEW) == ENABLED) && (ISF_NUM_USER_FILES > 0))
     vl_header_t new_header;
     
@@ -1122,7 +1123,7 @@ vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length ) {
 
 
 
-ot_u8 sub_gfb_delete_check(ot_u8 id) {
+static ot_u8 sub_gfb_delete_check(ot_u8 id) {
 #if ((OT_FEATURE(VLNEW) == ENABLED) && ((GFB_HEAP_BYTES > 0) && (GFB_NUM_USER_FILES > 0)))
     return ( id > GFB_NUM_STOCK_FILES );
 #else
@@ -1132,7 +1133,7 @@ ot_u8 sub_gfb_delete_check(ot_u8 id) {
 
 
 
-ot_u8 sub_isf_delete_check(ot_u8 id) {
+static ot_u8 sub_isf_delete_check(ot_u8 id) {
 #if ((OT_FEATURE(VLNEW) == ENABLED) && (ISF_NUM_USER_FILES > 0))
     return ((id >= (ISF_NUM_M1_FILES+ISF_NUM_M2_FILES)) && \
             (id < (256-ISF_NUM_EXT_FILES)) );
@@ -1144,13 +1145,13 @@ ot_u8 sub_isf_delete_check(ot_u8 id) {
 
 
 
-vaddr sub_gfb_search(ot_u8 id) {
+static vaddr sub_gfb_search(ot_u8 id) {
     return sub_header_search( GFB_Header_START, id, GFB_NUM_USER_FILES );
 }
 
 
 
-vaddr sub_isf_search(ot_u8 id) {
+static vaddr sub_isf_search(ot_u8 id) {
 #   if (OT_FEATURE(VLNEW) == ENABLED)
     // Check IDs added by the user during runtime
     if ( (id >= (ISF_NUM_M1_FILES+ISF_NUM_M2_FILES)) && (id < (256-ISF_NUM_EXT_FILES)) ) {
@@ -1172,7 +1173,7 @@ vaddr sub_isf_search(ot_u8 id) {
 
 
 
-ot_u8 sub_isf_mirror(ot_u8 direction) {
+static ot_u8 sub_isf_mirror(ot_u8 direction) {
 #if (ISF_MIRROR_HEAP_BYTES > 0)
 #   error "should be no mirror"
     vaddr   header;
@@ -1230,7 +1231,7 @@ ot_u8 sub_isf_mirror(ot_u8 direction) {
 #else
 
 
-vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
+static vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
 #   if (OT_FEATURE(VLNEW) == ENABLED)
     vl_header_t new_header;
     ot_uni16    idmod;
@@ -1264,7 +1265,7 @@ vlFILE* sub_gfb_new(ot_u8 id, ot_u8 mod, ot_u8 null_arg) {
 
 
 
-vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length ) {
+static vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length ) {
 #   if (OT_FEATURE(VLNEW) == ENABLED)
     vl_header_t new_header;
     ot_uni16    idmod;
@@ -1301,7 +1302,7 @@ vlFILE* sub_isf_new(ot_u8 id, ot_u8 mod, ot_u8 max_length ) {
 }
 
 
-ot_u8 sub_gfb_delete_check(ot_u8 id) {
+static ot_u8 sub_gfb_delete_check(ot_u8 id) {
 #   if (OT_FEATURE(VLNEW) == ENABLED)
     vlFSHEADER* fshdr = vworm_get(OVERHEAD_START_VADDR);
     return ( id > fshdr->gfb.used );
@@ -1311,7 +1312,7 @@ ot_u8 sub_gfb_delete_check(ot_u8 id) {
 }
 
 
-ot_u8 sub_isf_delete_check(ot_u8 id) {
+static ot_u8 sub_isf_delete_check(ot_u8 id) {
 #   if (OT_FEATURE(VLNEW) == ENABLED)
     ot_uni16        idmod;
     vlFSHEADER*     fshdr;
@@ -1339,14 +1340,14 @@ ot_u8 sub_isf_delete_check(ot_u8 id) {
 }
 
 
-vaddr sub_gfb_search(ot_u8 id) {
+static vaddr sub_gfb_search(ot_u8 id) {
     vlFSHEADER* fshdr;
     fshdr = vworm_get(OVERHEAD_START_VADDR);
     return sub_header_search( GFB_Header_START, id, fshdr->gfb.files );
 }
 
 
-vaddr sub_isf_search(ot_u8 id) {
+static vaddr sub_isf_search(ot_u8 id) {
     vlFSHEADER* fshdr;
     fshdr = vworm_get(OVERHEAD_START_VADDR);
     return sub_header_search(   GFB_Header_START+((fshdr->gfb.files+fshdr->iss.files)*sizeof(vl_header_t)), 
@@ -1356,7 +1357,7 @@ vaddr sub_isf_search(ot_u8 id) {
 
 
 
-ot_u8 sub_isf_mirror(ot_u8 direction) {
+static ot_u8 sub_isf_mirror(ot_u8 direction) {
 #if (ISF_MIRROR_HEAP_BYTES > 0)
 #   error "should be no mirror"
     vlFSHEADER* fshdr;
@@ -1423,7 +1424,7 @@ ot_u8 sub_isf_mirror(ot_u8 direction) {
 /// Generic Subroutines
 ///@note All these are MULTIFS SAFE
 
-vlFILE* sub_new_fp() {
+static vlFILE* sub_new_fp() {
 #if (OT_PARAM(VLFPS) < 8)
     ot_int fd;
 
@@ -1439,7 +1440,7 @@ vlFILE* sub_new_fp() {
 }
 
 
-vlFILE* sub_new_file(vl_header_t* new_header, vaddr heap_base, vaddr heap_end, vaddr header_base, ot_int header_window ) {
+static vlFILE* sub_new_file(vl_header_t* new_header, vaddr heap_base, vaddr heap_end, vaddr header_base, ot_int header_window ) {
 #if (OT_FEATURE(VLNEW) == ENABLED)
     //vlFILE* fp;
     //vaddr   new_base    = 0;
@@ -1470,7 +1471,7 @@ vlFILE* sub_new_file(vl_header_t* new_header, vaddr heap_base, vaddr heap_end, v
 
 
 
-void sub_delete_file(vaddr del_header) {
+static void sub_delete_file(vaddr del_header) {
 #if (OT_FEATURE(VLNEW) == ENABLED)
     vaddr   header_base;
     ot_u16  header_alloc;
@@ -1487,7 +1488,7 @@ void sub_delete_file(vaddr del_header) {
 
 
 
-vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers) {
+static vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers) {
 
     // Quick check to see if Header is at the indexed location.
 #   if (OT_FEATURE(MULTIFS) == ENABLED)
@@ -1529,7 +1530,7 @@ vaddr sub_header_search(vaddr header, ot_u8 search_id, ot_int num_headers) {
 }
 
 
-void sub_copy_header(vl_header_t* output_header, vaddr header ) {
+static void sub_copy_header(vl_header_t* output_header, vaddr header ) {
     ot_int i;
     ot_int copy_length  = (OCTETS_IN_vl_header_t / 2);
     ot_u16* header_u16  = (ot_u16*)output_header;
@@ -1541,7 +1542,7 @@ void sub_copy_header(vl_header_t* output_header, vaddr header ) {
 }
 
 
-void sub_write_header(vaddr header, ot_u16* data, ot_uint length ) {
+static void sub_write_header(vaddr header, ot_u16* data, ot_uint length ) {
     ot_int i;
 
     for (i=0; i<length; i+=2, data++) {
@@ -1550,7 +1551,7 @@ void sub_write_header(vaddr header, ot_u16* data, ot_uint length ) {
 }
 
 
-vaddr sub_find_empty_header(vaddr header, ot_int num_headers) {
+static vaddr sub_find_empty_header(vaddr header, ot_int num_headers) {
     vaddr header_base;
 
     for (; num_headers>0; num_headers--) {
@@ -1566,7 +1567,7 @@ vaddr sub_find_empty_header(vaddr header, ot_int num_headers) {
 }
 
 
-vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
+static vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
                         vaddr header, ot_uint new_alloc, ot_int num_headers) {
 #if (OT_FEATURE(VLNEW) == ENABLED)
     //Search all header combinations to find:
@@ -1626,7 +1627,7 @@ vaddr sub_find_empty_heap(  vaddr heap_base, vaddr heap_end,
 
 
 //Save sub_defragment_heap for a rainy day
-ot_u8 sub_defragment_heap(vaddr base, ot_uint window) {
+static ot_u8 sub_defragment_heap(vaddr base, ot_uint window) {
     return ~0;
 }
 
