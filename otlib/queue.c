@@ -292,10 +292,10 @@ void q_writelong(ot_queue* q, ot_ulong long_in) {
 #   else
         ot_u8* data;
         data = (ot_u8*)&long_in;
-        *q->putcursor++ = data[B3];
-        *q->putcursor++ = data[B2];
-        *q->putcursor++ = data[B1];
-        *q->putcursor++ = data[B0];
+        *q->putcursor++ = data[_B3];
+        *q->putcursor++ = data[_B2];
+        *q->putcursor++ = data[_B1];
+        *q->putcursor++ = data[_B0];
 #   endif
 }
 #endif
@@ -309,10 +309,10 @@ void q_writelong_be(ot_queue* q, ot_ulong long_in) {
 #   else
         ot_u8* data;
         data = (ot_u8*)&long_in;
-        *q->putcursor++ = data[B0];
-        *q->putcursor++ = data[B1];
-        *q->putcursor++ = data[B2];
-        *q->putcursor++ = data[B3];
+        *q->putcursor++ = data[_B0];
+        *q->putcursor++ = data[_B1];
+        *q->putcursor++ = data[_B2];
+        *q->putcursor++ = data[_B3];
 #   endif
 }
 #endif
@@ -368,10 +368,10 @@ ot_u32 q_readlong(ot_queue* q)  {
         return PLATFORM_ENDIAN32(data);
 #   else
         ot_uni32 data;
-        data.ubyte[B3]  = *q->getcursor++;
-        data.ubyte[B2]  = *q->getcursor++;
-        data.ubyte[B1]  = *q->getcursor++;
-        data.ubyte[B0]  = *q->getcursor++;
+        data.ubyte[_B3]  = *q->getcursor++;
+        data.ubyte[_B2]  = *q->getcursor++;
+        data.ubyte[_B1]  = *q->getcursor++;
+        data.ubyte[_B0]  = *q->getcursor++;
         return data.ulong;
 #   endif
 }
@@ -385,10 +385,10 @@ ot_u32 q_readlong_be(ot_queue* q)  {
         return data;
 #   else
         ot_uni32 data;
-        data.ubyte[B0]  = *q->getcursor++;
-        data.ubyte[B1]  = *q->getcursor++;
-        data.ubyte[B2]  = *q->getcursor++;
-        data.ubyte[B3]  = *q->getcursor++;
+        data.ubyte[_B0]  = *q->getcursor++;
+        data.ubyte[_B1]  = *q->getcursor++;
+        data.ubyte[_B2]  = *q->getcursor++;
+        data.ubyte[_B3]  = *q->getcursor++;
         return data.ulong;
 #   endif
 }

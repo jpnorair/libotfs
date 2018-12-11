@@ -42,17 +42,17 @@
 #   ifdef __BIG_ENDIAN__
 #       define UPPER    0
 #       define LOWER    1
-#       define B0       3
-#       define B1       2
-#       define B2       1
-#       define B3       0
+#       define _B0       3
+#       define _B1       2
+#       define _B2       1
+#       define _B3       0
 #   else
 #       define UPPER    1
 #       define LOWER    0
-#       define B0       0
-#       define B1       1
-#       define B2       2
-#       define B3       3
+#       define _B0       0
+#       define _B1       1
+#       define _B2       2
+#       define _B3       3
 #   endif
 
 
