@@ -52,9 +52,9 @@
 
 
 /// User aliases for sandboxed processes only
-const id_tmpl*   auth_root;
-const id_tmpl*   auth_user;
-const id_tmpl*   auth_guest;
+const id_tmpl   auth_root;
+const id_tmpl   auth_user;
+const id_tmpl   auth_guest;
 
 
 typedef enum {
@@ -137,13 +137,13 @@ typedef struct OT_PACKED {
 static idclass_t sub_make_id64(uint64_t* id64, const id_tmpl* user_id) {    
     ot_int i;
     
-    if ((user_id == NULL) || (user_id == auth_root)) {
+    if ((user_id == NULL) || (user_id == &auth_root)) {
         return ID_localroot;
     }
-    if (user_id == auth_user) {
+    if (user_id == &auth_user) {
         return ID_localuser;
     }
-    if (user_id == auth_guest) {
+    if (user_id == &auth_guest) {
         return ID_localguest;
     }
     
@@ -682,11 +682,13 @@ ot_u8 auth_get_user(id_tmpl* user_id, ot_uint key_index) {
 
 
 const id_tmpl* auth_intrinsic_user(ot_uint index) {
+	id_tmpl* output;
     switch (index) {
-        case 0:     return auth_root;
-        case 1:     return auth_user;
-        default:    return auth_guest;
+        case 0:     output = &auth_root;	break;
+        case 1:     output = &auth_user;	break;
+        default:    output = &auth_guest;	break;
     }
+    return output;
 }
 
 

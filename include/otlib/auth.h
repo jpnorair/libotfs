@@ -39,17 +39,17 @@
 #include <otlib/alp.h>
 
 /// Default user types
-#define AUTH_GUEST  (id_tmpl*)auth_guest
-#define AUTH_USER   (id_tmpl*)auth_user
+#define AUTH_GUEST  (id_tmpl*)&auth_guest
+#define AUTH_USER   (id_tmpl*)&auth_user
 #define AUTH_ROOT   NULL
 
 #define AUTH_FLAG_ISGLOBAL  0x80
 #define AUTH_FLAG_ISROOT    0x40
 
 
-extern const id_tmpl*   auth_root;      // this is self-root, uses local root key
-extern const id_tmpl*   auth_user;      // this is self-user, uses local user key
-extern const id_tmpl*   auth_guest;
+extern const id_tmpl   auth_root;      // this is self-root, uses local root key
+extern const id_tmpl   auth_user;      // this is self-user, uses local user key
+extern const id_tmpl   auth_guest;
 
 
 typedef enum {
