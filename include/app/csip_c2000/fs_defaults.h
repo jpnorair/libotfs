@@ -789,7 +789,31 @@ const ot_u16 isf_stock_files[] = {
     /* CSIP Issue Control: id=0x17, len=4, alloc=4 */
     SPLIT_LONG_LE(1),   // I/O Register
 
-    /* Application Extension: id=0xFF, len=0, alloc=64 */
+    /* Application Extension: id=0xFF, len=0, alloc=256 */
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
+    _ERS16, _ERS16, _ERS16, _ERS16,
     _ERS16, _ERS16, _ERS16, _ERS16,
     _ERS16, _ERS16, _ERS16, _ERS16,
     _ERS16, _ERS16, _ERS16, _ERS16,

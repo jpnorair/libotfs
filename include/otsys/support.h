@@ -49,11 +49,11 @@
 #   define CC_SUPPORT   GCC
 
 // TI's old-school C compiler used with C2000 and sometimes MSP430
-#elif (defined(__TI_COMPILER_VERSION__) || (defined(__TI_C__) || defined(__CL430__) || defined(__CL2000__))
+#elif defined(__TI_COMPILER_VERSION__) || defined(__TI_C__) || defined(__CL430__) || defined(__CL2000__)
 #   define CC_SUPPORT   TI_C
 
 // IAR_V5: a proprietary compiler from IAR
-#elif (defined(__IARV5__))
+#elif defined(__IARV5__)
 #   define CC_SUPPORT   IAR_V5
 
 #else

@@ -233,7 +233,7 @@
 #define ISF_MAX_csip_issuecmd                   24
 #define ISF_MAX_csip_operations                 16
 #define ISF_MAX_csip_issuecontrol               4
-#define ISF_MAX_application_extension           64
+#define ISF_MAX_application_extension           256
 
 
 /// ISF file default length:
