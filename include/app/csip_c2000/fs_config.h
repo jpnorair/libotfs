@@ -200,7 +200,7 @@
 #define ISF_MOD_csip_operations                 (b00010000 | _DEBUG_FILEMOD)
 #define ISF_MOD_csip_issuecontrol               (b00110000 | _DEBUG_FILEMOD)
 // OTFS STANDARD APP EXT FILE -----------------------------------------------
-#define ISF_MOD_application_extension           b00100100
+#define ISF_MOD_application_extension           (b00100000 | _DEBUG_FILEMOD)
 
 
 /// Stock ISF file max data lengths (not aligned, just max)

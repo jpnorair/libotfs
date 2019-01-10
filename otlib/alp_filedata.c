@@ -269,7 +269,7 @@ ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 
     ot_bool inc_header  = (ot_bool)((cmd_in & 0x0F) == 0x0C);
     vlBLOCK file_block  = (vlBLOCK)((cmd_in >> 4) & 0x07);
     ot_u8   file_mod    = ((cmd_in & 0x02) ? VL_ACCESS_W : VL_ACCESS_R);
-    ot_u8   overwrite   = (cmd_in & 0x01);
+    ot_u8   insert_mode = (cmd_in & 0x01);
     ot_queue*  inq      = alp->inq;
     ot_queue*  outq     = alp->outq;
     ot_qcur outq_marker = alp->outq->putcursor;
@@ -320,7 +320,7 @@ ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 
                 limit       = fp->alloc;
                 err_code    = 0x08;
             }
-            if (overwrite) {
+            if (insert_mode == 0) {
                 fp->length = 0;
             }
             for (; offset<limit; offset+=2, span-=2, data_in-=2) {
