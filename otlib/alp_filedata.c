@@ -405,7 +405,8 @@ ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 
             }
         }
 
-        data_in -= 5;   // 5 bytes input header
+        data_in -= 5;       // 5 bytes input header
+        data_in -= span;    // Bypass data payload
     }
 
     // Total Completion:
