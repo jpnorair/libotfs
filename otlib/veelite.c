@@ -69,10 +69,15 @@ static ot_u8    vlaction_users[OT_PARAM(VLACTIONS)];
 
 
 // Two checks for File Pointer Validity
-// Bottom option is slower but more robust.  Good for Debug.
+// Bottom option is slower but more robust.  Good for Debug but unnecessary.
 #define FP_ISVALID(fp_VAL)  (fp_VAL != NULL)
 //#define FP_ISVALID(fp_VAL)  ((fp_VAL >= &vlfile[0]) && (fp_VAL <= &vlfile[OT_PARAM(VLFPS)-1]))
 
+
+// Two checks for File being Mirrored
+// Bottom option is slower but more robust.  If you are using RAM exclusively for FS, you may need bottom option
+//#define FP_ISMIRRORED(fp_VAL) ((fp_VAL)->read == &vsram_read)
+#define FP_ISMIRRORED(fp_VAL) (vworm_read((fp_VAL)->header + 8) != NULL_vaddr)
 
 
 // If creating new files is permitted, then we store a mirror of the filesystem header.
@@ -766,7 +771,7 @@ OT_WEAK ot_u8 vl_write( vlFILE* fp, ot_uint offset, ot_u16 data ) {
 ///      the only place where it can be guaranteed to be in contiguous RAM.
 OT_WEAK vl_u8* vl_memptr( vlFILE* fp ) {
 #   if MCU_CONFIG(DATAFLASH)
-    if (fp->read == &vsram_read) {
+    if (FP_ISMIRRORED(fp)) {
         return (vl_u8*)vsram_get(fp->start);
     }
     return NULL;
@@ -875,14 +880,18 @@ OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
     ot_u32 epoch_s;
 
     if (FP_ISVALID(fp)) {
-        if (fp->read == &vsram_read) {
+#       if MCU_CONFIG(DATAFLASH)
+        if (FP_ISMIRRORED(fp)) {
             ot_u16* mhead;
             mhead   = (ot_u16*)vsram_get(fp->start-2);
             *mhead  = (*mhead != fp->length) ? fp->length : *mhead;
         }
-        else if (vworm_read(fp->header+0) != fp->length) {
+        else
+#       endif
+        if (vworm_read(fp->header+0) != fp->length) {
             sub_write_header( (fp->header+0), &(fp->length), 2);
         }
+
 
         // Change Modification Time if there was a modification
         ///@todo make sure all platforms are supporting the time module from OpenTag,
