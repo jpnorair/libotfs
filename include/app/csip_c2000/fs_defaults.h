@@ -559,7 +559,7 @@ const ot_u16 isf_stock_files[] = {
     JOIN_2BYTES(0x00, 1),                               /* Default Device Flags, Beacon Attempts */
     PLATFORM_ENDIAN16_C(0),                                     /* Hold Scan Sequence Cycles */
 
-    _ERS16, //Alignment Padding
+    _ERS16, _ERS16, _ERS16, //Alignment Padding
 
     /* device features: id=0x01, len=48, alloc=48 */
     __UID,                                              /* UID: 8 bytes*/
@@ -589,6 +589,8 @@ const ot_u16 isf_stock_files[] = {
     SPLIT_LONG_LE(0),   // Time: Epoch Seconds since 01/01/1970
     SPLIT_LONG_LE(0),   // Time: Fractional Seconds
     SPLIT_LONG_LE(0),   // ModType
+
+    _ERS16, _ERS16,     //Alignment Padding
 
     /* hold scan periods: id=0x04, len=0, alloc=0 */
     /* Period data format in Section X.9.4.5 of Mode 2 spec */
@@ -642,7 +644,7 @@ const ot_u16 isf_stock_files[] = {
     
     _ERS16, //Alignment Padding
 
-    /* Power Data for Inverter: id=0x10, len=88, alloc=88 */
+    /* Power Data for Inverter: id=0x10, len=50, alloc=50 */
     (1),   // AC Current
     (2),   // AC Voltage
     (3),   // AC Frequency
@@ -668,9 +670,9 @@ const ot_u16 isf_stock_files[] = {
     (23),
     (24),
     (25),
-    _ERS16, //Alignment Padding
+    _ERS16, _ERS16, _ERS16, //Alignment Padding
     
-    /* Power Data for MPPT: id=0x11, len=80, alloc=80 */
+    /* Power Data for MPPT: id=0x11, len=40, alloc=40 */
     (1),   // PV1 Voltage
     (2),   // PV1 Current
     (3),   // PV1 Temperature
@@ -702,6 +704,7 @@ const ot_u16 isf_stock_files[] = {
     SPLIT_LONG_LE(7),   // PV present indicator
     SPLIT_LONG_LE(8),   // Time resolution
     SPLIT_LONG_LE(9),   // Source of time synchronization
+    _ERS16, _ERS16,     //Alignment Padding
     
     /* CSIP Nameplate MPPT Ratings: id=0x13, len=8, alloc=8 */
     SPLIT_LONG_LE(1),   // ...
@@ -749,8 +752,9 @@ const ot_u16 isf_stock_files[] = {
     SPLIT_LONG_LE(39),
     SPLIT_LONG_LE(40),
     SPLIT_LONG_LE(41),
+    _ERS16, _ERS16,     //Alignment Padding
 
-    /* CSIP Set Array: id=0x14, len=36, alloc=36 */
+    /* CSIP Set Array: id=0x14, len=80, alloc=80 */
     SPLIT_LONG_LE(0),   // PairArray x0
     SPLIT_LONG_LE(0),   // PairArray y0
     SPLIT_LONG_LE(1),   // PairArray x1
@@ -788,6 +792,7 @@ const ot_u16 isf_stock_files[] = {
     
     /* CSIP Issue Control: id=0x17, len=4, alloc=4 */
     SPLIT_LONG_LE(1),   // I/O Register
+    _ERS16, _ERS16,     //Alignment Padding
 
     /* Application Extension: id=0xFF, len=0, alloc=256 */
     _ERS16, _ERS16, _ERS16, _ERS16,

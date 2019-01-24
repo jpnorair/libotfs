@@ -50,8 +50,8 @@
   */
 
 #define VL_WORD             2
-#define _ALLOC_OFFSET       ((VL_WORD*2)-1)
-#define _ALLOC_SHIFT        2
+#define _ALLOC_OFFSET       ((VL_WORD*4)-1)
+#define _ALLOC_SHIFT        3
 #define _MIRALLOC_OFFSET    _ALLOC_OFFSET
 #define _MIRALLOC_SHIFT     _ALLOC_SHIFT
 
