@@ -695,6 +695,35 @@ OT_WEAK ot_u32 vl_getacctime(vlFILE* fp) {
 #endif
 
 
+#ifndef EXTF_vl_setmodtime
+OT_WEAK ot_u8 vl_setmodtime(vlFILE* fp, ot_u32 newtime) {
+    ot_uni32 modtime;
+    modtime.ulong = newtime;
+#   if (OT_FEATURE(VLMODTIME) == ENABLED)
+    if (fp != NULL) {
+        vworm_write(fp->header+12, modtime.ushort[0]);
+        vworm_write(fp->header+14, modtime.ushort[1]);
+    }
+#   endif
+    return modtime.ulong;
+}
+#endif
+
+#ifndef EXTF_vl_setacctime
+OT_WEAK ot_u8 vl_setacctime(vlFILE* fp, ot_u32 newtime) {
+    ot_uni32 acctime;
+    acctime.ulong = newtime;
+#   if (OT_FEATURE(VLACCTIME) == ENABLED)
+    if (fp != NULL) {
+        vworm_write(fp->header+16, acctime.ushort[0]);
+        vworm_write(fp->header+18, acctime.ushort[1]);
+    }
+#   endif
+    return acctime.ulong;
+}
+#endif
+
+
 ///@todo [header]
 #ifndef EXTF_vl_chmod
 OT_WEAK ot_u8 vl_chmod(vlBLOCK block_id, ot_u8 data_id, ot_u8 mod, const id_tmpl* user_id) {
