@@ -203,7 +203,7 @@ ot_u8 vl_multifs_add(void* handle, void* newfsbase, const id_tmpl* fsid);
 
 ot_u8 vl_multifs_del(void* handle, const id_tmpl* fsid);
 
-
+ot_u8 vl_multifs_activeid(void* obj, id_tmpl* fsid);
 
 /** @brief Switches to a new FS in the MultiFS system.
   * @param fsid         (id_tmpl*) Filesystem ID to switch to.  May be NULL.

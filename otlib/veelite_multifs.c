@@ -173,6 +173,10 @@ ot_u8 vl_multifs_switch(void* handle, void** getfsbase, const id_tmpl* fsid) {
 
 
 
+ot_u8 vl_multifs_activeid(void* obj, id_tmpl* fsid) {
+    judy_key((Judy*)obj, fsid->value, JUDYKEYS_PER_UID);
+    return (*(uint64_t*)fsid->value != 0) ? 0 : 255;
+}
 
 
 static ot_u8 sub_pullfs(void* obj, MCU_TYPE_UINT* val, void** getfsbase, id_tmpl* fsid) {
