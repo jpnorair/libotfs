@@ -110,12 +110,14 @@ int otfs_del(void* handle, const otfs_t* fs, bool unload);
 
 
 /** @brief Select an FS to do operations on.
-  * @param fs   (const uint8_t*) eui64 identifier of the FS to select.
+  * @param handle (void*) otfs handle
+  * @param fs   (otfs_t*) Result Variable for FS, or NULL if you don't want result
   * @retval     (int) return zero on success, or non-zero on error
   *
   */
-int otfs_setfs(void* handle, const uint8_t* eui64_bytes);
+int otfs_setfs(void* handle, otfs_t** fs, const uint8_t* eui64_bytes);
 
+int otfs_activeuid(void* handle, uint8_t* eui64_bytes);
 
 
 int otfs_iterator_start(void* handle, otfs_t** fs, uint8_t* eui64_bytes);

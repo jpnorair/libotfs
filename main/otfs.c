@@ -156,19 +156,42 @@ int otfs_del(void* handle, const otfs_t* fs, bool unload) {
 
 
 
-int otfs_setfs(void* handle, const uint8_t* eui64_bytes) {
+int otfs_setfs(void* handle, otfs_t** fs, const uint8_t* eui64_bytes) {
 #if (OT_FEATURE_MULTIFS == ENABLED)
     id_tmpl user_id;
     void* getfs;
-    
     user_id.length  = 8;
     user_id.value   = (uint8_t*)eui64_bytes;
     
-    return vl_multifs_switch(handle, &getfs, (const id_tmpl*)&user_id);
+    if (fs == NULL) {
+        fs = (otfs_t**)&getfs;
+    }
+    
+    return vl_multifs_switch(handle, (void**)fs, (const id_tmpl*)&user_id);
 #else
 	return 0;
 #endif
 }
+
+
+
+int otfs_activeuid(void* handle, uint8_t* eui64_bytes) {
+#if (OT_FEATURE_MULTIFS == ENABLED)
+    id_tmpl user_id;
+    user_id.length  = 8;
+    user_id.value   = (uint8_t*)eui64_bytes;
+    return vl_multifs_activeid(handle, (id_tmpl*)&user_id);
+
+#else
+    vlFILE* fp;
+    fp = ISF_open_su(1);
+    vl_load(fp, 8, eui64_bytes);
+    vl_close(fp);
+    
+    return 0;
+#endif
+}
+
 
 
 
