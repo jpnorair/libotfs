@@ -850,7 +850,7 @@ OT_WEAK ot_u8 vl_store( vlFILE* fp, ot_uint length, vl_u8* data ) {
     ot_u8   test;
 
     if (length > fp->alloc) {
-        return 255;
+        length = fp->alloc;
     }
 
     fp->flags  |= (length != fp->length) ? (VL_FLAG_RESIZED|VL_FLAG_MODDED) : VL_FLAG_MODDED;
