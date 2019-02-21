@@ -43,9 +43,9 @@ int otfs_init(void** handle) {
 #endif
 }
 
-int otfs_deinit(void* handle, bool do_free) {
+int otfs_deinit(void* handle, void (*free_fn)(void*)) {
 #if (OT_FEATURE_MULTIFS == ENABLED)
-    if (do_free) {
+    if (free_fn != NULL) {
         otfs_t*     fs  = NULL;
         uint64_t    uid = 0;
         int         rc;
@@ -53,12 +53,12 @@ int otfs_deinit(void* handle, bool do_free) {
         rc = otfs_iterator_start(handle, &fs, (uint8_t*)&uid);
         while ((rc == 0) && (fs != NULL)) {
             if (fs->base != NULL) {
-                free(fs->base);
+                free_fn(fs->base);
             }
             rc = otfs_iterator_next(handle, &fs, (uint8_t*)&uid);
         }
     }
-    
+
     return vl_multifs_deinit(handle);
 #else
 
@@ -130,7 +130,7 @@ int otfs_new(void* handle, const otfs_t* fs) {
 
 
 
-int otfs_del(void* handle, const otfs_t* fs, bool unload) {
+int otfs_del(void* handle, const otfs_t* fs, void (*free_fn)(void*)) {
 #if (OT_FEATURE_MULTIFS == ENABLED)
     id_tmpl user_id;
     int rc;
@@ -143,8 +143,8 @@ int otfs_del(void* handle, const otfs_t* fs, bool unload) {
     user_id.value   = (uint8_t*)fs->uid.u8;
     rc              = vl_multifs_del(handle, (const id_tmpl*)&user_id);
     if (rc == 0) {
-        if ((unload == true) && (fs->base != NULL)) {
-            free(fs->base);
+        if ((free_fn != NULL) && (fs->base != NULL)) {
+            free_fn(fs->base);
         }
     }
     

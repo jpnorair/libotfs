@@ -79,7 +79,7 @@ typedef struct {
 
 int otfs_init(void** handle);
 
-int otfs_deinit(void* handle, bool do_free);
+int otfs_deinit(void* handle, void (*free_fn)(void*));
 
 
 /** @brief Load Application Defaults into an empty FS
@@ -102,11 +102,10 @@ int otfs_new(void* handle, const otfs_t* fs);
 
 /** @brief Delete an OTFS instance.
   * @param fs       (const otfs_t*) pointer to already allocated and non-empty otfs_t varable
-  * @param unload   (bool) if true, otfs_del() will free the memory at fs->base
+  * @param free_fn  (void (*)(void*)) Function to free FS subelements, or NULL
   * @retval         (int) return zero on success, or non-zero on error
-  *
   */
-int otfs_del(void* handle, const otfs_t* fs, bool unload);
+int otfs_del(void* handle, const otfs_t* fs, void (*free_fn)(void*));
 
 
 /** @brief Select an FS to do operations on.
