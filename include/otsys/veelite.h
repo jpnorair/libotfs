@@ -256,6 +256,7 @@ ot_u8 vl_multifs_next(void* handle, void** getfsbase, id_tmpl* fsid);
   */
 const vlFSHEADER* vl_get_fsheader(const id_tmpl* fsid);
 
+ot_u32 vl_get_fsalloc(const vlFSHEADER* fshdr);
 
 
 // General File functions

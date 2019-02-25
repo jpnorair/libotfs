@@ -405,6 +405,16 @@ static ot_u8 sub_action(vlFILE* fp) {
 
 
 
+#ifndef EXTF_vl_get_fsalloc
+OT_WEAK ot_u32 vl_get_fsalloc(const vlFSHEADER* fshdr) {
+///@todo have this work for different core structures.
+    return vworm_fsalloc(fshdr);
+}
+#endif
+
+
+
+
 // General File Functions
 #ifndef EXTF_vl_get_fp
 OT_WEAK vlFILE* vl_get_fp(ot_int fd) {

@@ -114,14 +114,14 @@ int otfs_del(void* handle, const otfs_t* fs, void (*free_fn)(void*));
   * @retval     (int) return zero on success, or non-zero on error
   *
   */
-int otfs_setfs(void* handle, otfs_t** fs, const uint8_t* eui64_bytes);
+int otfs_setfs(void* handle, otfs_t* fs, const uint8_t* eui64_bytes);
 
 int otfs_activeuid(void* handle, uint8_t* eui64_bytes);
 
 
-int otfs_iterator_start(void* handle, otfs_t** fs, uint8_t* eui64_bytes);
+int otfs_iterator_start(void* handle, otfs_t* fs, uint8_t* eui64_bytes);
 
-int otfs_iterator_next(void* handle, otfs_t** fs, uint8_t* eui64_bytes);
+int otfs_iterator_next(void* handle, otfs_t* fs, uint8_t* eui64_bytes);
 
 
 #endif
