@@ -507,7 +507,6 @@ ot_int auth_encrypt_q(ot_queue* q, ot_uint key_index) {
 
 
 #ifndef EXTF_auth_decrypt_q
-///@todo not yet implemented
 ot_int auth_decrypt_q(ot_queue* q, ot_uint key_index) {
 #if (_SEC_ANY)
     ot_int tag_size;
