@@ -40,7 +40,11 @@ static void sub_loadfs(otfs_t* dstfs, void* loadbase, const id_tmpl* user_id) {
     if (dstfs != NULL) {
         dstfs->base    = loadbase;
         dstfs->alloc   = vl_get_fsalloc((vlFSHEADER*)loadbase);
+#       if !defined(__C2000__)
         memcpy(&dstfs->uid.u8[0], user_id->value, user_id->length);
+#       else
+        memcpy(&dstfs->uid.u16[0], user_id->value, user_id->length);
+#       endif
     }
 }
 

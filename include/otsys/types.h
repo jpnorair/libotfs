@@ -89,6 +89,8 @@
     typedef uint16_t    	ot_u16;
     typedef int32_t     	ot_s32;
     typedef uint32_t    	ot_u32;
+    typedef int64_t         ot_s64;
+    typedef uint64_t        ot_u64;
 
 #else
     typedef enum { False = 0, True = !False } ot_bool;
@@ -98,6 +100,8 @@
     typedef unsigned short      ot_u16;
     typedef signed long         ot_s32;
     typedef unsigned long       ot_u32;
+    typedef long long           ot_s64;
+    typedef unsigned long long  ot_u64;
     
 #endif
 
