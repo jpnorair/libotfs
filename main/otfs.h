@@ -63,7 +63,6 @@ typedef union {
     uint16_t        u16[4];
     
 #   if !defined(__C2000__)
-    uint64_t        u64;
     uint8_t         u8[8];
     otfs_eui64_t    eui64;
 #   endif
