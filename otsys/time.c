@@ -162,6 +162,9 @@ OT_WEAK void time_add(ot_u32 clocks) {
 
 
 #ifndef EXTF_time_add_ti
+#ifdef __C2000__
+#pragma CODE_SECTION(time_add_ti,".TI.ramfunc");
+#endif
 OT_WEAK void time_add_ti(ot_u32 ticks) {
     ot_u32 scratch;
     ticks           = (ticks << _SHIFT);
