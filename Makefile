@@ -142,10 +142,12 @@ libotfs.Darwin.a: $(SUBMODULES)
 
 libotfs.POSIX.a: $(SUBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
-	ar -rcs $(PRODUCTDIR)/libotfs.a $(LIBTOOL_OBJ)
+	ar -rcs $(PRODUCTDIR)/libotfs.a ./../_hbpkg/$(TARGET)/libjudy/libjudy.a $(LIBTOOL_OBJ)
 	ranlib $(PRODUCTDIR)/libotfs.a
-#	$(OTFS_LIBTOOL) --tag=CC --mode=link $(OTFS_CC) -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o libotfs.a $(LIBTOOL_OBJ)
-#	@mv libotfs.a $(PRODUCTDIR)/
+
+libotfs.Linux.a: $(SUBMODULES)
+	$(OTFS_LIBTOOL) --tag=CC --mode=link $(OTFS_CC) -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o libotfs.a $(LIBTOOL_OBJ)
+	@mv libotfs.a $(PRODUCTDIR)/
 
 libotfs.c2000.a: $(SUBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
