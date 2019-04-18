@@ -1,0 +1,5 @@
+create libotfs.a
+addlib libotfsmain.a
+addlib libotfsjudy.a
+save
+end

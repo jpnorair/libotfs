@@ -19,9 +19,9 @@ ifeq ($(TARGET),$(THISMACHINE))
 	    #	PRODUCT_LIBS := libotfs.$(THISSYSTEM).dylib libotfs.$(THISSYSTEM).a
 	    PRODUCT_LIBS := libotfs.$(THISSYSTEM).a
 	else ifeq ($(THISSYSTEM),Linux)
-		PRODUCT_LIBS := libotfs.$(THISSYSTEM).so libotfs.$(THISSYSTEM).a
+		PRODUCT_LIBS := libotfs.$(THISSYSTEM).so libotfs.GNU.a
 	else ifeq ($(THISSYSTEM),CYGWIN_NT-10.0)
-	    PRODUCT_LIBS := libotfs.POSIX.a
+	    PRODUCT_LIBS := libotfs.GNU.a
 	else
 		error "THISSYSTEM set to unknown value: $(THISSYSTEM)"
 	endif
@@ -140,13 +140,18 @@ libotfs.Darwin.a: $(SUBMODULES)
 	$(OTFS_LIBTOOL) -static -o libotfs.a ./../_hbpkg/$(TARGET)/libjudy/libjudy.a $(LIBTOOL_OBJ)
 	@mv libotfs.a $(PRODUCTDIR)/
 
-libotfs.POSIX.a: $(SUBMODULES)
+libotfs.GNU.a: $(SUBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
-	ar -rcs $(PRODUCTDIR)/libotfs.a ./../_hbpkg/$(TARGET)/libjudy/libjudy.a $(LIBTOOL_OBJ)
-	ranlib $(PRODUCTDIR)/libotfs.a
+	ar -rcs libotfs.a $(LIBTOOL_OBJ)
+	ranlib libotfs.a
+	@cp ./../_hbpkg/$(TARGET)/libjudy/libjudy.a libotfsjudy.a
+	ar -M <libotfs.mri
+	@rm libotfsmain.a
+	@rm libotfsjudy.a
+	@mv libotfs.a $(PRODUCTDIR)/
 
 libotfs.Linux.a: $(SUBMODULES)
-	$(OTFS_LIBTOOL) --tag=CC --mode=link $(OTFS_CC) -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o libotfs.a $(LIBTOOL_OBJ)
+	$(OTFS_LIBTOOL) --tag=CC --mode=link $(OTFS_CC) -all-static -g -O3 $(OTFS_INC) $(OTFS_LIB) -o libotfs.a ./../_hbpkg/$(TARGET)/libjudy/libjudy.a $(LIBTOOL_OBJ)
 	@mv libotfs.a $(PRODUCTDIR)/
 
 libotfs.c2000.a: $(SUBMODULES)
