@@ -142,8 +142,8 @@ libotfs.Darwin.a: $(SUBMODULES)
 
 libotfs.GNU.a: $(SUBMODULES)
 	$(eval LIBTOOL_OBJ := $(shell find $(BUILDDIR) -type f -name "*.$(OBJEXT)"))
-	ar -rcs libotfs.a $(LIBTOOL_OBJ)
-	ranlib libotfs.a
+	ar -rcs libotfsmain.a $(LIBTOOL_OBJ)
+	ranlib libotfsmain.a
 	@cp ./../_hbpkg/$(TARGET)/libjudy/libjudy.a libotfsjudy.a
 	ar -M <libotfs.mri
 	@rm libotfsmain.a
