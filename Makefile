@@ -19,7 +19,7 @@ ifeq ($(TARGET),$(THISMACHINE))
 	    #	PRODUCT_LIBS := libotfs.$(THISSYSTEM).dylib libotfs.$(THISSYSTEM).a
 	    PRODUCT_LIBS := libotfs.$(THISSYSTEM).a
 	else ifeq ($(THISSYSTEM),Linux)
-		PRODUCT_LIBS := libotfs.$(THISSYSTEM).so libotfs.POSIX.a
+		PRODUCT_LIBS := libotfs.$(THISSYSTEM).so libotfs.$(THISSYSTEM).a
 	else ifeq ($(THISSYSTEM),CYGWIN_NT-10.0)
 	    PRODUCT_LIBS := libotfs.POSIX.a
 	else
