@@ -226,9 +226,9 @@
 #define ISF_MAX_user_authentication_key         22
 #define ISF_MAX_pwrdata_inv                     50
 #define ISF_MAX_pwrdata_mppt                    40
-#define ISF_MAX_csip_nameplate_inv              36
+#define ISF_MAX_csip_nameplate_inv              96
 #define ISF_MAX_csip_nameplate_mppt             8
-#define ISF_MAX_csip_cfg                        164
+#define ISF_MAX_csip_cfg                        176
 #define ISF_MAX_csip_setarray                   80
 #define ISF_MAX_csip_issuecmd                   24
 #define ISF_MAX_csip_operations                 16
@@ -257,9 +257,9 @@
 #define ISF_LEN_user_authentication_key         22
 #define ISF_LEN_pwrdata_inv                     50
 #define ISF_LEN_pwrdata_mppt                    40
-#define ISF_LEN_csip_nameplate_inv              36
+#define ISF_LEN_csip_nameplate_inv              96
 #define ISF_LEN_csip_nameplate_mppt             8
-#define ISF_LEN_csip_cfg                        164
+#define ISF_LEN_csip_cfg                        176
 #define ISF_LEN_csip_setarray                   80
 #define ISF_LEN_csip_issuecmd                   24
 #define ISF_LEN_csip_operations                 16

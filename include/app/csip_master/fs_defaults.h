@@ -598,22 +598,37 @@ const ot_u8 isf_stock_files[] = {
     SPLIT_SHORT_LE(19),   // MPPT Temperature
     SPLIT_SHORT_LE(20),   // MPPT State
 
-    /* CSIP Nameplate INV Ratings: id=0x12, len=36, alloc=36 */
-    SPLIT_LONG_LE(1),   // Active Power rating
-    SPLIT_LONG_LE(2),   // Apparent Power Rating
-    SPLIT_LONG_LE(3),   // Reactive Power Rating
-    SPLIT_LONG_LE(4),   // Maximum Battery Charge Rate
-    SPLIT_LONG_LE(5),   // Maximum Battery Discharge Rate
-    SPLIT_LONG_LE(6),   // Battery Present Indicator
-    SPLIT_LONG_LE(7),   // PV present indicator
-    SPLIT_LONG_LE(8),   // Time resolution
-    SPLIT_LONG_LE(9),   // Source of time synchronization
+    /* CSIP Nameplate INV Ratings: id=0x12, len=96, alloc=96 */
+    SPLIT_LONG_LE(1),
+    SPLIT_LONG_LE(2),
+    SPLIT_LONG_LE(3),
+    SPLIT_LONG_LE(4),
+    SPLIT_LONG_LE(5),
+    SPLIT_LONG_LE(6),
+    SPLIT_LONG_LE(7),
+    SPLIT_LONG_LE(8),
+    SPLIT_LONG_LE(9),
+    SPLIT_LONG_LE(10),
+    SPLIT_LONG_LE(11),
+    SPLIT_LONG_LE(12),
+    SPLIT_LONG_LE(13),
+    SPLIT_LONG_LE(14),
+    SPLIT_LONG_LE(15),
+    SPLIT_LONG_LE(16),
+    SPLIT_LONG_LE(17),
+    SPLIT_LONG_LE(18),
+    SPLIT_LONG_LE(19),
+    SPLIT_LONG_LE(20),
+    SPLIT_LONG_LE(21),
+    SPLIT_LONG_LE(22),
+    SPLIT_LONG_LE(23),
+    SPLIT_LONG_LE(24),
     
     /* CSIP Nameplate MMPT Ratings: id=0x13, len=8, alloc=8 */
     SPLIT_LONG_LE(1),   // ...
     SPLIT_LONG_LE(2),   // ...
 
-    /* CSIP Configuration: id=0x13, len=164, alloc=164 */
+    /* CSIP Configuration: id=0x13, len=176, alloc=176 */
     SPLIT_LONG_LE(1),   // WMax
     SPLIT_LONG_LE(2),   // WChaMax
     SPLIT_LONG_LE(3),   // VAMax
@@ -655,6 +670,9 @@ const ot_u8 isf_stock_files[] = {
     SPLIT_LONG_LE(39),
     SPLIT_LONG_LE(40),
     SPLIT_LONG_LE(41),
+    SPLIT_LONG_LE(42),
+    SPLIT_LONG_LE(43),
+    SPLIT_LONG_LE(44),
 
     /* CSIP Set Array: id=0x14, len=36, alloc=36 */
     SPLIT_LONG_LE(0),   // PairArray x0

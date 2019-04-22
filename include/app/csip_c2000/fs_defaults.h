@@ -733,7 +733,7 @@ const ot_u16 isf_stock_files[] = {
     SPLIT_LONG_LE(1),   // ...
     SPLIT_LONG_LE(2),   // ...
 
-    /* CSIP Configuration: id=0x13, len=164, alloc=164 */
+    /* CSIP Configuration: id=0x13, len=176, alloc=176 */
     SPLIT_LONG_LE(1),   // WMax
     SPLIT_LONG_LE(2),   // WChaMax
     SPLIT_LONG_LE(3),   // VAMax
