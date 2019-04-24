@@ -229,7 +229,7 @@
 #define ISF_MAX_csip_nameplate_inv              96
 #define ISF_MAX_csip_nameplate_mppt             8
 #define ISF_MAX_csip_cfg                        176
-#define ISF_MAX_csip_setarray                   80
+#define ISF_MAX_csip_setarray                   84
 #define ISF_MAX_csip_issuecmd                   24
 #define ISF_MAX_csip_operations                 16
 #define ISF_MAX_csip_issuecontrol               4
@@ -260,7 +260,7 @@
 #define ISF_LEN_csip_nameplate_inv              96
 #define ISF_LEN_csip_nameplate_mppt             8
 #define ISF_LEN_csip_cfg                        176
-#define ISF_LEN_csip_setarray                   80
+#define ISF_LEN_csip_setarray                   84
 #define ISF_LEN_csip_issuecmd                   24
 #define ISF_LEN_csip_operations                 16
 #define ISF_LEN_csip_issuecontrol               4
