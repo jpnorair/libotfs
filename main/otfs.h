@@ -50,10 +50,9 @@
 
 
 
-
 typedef struct OT_PACKED {
-    uint8_t oui24[3];
-    uint8_t ext40[5];
+    ot_u8 oui24[3];
+    ot_u8 ext40[5];
 } otfs_eui64_t;
 
 
@@ -63,7 +62,7 @@ typedef union {
     uint16_t        u16[4];
     
 #   if !defined(__C2000__)
-    uint8_t         u8[8];
+    ot_u8         u8[8];
     otfs_eui64_t    eui64;
 #   endif
 } otfs_id_union;
@@ -114,14 +113,14 @@ int otfs_del(void* handle, const otfs_t* fs, void (*free_fn)(void*));
   * @retval     (int) return zero on success, or non-zero on error
   *
   */
-int otfs_setfs(void* handle, otfs_t* fs, const uint8_t* eui64_bytes);
+int otfs_setfs(void* handle, otfs_t* fs, const ot_u8* eui64_bytes);
 
-int otfs_activeuid(void* handle, uint8_t* eui64_bytes);
+int otfs_activeuid(void* handle, ot_u8* eui64_bytes);
 
 
-int otfs_iterator_start(void* handle, otfs_t* fs, uint8_t* eui64_bytes);
+int otfs_iterator_start(void* handle, otfs_t* fs, ot_u8* eui64_bytes);
 
-int otfs_iterator_next(void* handle, otfs_t* fs, uint8_t* eui64_bytes);
+int otfs_iterator_next(void* handle, otfs_t* fs, ot_u8* eui64_bytes);
 
 
 #endif
