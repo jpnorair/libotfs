@@ -53,6 +53,9 @@ static void sub_loadfs(otfs_t* dstfs, void* loadbase, const id_tmpl* user_id) {
 
 
 int otfs_init(void** handle) {
+    if (handle == NULL) {
+        return -1;
+    }
 #if (OT_FEATURE_MULTIFS == ENABLED)
     return vl_multifs_init(handle);
 #else
@@ -62,6 +65,10 @@ int otfs_init(void** handle) {
 
 int otfs_deinit(void* handle, void (*free_fn)(void*)) {
 #if (OT_FEATURE_MULTIFS == ENABLED)
+    if (handle == NULL) {
+        return -1;
+    }
+
     if (free_fn != NULL) {
         otfs_t      fs;
         uint64_t    uid = 0;
@@ -117,6 +124,10 @@ int otfs_new(void* handle, const otfs_t* fs) {
     id_tmpl user_id;
     int rc;
 
+    if (handle == NULL) {
+        return -1;
+    }
+
     user_id.length  = 8;
     user_id.value   = (ot_u8*)&fs->uid.u8[0];
 
@@ -152,7 +163,7 @@ int otfs_del(void* handle, const otfs_t* fs, void (*free_fn)(void*)) {
     id_tmpl user_id;
     int rc;
     
-    if (fs == NULL) {
+    if ((handle == NULL) || (fs == NULL)) {
         return -1;
     }
     
@@ -178,6 +189,11 @@ int otfs_setfs(void* handle, otfs_t* fs, const ot_u8* eui64_bytes) {
     int rc;
     id_tmpl user_id;
     void* fsbase;
+    
+    if (handle == NULL) {
+        return -1;
+    }
+    
     user_id.length  = 8;
     user_id.value   = (ot_u8*)eui64_bytes;
     
@@ -197,6 +213,11 @@ int otfs_setfs(void* handle, otfs_t* fs, const ot_u8* eui64_bytes) {
 int otfs_activeuid(void* handle, ot_u8* eui64_bytes) {
 #if (OT_FEATURE_MULTIFS == ENABLED)
     id_tmpl user_id;
+    
+    if (handle == NULL) {
+        return -1;
+    }
+    
     user_id.length  = 8;
     user_id.value   = (ot_u8*)eui64_bytes;
     return vl_multifs_activeid(handle, (id_tmpl*)&user_id);
@@ -220,6 +241,10 @@ int otfs_iterator_start(void* handle, otfs_t* fs, ot_u8* eui64_bytes) {
     id_tmpl user_id;
     void* fsbase;
     
+    if (handle == NULL) {
+        return -1;
+    }
+    
     user_id.length  = 0;
     user_id.value   = eui64_bytes;
 
@@ -241,6 +266,10 @@ int otfs_iterator_next(void* handle, otfs_t* fs, ot_u8* eui64_bytes) {
     ot_u8 rc;
     id_tmpl user_id;
     void* fsbase;
+
+    if (handle == NULL) {
+        return -1;
+    }
 
     user_id.length  = 0;
     user_id.value   = eui64_bytes;
