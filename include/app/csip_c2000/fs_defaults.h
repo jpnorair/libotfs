@@ -595,9 +595,9 @@ const ot_u16 isf_stock_files[] = {
     /* channel configuration: id=0x02, len=0, alloc=0 */
 
     /* real time scheduler: id=0x03, len=12, alloc=12 */
-    SPLIT_LONG_LE(0),   // Time: Epoch Seconds since 01/01/1970
-    SPLIT_LONG_LE(0),   // Time: Fractional Seconds
-    SPLIT_LONG_LE(0),   // ModType
+    SPLIT_LONG_LE(1),   // Time: Epoch Seconds since 01/01/1970
+    SPLIT_LONG_LE(2),   // Time: Fractional Seconds
+    SPLIT_LONG_LE(3),   // ModType
 
     _ERS16, _ERS16,     //Alignment Padding
 
@@ -636,7 +636,8 @@ const ot_u16 isf_stock_files[] = {
     /* Sensor Alarms: id=0x0D, len=0, alloc=0 */
 
     /* root auth key:       id=0x0E, len=22, alloc=22 */
-    _ERS16, SPLIT_LONG_LE(172800),
+    JOIN_2BYTES(0x00,0x38), 
+    SPLIT_LONG_LE(172800),
     JOIN_2BYTES(0x00,0x11), JOIN_2BYTES(0x22,0x33),
     JOIN_2BYTES(0x44,0x55), JOIN_2BYTES(0x66,0x77),
     JOIN_2BYTES(0x88,0x99), JOIN_2BYTES(0xAA,0xBB),
@@ -645,7 +646,8 @@ const ot_u16 isf_stock_files[] = {
     _ERS16, //Alignment Padding
     
     /* Admin auth key:      id=0x0F, len=22, alloc=22 */
-    _ERS16, SPLIT_LONG_LE(172800),
+    JOIN_2BYTES(0x00,0x07), 
+    SPLIT_LONG_LE(172800),
     JOIN_2BYTES(0x00,0x01), JOIN_2BYTES(0x02,0x03),
     JOIN_2BYTES(0x04,0x05), JOIN_2BYTES(0x06,0x07),
     JOIN_2BYTES(0x08,0x09), JOIN_2BYTES(0x0A,0x0B),
