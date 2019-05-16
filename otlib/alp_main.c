@@ -40,6 +40,8 @@
 #include <app/config.h>
 
 
+#define ALP_FUNCTIONS       5
+
 #if ALP(FILE_MGR)
 #   define ALP_FILESYSTEM   1
 #else
@@ -83,13 +85,6 @@
 #else
 #   define ALP_EXT      0
 #endif 
-
-#define ALP_MAX         9
-#define ALP_FUNCTIONS   (   ALP_FILESYSTEM \
-                          + ALP_SENSORS \
-                          + ALP_SECURITY \
-                          + ALP_LOGGER \
-                          + ALP_DASHFORTH )
 
 
 
@@ -192,23 +187,31 @@ static const alp_elem_t null_elem = { &alp_proc_null, NULL };
 static const alp_elem_t ext_elem = { &alp_ext_proc, NULL };
 #endif
 
-///@todo make sure this works accurately.
-///@todo probably needs some null spaces
+///@todo If this gets much bigger, it's better to have a binary tree ID search
+///      in order to conserve ROM/RAM space.
 static const alp_elem_t alp_table[ALP_FUNCTIONS] = {
 #if ALP_FILESYSTEM
     { &alp_proc_filedata, NULL },
 #endif
 #if ALP_SENSORS
-    { &alp_proc_sensors, NULL },
+    { &alp_proc_sensor, NULL },
+#else
+    { &alp_proc_null, NULL },
 #endif
 #if ALP_SECURITY
     { &alp_proc_security, NULL },
+#else
+    { &alp_proc_null, NULL },
 #endif
 #if ALP_LOGGER
     { &alp_proc_logger, NULL },
+#else
+    { &alp_proc_null, NULL },
 #endif
 #if ALP_DASHFORTH
     { &alp_proc_dashforth, NULL },
+#else
+    { &alp_proc_null, NULL },
 #endif
 };
 

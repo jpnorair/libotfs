@@ -927,7 +927,7 @@ OT_WEAK ot_u8 vl_execute(vlFILE* fp, ot_uint input_size, vl_u8* input_stream) {
     
     return retval;
 }
-
+#endif
 
 #ifndef EXTF_vl_close
 OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
