@@ -913,6 +913,22 @@ OT_WEAK ot_u8 vl_append( vlFILE* fp, ot_uint length, vl_u8* data ) {
 #endif
 
 
+#ifndef EXTF_vl_execute
+OT_WEAK ot_u8 vl_execute(vlFILE* fp, ot_uint input_size, vl_u8* input_stream) {
+    ot_u8 retval = 255;
+
+#   if (OT_FEATURE(VLACTIONS) == ENABLED)
+    retval = vl_store(fp, input_size, input_stream);
+    if (retval != 0) {
+        // Always call the action (no conditions)
+        retval = sub_action(fp);
+    }
+#   endif
+    
+    return retval;
+}
+
+
 #ifndef EXTF_vl_close
 OT_WEAK ot_u8 vl_close( vlFILE* fp ) {
     ot_u8 retval = 0;

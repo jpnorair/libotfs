@@ -565,6 +565,25 @@ ot_u8 vl_store( vlFILE* fp, ot_uint length, vl_u8* data );
 ot_u8 vl_append( vlFILE* fp, ot_uint length, vl_u8* data );
 
 
+
+/** @brief  Store supplied byte-buffer into a file, and immediately execute file action
+  * @param  fp          (vlFILE*) file pointer of open file
+  * @param  length      (ot_uint) number of bytes to store, starting from beginning of file
+  * @param  data        (ot_u8*) byte buffer to write to file
+  * @retval (ot_u8)     Non-zero on failure
+  * @ingroup Veelite
+  *
+  * vl_execute is similar to calling vl_store() and vl_close() in sequence, but
+  * it will ALWAYS call the action, even if no data is written, and even if the
+  * action flags are disabled.
+  *
+  * vl_execute DOES NOT close the file.  You still need to use vl_close().
+  * Thus, files used with vl_execute should have the file action flags set to
+  * zero unless the action should be called again on vl_close().
+  */
+ot_u8 vl_execute(vlFILE* fp, ot_uint input_size, vl_u8* input_stream);
+
+
 /** @brief  Returns a pointer to the start of the file data.  Use with caution.
   * @param  fp          (vlFILE*) file pointer of open file
   * @retval (ot_u8*)    Returns pointer to file data, or NULL on error
@@ -593,6 +612,7 @@ vl_u8* vl_memptr( vlFILE* fp );
 ot_u8 vl_crop(vlFILE* fp, ot_uint offset);
 ot_u8 vl_erase(vlFILE* fp);
 */
+
 
 
 /** @brief Closes the data read/write session of the open file

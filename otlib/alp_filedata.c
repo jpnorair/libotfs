@@ -89,21 +89,21 @@ OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, const id_tmpl* user_id) {
 typedef ot_int (*sub_file)(alp_tmpl*, const id_tmpl*, ot_u8, ot_u8, ot_int);
 
 
-ot_int sub_return(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+static ot_int sub_return(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_fileperms(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+static ot_int sub_fileperms(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_fileheaders(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+static ot_int sub_fileheaders(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+static ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_filedelete(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+static ot_int sub_filedelete(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_filecreate(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+static ot_int sub_filecreate(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-ot_int sub_filerestore(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
+static ot_int sub_filerestore(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in );
 
-//ot_int sub_fileerror(ot_bool respond, alp_tmpl* alp, const id_tmpl* user_id );
+//static ot_int sub_fileerror(ot_bool respond, alp_tmpl* alp, const id_tmpl* user_id );
 
 
 
@@ -165,20 +165,20 @@ OT_WEAK ot_bool alp_proc_filedata(alp_tmpl* alp, const id_tmpl* user_id) {
 
 
 // Return functions are not handled by the server (ignore)
-ot_int sub_return(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
+static ot_int sub_return(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
     return 0;
 }
 
 
-ot_bool sub_testchunk(ot_int data_in) {
+static ot_bool sub_testchunk(ot_int data_in) {
     return (ot_bool)(data_in > 0);
 }
 
 
 
 /// This is a form of overwrite protection
-ot_bool sub_qnotfull(ot_u8 write, ot_u8 write_size, ot_queue* q) {
-    return (ot_bool)((write_size <= q_writespace(q)) || (write_size == 0));
+static ot_bool sub_qnotfull(ot_u8 write, ot_u8 write_size, ot_queue* q) {
+    return (ot_bool)((write_size <= q_writespace(q)) || (write == 0));
 
     ///@note impl used prior to q_space()
     //return (ot_bool)(((q->putcursor+write_size) < q->back) || (write == 0));
@@ -187,7 +187,7 @@ ot_bool sub_qnotfull(ot_u8 write, ot_u8 write_size, ot_queue* q) {
 
 
 
-ot_int sub_fileperms( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
+static ot_int sub_fileperms( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
     ot_int  data_out    = 0;
     vlBLOCK file_block  = (vlBLOCK)((cmd_in >> 4) & 0x07);
     ot_u8   file_mod    = ((cmd_in & 0x02) ? VL_ACCESS_W : VL_ACCESS_R);
@@ -232,7 +232,7 @@ ot_int sub_fileperms( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u
 
 
 
-ot_int sub_fileheaders( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
+static ot_int sub_fileheaders( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
     ot_int  data_out    = 0;
     vlBLOCK file_block  = (vlBLOCK)((cmd_in >> 4) & 0x07);
 
@@ -261,7 +261,7 @@ ot_int sub_fileheaders( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot
 
 
 
-ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
+static ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
     ot_u16  offset;
     ot_u16  span;
     ot_int  data_out    = 0;
@@ -433,7 +433,7 @@ ot_int sub_filedata(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 
 
 
 
-ot_int sub_filedelete( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
+static ot_int sub_filedelete( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
     ot_int  data_out    = 0;
     vlBLOCK file_block  = (vlBLOCK)((cmd_in >> 4) & 0x07);
 
@@ -458,7 +458,7 @@ ot_int sub_filedelete( alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_
 
 
 
-ot_int sub_filecreate(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
+static ot_int sub_filecreate(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in) {
     ot_int  data_out    = 0;
     vlBLOCK file_block  = (vlBLOCK)((cmd_in >> 4) & 0x07);
 
@@ -492,7 +492,7 @@ ot_int sub_filecreate(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u
 
 
 /// Not currently supported, always returns "unrestorable" error
-ot_int sub_filerestore(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
+static ot_int sub_filerestore(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_u8 cmd_in, ot_int data_in ) {
     ot_int  data_out    = 0;
     //vlBLOCK file_block  = ((cmd_in >> 4) & 0x07);
 
@@ -516,7 +516,7 @@ ot_int sub_filerestore(alp_tmpl* alp, const id_tmpl* user_id, ot_u8 respond, ot_
 // File Error is transmitted as a response when the input directive does not
 // meet specification.  This function will log received errors.
 //#include <otlib/logger.h>
-//ot_int sub_fileerror(ot_bool respond, ot_bool include_header,
+//static ot_int sub_fileerror(ot_bool respond, ot_bool include_header,
 //                        vlBLOCK file_block, ot_u8 file_mod, ot_int data_in,
 //                        ot_queue* alp->inq, ot_queue* alp->outq., const id_tmpl* user_id ) {
 //    return logger_msg(6, data_in, "ERR_VL", q_markbyte(alp->inq, data_in) );

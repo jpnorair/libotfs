@@ -40,17 +40,49 @@
 #include <app/config.h>
 
 
-#define ALP_FILESYSTEM  1
-#define ALP_SENSORS     (OT_FEATURE(SENSORS) == ENABLED)
-#define ALP_SECURITY    ((OT_FEATURE(NL_SECURITY) == ENABLED) || (OT_FEATURE(DLL_SECURITY) == ENABLED))
-#ifndef ALP_LOGGER
-#   define ALP_LOGGER   (OT_FEATURE(LOGGER) == ENABLED)
+#if ALP(FILE_MGR)
+#   define ALP_FILESYSTEM   1
+#else
+#   error "Filesystem must be supported"
 #endif
-#ifndef ALP_DASHFORTH
-#   define ALP_DASHFORTH   (OT_FEATURE(DASHFORTH) == ENABLED)
-#endif
-#define ALP_EXT         (OT_FEATURE(ALPEXT) == ENABLED)
 
+#if (OT_FEATURE(SENSORS) == ENABLED)
+#   define ALP_SENSORS      1
+#else
+#   define ALP_SENSORS      0
+#endif
+
+#define ALP_SECURITY        0
+#if ALP(SECURE_MGR)
+#   if ((OT_FEATURE(NL_SECURITY) == ENABLED) || (OT_FEATURE(DLL_SECURITY) == ENABLED))
+#       undef ALP_SECURITY
+#       define ALP_SECURITY 1
+#   endif
+#endif
+
+#if ALP(LOGGER)
+#   undef ALP_LOGGER
+#   if (OT_FEATURE(LOGGER) == ENABLED)
+#       define ALP_LOGGER   1
+#   else
+#       define ALP_LOGGER   0
+#   endif
+#endif
+
+#if ALP(DASHFORTH)
+#   undef ALP_DASHFORTH
+#   if (OT_FEATURE(DASHFORTH) == ENABLED)
+#       define ALP_DASHFORTH 1
+#   else
+#       define ALP_DASHFORTH 0
+#   endif
+#endif
+
+#if (OT_FEATURE(ALPEXT) == ENABLED)
+#   define ALP_EXT      1
+#else
+#   define ALP_EXT      0
+#endif 
 
 #define ALP_MAX         9
 #define ALP_FUNCTIONS   (   ALP_FILESYSTEM \
@@ -160,8 +192,24 @@ static const alp_elem_t null_elem = { &alp_proc_null, NULL };
 static const alp_elem_t ext_elem = { &alp_ext_proc, NULL };
 #endif
 
+///@todo make sure this works accurately.
+///@todo probably needs some null spaces
 static const alp_elem_t alp_table[ALP_FUNCTIONS] = {
+#if ALP_FILESYSTEM
     { &alp_proc_filedata, NULL },
+#endif
+#if ALP_SENSORS
+    { &alp_proc_sensors, NULL },
+#endif
+#if ALP_SECURITY
+    { &alp_proc_security, NULL },
+#endif
+#if ALP_LOGGER
+    { &alp_proc_logger, NULL },
+#endif
+#if ALP_DASHFORTH
+    { &alp_proc_dashforth, NULL },
+#endif
 };
 
 const alp_elem_t* sub_get_elem(ot_u8 alp_id) {
