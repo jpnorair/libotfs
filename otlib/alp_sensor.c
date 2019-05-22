@@ -120,7 +120,7 @@ OT_WEAK ot_bool alp_proc_sensor(alp_tmpl* alp, const id_tmpl* user_id) {
     else {
         ///@todo find if this is even necessary.  I don't think it is.  It is
         /// here now for safety purposes.
-        alp->outq->putcursor   -= alp->OUTREC(PLEN);
+        alp->outq->putcursor -= alp->OUTREC(PLEN);
     }
 
     return True;
