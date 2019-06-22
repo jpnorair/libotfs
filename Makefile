@@ -1,4 +1,9 @@
+CC := gcc
+LD := ld
+
 # Default Configuration
+THISMACHINE ?= $(shell uname -srm | sed -e 's/ /-/g')
+THISSYSTEM	?= $(shell uname -s)
 TARGET      ?= $(shell uname -srm | sed -e 's/ /-/g')
 EXT_DEF     ?= 
 EXT_INC     ?= 
@@ -9,8 +14,6 @@ DEFAULT_INC := ./include
 SRCEXT      := c
 DEPEXT      := d
 OBJEXT      := o
-THISMACHINE := $(shell uname -srm | sed -e 's/ /-/g')
-THISSYSTEM	:= $(shell uname -s)
 
 # Conditional Settings per Target
 ifeq ($(TARGET),$(THISMACHINE))
@@ -25,16 +28,15 @@ ifeq ($(TARGET),$(THISMACHINE))
 	else
 		error "THISSYSTEM set to unknown value: $(THISSYSTEM)"
 	endif
+	CFLAGS      ?= -std=gnu99 -O3 -pthread -fPIC
 	LIBMODULES  := OTEAX libjudy
 	BUILDDIR    := build/$(THISMACHINE)
 	PRODUCTDIR  := bin/$(THISMACHINE)
 	PACKAGEDIR  ?= ./../_hbpkg/$(THISMACHINE)/libotfs.$(VERSION)
-	OTFS_CC	    := gcc
+	OTFS_CC	    := ${CC}
 	OTFS_LIBTOOL:= libtool
-	OTFS_CFLAGS := -std=gnu99 -O3 -pthread -fPIC
+	OTFS_CFLAGS := ${CFLAGS}
 	OTFS_DEF    := $(EXT_DEF)
-#	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbpkg/$(TARGET)/libjudy -I./../_hbpkg/$(TARGET)/liboteax $(EXT_INC)
-#	OTFS_LIB    := $(patsubst -I%,-L%,$(OTFS_INC)) -ljudy -loteax $(EXT_LIBS)
 	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbsys/$(TARGET)/include $(EXT_INC)
 	OTFS_LIB    := -L./../_hbsys/$(TARGET)/lib -ljudy -loteax $(EXT_LIBS)
 	PLATFORM    := ./platform/posix_c
