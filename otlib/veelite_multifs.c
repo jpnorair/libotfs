@@ -42,7 +42,7 @@
 #   include <otplatform.h>
 #endif
 
-
+///@todo have option to use a hash table (maybe uthash) instead of Judy.
 // For implementation using Judy datatype via libjudy (part of hbuilder pkg)
 // Intended for larger-scale POSIX system
 #include <judy.h>
