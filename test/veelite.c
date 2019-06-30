@@ -30,6 +30,21 @@
 #include <stdlib.h>
 #include <time.h>
 
+#ifdef __SHITTY_RANDOM__
+#   include <time.h>
+#   define RANDOM_BUF(PTRU8, LEN) do { \
+            int _len_ = LEN; \
+            uint8_t* _ptr_ = PTRU8; \
+            srand(time(NULL)); \
+            while (_len_-- > 0) { *_ptr_++ = rand() & 255; } \
+        } while(0)
+#else
+#   ifdef __linux__
+#       include <bsd/stdlib.h>
+#   endif
+#   define RANDOM_BUF(PTRU8, LEN) arc4random_buf(PTRU8, LEN)
+#endif
+
 int test_veelite_openclose(void);
 int test_veelite_maxopen(void);
 
@@ -101,7 +116,7 @@ int test_veelite_maxopen(void) {
 
 void sub_randload(uint8_t* dst, int bytes) {
     // This is a new function in stdlib
-    arc4random_buf((void*)dst, bytes);
+    RANDOM_BUF((void*)dst, bytes);
 }
 
 int sub_streamcmp(uint8_t* s1, uint8_t* s2, int size) {
