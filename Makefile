@@ -7,6 +7,7 @@ THISSYSTEM	?= $(shell uname -s)
 TARGET      ?= $(shell uname -srm | sed -e 's/ /-/g')
 EXT_DEF     ?= 
 EXT_INC     ?= 
+EXT_LIB     ?=
 EXT_LIBS    ?= 
 VERSION     ?= 0.1.0
 
@@ -38,7 +39,7 @@ ifeq ($(TARGET),$(THISMACHINE))
 	OTFS_CFLAGS := $(CFLAGS)
 	OTFS_DEF    := $(EXT_DEF)
 	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbsys/$(TARGET)/include $(EXT_INC)
-	OTFS_LIB    := -L./../_hbsys/$(TARGET)/lib -ljudy -loteax $(EXT_LIBS)
+	OTFS_LIB    := -L./../_hbsys/$(TARGET)/lib $(EXT_LIB) -ljudy -loteax $(EXT_LIBS)
 	PLATFORM    := ./platform/posix_c
 
 else ifeq ($(TARGET),c2000)
@@ -76,7 +77,7 @@ else ifeq ($(TARGET),c2000)
 #	OTFS_DEF    := -DAPP_csip_c2000 -DBOARD_C2000_null -D__TMS320F2806x__ -D__C2000__ -D__TI_C__ -D__NO_SECTIONS__ $(EXT_DEF)
 	OTFS_DEF    := -DAPP_csip_c2000 -DBOARD_C2000_null -D__TMS320F2837x__ -D__C2000__ -D__TI_C__ -D__NO_SECTIONS__ $(EXT_DEF)
 	OTFS_INC    := -I$(TICC_DIR)/include -I$(C2000_WARE) -I$(DEFAULT_INC) -I./../_hbsys/$(TARGET)/include $(EXT_INC)
-	OTFS_LIB    := -Wl,-Bstatic -L$(TICC_DIR)/lib -L./ $(EXT_LIBS)
+	OTFS_LIB    := -Wl,-Bstatic -L$(TICC_DIR)/lib -L./ $(EXT_LIB) $(EXT_LIBS)
 	PLATFORM    := ./platform/c2000
 
 else
