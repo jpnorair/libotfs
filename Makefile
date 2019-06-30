@@ -3,8 +3,8 @@ LD := ld
 
 # Default Configuration
 THISMACHINE ?= $(shell uname -srm | sed -e 's/ /-/g')
-THISSYSTEM	?= $(shell uname -s)
-TARGET      ?= $(shell uname -srm | sed -e 's/ /-/g')
+THISSYSTEM  ?= $(shell uname -s)
+TARGET      ?= $(THISMACHINE)
 EXT_DEF     ?= 
 EXT_INC     ?= 
 EXT_LIBS    ?= 
