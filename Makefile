@@ -33,9 +33,9 @@ ifeq ($(TARGET),$(THISMACHINE))
 	BUILDDIR    := build/$(THISMACHINE)
 	PRODUCTDIR  := bin/$(THISMACHINE)
 	PACKAGEDIR  ?= ./../_hbpkg/$(THISMACHINE)/libotfs.$(VERSION)
-	OTFS_CC	    := ${CC}
+	OTFS_CC	    := $(CC)
 	OTFS_LIBTOOL:= libtool
-	OTFS_CFLAGS := ${CFLAGS}
+	OTFS_CFLAGS := $(CFLAGS)
 	OTFS_DEF    := $(EXT_DEF)
 	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbsys/$(TARGET)/include $(EXT_INC)
 	OTFS_LIB    := -L./../_hbsys/$(TARGET)/lib -ljudy -loteax $(EXT_LIBS)
