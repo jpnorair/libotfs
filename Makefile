@@ -23,6 +23,7 @@ TARGET      ?= $(THISMACHINE)
 EXT_DEF     ?= 
 EXT_INC     ?= 
 EXT_LIB     ?=
+EXT_LIBFLAGS?=
 EXT_LIBS    ?= 
 VERSION     ?= 0.1.0
 
@@ -37,6 +38,8 @@ ifeq ($(TARGET),$(THISMACHINE))
 	    # Mac can't do conditional selection of static and dynamic libs at link time.
 	    #	PRODUCT_LIBS := libotfs.$(THISSYSTEM).dylib libotfs.$(THISSYSTEM).a
 	    PRODUCT_LIBS := libotfs.$(THISSYSTEM).a
+	    EXT_INC := -I/opt/homebrew/include $(EXT_INC)
+	    EXT_LIBINC := -L/opt/homebrew/lib $(EXT_LIBINC)
 	else ifeq ($(THISSYSTEM),Linux)
 		PRODUCT_LIBS := libotfs.$(THISSYSTEM).so libotfs.GNU.a
 	else ifeq ($(THISSYSTEM),CYGWIN_NT-10.0)
@@ -44,6 +47,7 @@ ifeq ($(TARGET),$(THISMACHINE))
 	else
 		error "THISSYSTEM set to unknown value: $(THISSYSTEM)"
 	endif
+
 	CFLAGS      ?= -std=gnu99 -O3 -pthread -fPIC
 	LIBMODULES  := OTEAX libjudy
 	BUILDDIR    := build/$(THISMACHINE)
@@ -54,7 +58,7 @@ ifeq ($(TARGET),$(THISMACHINE))
 	OTFS_CFLAGS := $(CFLAGS)
 	OTFS_DEF    := $(EXT_DEF)
 	OTFS_INC    := -I$(DEFAULT_INC) -I./../_hbsys/$(TARGET)/include $(EXT_INC)
-	OTFS_LIB    := -L./../_hbsys/$(TARGET)/lib $(EXT_LIB) -ljudy -loteax $(EXT_LIBS)
+	OTFS_LIB    := -L./../_hbsys/$(TARGET)/lib $(EXT_LIBINC) -ljudy -loteax $(EXT_LIBFLAGS)
 	PLATFORM    := ./platform/posix_c
 
 else ifeq ($(TARGET),c2000)
@@ -92,7 +96,7 @@ else ifeq ($(TARGET),c2000)
 #	OTFS_DEF    := -DAPP_csip_c2000 -DBOARD_C2000_null -D__TMS320F2806x__ -D__C2000__ -D__TI_C__ -D__NO_SECTIONS__ $(EXT_DEF)
 	OTFS_DEF    := -DAPP_csip_c2000 -DBOARD_C2000_null -D__TMS320F2837x__ -D__C2000__ -D__TI_C__ -D__NO_SECTIONS__ $(EXT_DEF)
 	OTFS_INC    := -I$(TICC_DIR)/include -I$(C2000_WARE) -I$(DEFAULT_INC) -I./../_hbsys/$(TARGET)/include $(EXT_INC)
-	OTFS_LIB    := -Wl,-Bstatic -L$(TICC_DIR)/lib -L./ $(EXT_LIB) $(EXT_LIBS)
+	OTFS_LIB    := -Wl,-Bstatic -L$(TICC_DIR)/lib -L./ $(EXT_LIBINC) $(EXT_LIBFLAGS)
 	PLATFORM    := ./platform/c2000
 
 else
